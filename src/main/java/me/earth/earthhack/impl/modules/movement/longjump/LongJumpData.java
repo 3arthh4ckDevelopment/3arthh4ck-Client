@@ -11,6 +11,8 @@ final class LongJumpData extends DefaultData<LongJump>
         register(module.boost, "Amount your jump will be boosted by.");
         register(module.noKick, "Prevents you from getting kicked by" +
                 " disabling this module automatically.");
+        register(module.pauseSpeed, "Pauses Speed while jumping, so you" +
+                " don't get lagged back.");
     }
 
     @Override

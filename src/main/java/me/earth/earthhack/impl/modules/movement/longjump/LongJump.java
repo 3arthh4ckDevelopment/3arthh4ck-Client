@@ -1,5 +1,6 @@
 package me.earth.earthhack.impl.modules.movement.longjump;
 
+import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BindSetting;
@@ -8,7 +9,9 @@ import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.api.util.bind.Bind;
 import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.movement.longjump.mode.JumpMode;
+import me.earth.earthhack.impl.modules.movement.speed.Speed;
 import me.earth.earthhack.impl.util.helpers.disabling.DisablingModule;
 import me.earth.earthhack.impl.util.minecraft.MovementUtil;
 import me.earth.earthhack.pingbypass.input.Keyboard;
@@ -26,8 +29,13 @@ public class LongJump extends DisablingModule
             register(new NumberSetting<>("Boost", 4.5, 0.1, 20.0));
     protected final Setting<Boolean> noKick    =
             register(new BooleanSetting("AntiKick", true));
+    protected final Setting<Boolean> pauseSpeed    =
+            register(new BooleanSetting("PauseSpeed", false));
     protected final Setting<Bind> invalidBind    =
             register(new BindSetting("Invalid", Bind.fromKey(Keyboard.getKeyM())));
+
+    private static final ModuleCache<Speed> SPEED =
+            Caches.getModule(Speed.class);
 
     protected int stage;
     protected int airTicks;
@@ -48,6 +56,11 @@ public class LongJump extends DisablingModule
     @Override
     protected void onEnable()
     {
+        if(pauseSpeed.getValue())
+            if(SPEED.isEnabled())
+                SPEED.toggle();
+
+
         if (mc.player != null)
         {
             distance = MovementUtil.getDistance2D();
@@ -63,6 +76,8 @@ public class LongJump extends DisablingModule
     protected void onDisable()
     {
         Managers.TIMER.reset();
+        if(!SPEED.isEnabled() && pauseSpeed.getValue())
+                SPEED.toggle();
     }
 
     protected void invalidPacket()
@@ -95,9 +110,7 @@ public class LongJump extends DisablingModule
                 y = boundingBox.maxY;
             }
         }
-
         return player.posY - y;
     }
-
 }
 
