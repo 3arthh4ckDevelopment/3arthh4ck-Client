@@ -143,6 +143,16 @@ public class Ambience extends Module
         }
     }
 
+    public boolean isUsingCustomFogColor()
+    {
+        return fogModulation.getValue();
+    }
+
+    public Color getCustomFogColor()
+    {
+        return fogColor.getValue();
+    }
+
     public void loadRenderers()
     {
         if (mc.world != null
