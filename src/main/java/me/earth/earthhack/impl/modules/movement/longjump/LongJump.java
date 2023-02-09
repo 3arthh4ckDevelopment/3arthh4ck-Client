@@ -56,9 +56,8 @@ public class LongJump extends DisablingModule
     @Override
     protected void onEnable()
     {
-        if(pauseSpeed.getValue())
-            if(SPEED.isEnabled())
-                SPEED.toggle();
+        if(SPEED.isEnabled() && pauseSpeed.getValue() && !this.isEnabled())
+            SPEED.toggle();
 
 
         if (mc.player != null)
@@ -76,7 +75,7 @@ public class LongJump extends DisablingModule
     protected void onDisable()
     {
         Managers.TIMER.reset();
-        if(!SPEED.isEnabled() && pauseSpeed.getValue())
+        if(!SPEED.isEnabled() && pauseSpeed.getValue() && !this.isEnabled())
                 SPEED.toggle();
     }
 
