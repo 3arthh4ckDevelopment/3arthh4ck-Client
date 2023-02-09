@@ -7,6 +7,8 @@ import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.modules.combat.quiver.modes.*;
+import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
+import net.minecraft.init.Items;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.Potion;
 
@@ -36,25 +38,42 @@ public class Quiver extends Module {
     boolean inInv = false;
 
     PotionEffect speedEffect = mc.player.getActivePotionEffect(Potion.getPotionById(1));
-    PotionEffect strengthEffect = mc.player.getActivePotionEffect(Potion.getPotionById(5));
+    PotionEffect strengthEffect = mc.player.getActivePotionEffect(Potion.getPotionById(5)); // WIP
+
+    int arrowHits = 0;
+    int arrowCount;
 
     public void doQuiver()
     {
         switch(rotateMode.getName()){
             case "Normal":
-                if(quiverMode.getName().equals("Automatic"))
+                if(quiverMode.getName().equals("Automatic")){
+
+                }
             break;
             case "Packet": // don't cry if this code is massive spaghetti :sob:
+                if(quiverMode.getName().equals("Automatic")){
 
+                }
             break;
         }
     }
 
+    public int getArrowCount(){
+        arrowCount = InventoryUtil.getCount(Items.TIPPED_ARROW); // We could check only for arrows with either Speed or Strength effects.
+        return arrowCount;
+    }
     @Override
     public String getDisplayInfo()
     {
-        // TODO this....
-        return null; // this is here as a placeholder :^)
+        if(hudMode.getName().equals("Arrows"))
+        {
+            return Integer.toString(getArrowCount());
+        }
+        else if(hudMode.getName().equals("Hits"))
+        {
+            return Integer.toString(arrowHits);
+        }
+        return null;
     }
-
 }
