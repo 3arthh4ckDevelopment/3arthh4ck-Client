@@ -5,6 +5,7 @@ import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.api.setting.settings.StringSetting;
+import me.earth.earthhack.impl.util.client.ModuleUtil;
 import net.minecraft.client.Minecraft;
 
 public class AutoKys extends Module {
