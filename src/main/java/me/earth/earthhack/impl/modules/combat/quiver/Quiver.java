@@ -28,6 +28,7 @@ public class Quiver extends Module {
 
     public Quiver() {
         super("Quiver", Category.Combat);
+        this.setData(new QuiverData(this));
         this.listeners.add(new ListenerMotion(this));
     }
 

@@ -1,13 +1,9 @@
 package me.earth.earthhack.impl.modules.combat.quiver;
 
 import me.earth.earthhack.api.module.data.DefaultData;
-import me.earth.earthhack.impl.modules.combat.quiver.Quiver;
-
 public class QuiverData extends DefaultData<Quiver> {
     public QuiverData(Quiver module){
         super(module);
-        register(module.effectArrows, "Only allows arrows with positive"
-                + " effects to be used by Quiver.");
         register(module.delay,"Delay between shooting an arrow in ticks.");
         register(module.spam,"Ignore delay completely and shoot arrows" +
                 " as fast as possible.");
@@ -20,8 +16,10 @@ public class QuiverData extends DefaultData<Quiver> {
         register(module.hudMode, "What kind of information the HUD should show"
         + "\nArrows - Show how many arrows you can shoot"
         + "\nHits - Count how many arrows actually hit you");
+        register(module.quiverMode, "Select how quiver should do things"
+        + "\nAutomatic - Automatically shoot yourself with arrows"
+        + "\nManual - Manually shoot yourself with arrows");
     }
-
     @Override
     public String getDescription()
     {
