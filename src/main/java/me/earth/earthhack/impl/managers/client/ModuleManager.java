@@ -60,6 +60,7 @@ import me.earth.earthhack.impl.modules.misc.antivanish.AntiVanish;
 import me.earth.earthhack.impl.modules.misc.autocraft.AutoCraft;
 import me.earth.earthhack.impl.modules.misc.autoeat.AutoEat;
 import me.earth.earthhack.impl.modules.misc.autofish.AutoFish;
+import me.earth.earthhack.impl.modules.misc.autokys.AutoKys;
 import me.earth.earthhack.impl.modules.misc.autolog.AutoLog;
 import me.earth.earthhack.impl.modules.misc.autoreconnect.AutoReconnect;
 import me.earth.earthhack.impl.modules.misc.autoregear.AutoRegear;
@@ -236,6 +237,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new AntiVanish());
         this.forceRegister(new AutoEat());
         this.forceRegister(new AutoFish());
+        this.forceRegister(new AutoKys());
         this.forceRegister(new AutoLog());
         this.forceRegister(new AutoReconnect());
         this.forceRegister(new AutoRespawn());
