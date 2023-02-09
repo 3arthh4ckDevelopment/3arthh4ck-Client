@@ -9,6 +9,8 @@ import net.minecraft.client.Minecraft;
 
 public class AutoKys extends Module {
 
+    // TODO: AntiCombatLog by doing tinkering with some timers?
+
     protected final Setting<Integer> delay     =
             register(new NumberSetting<>("Delay", 0, 0, 500));
     protected final Setting<String> kysCommand =
