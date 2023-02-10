@@ -64,8 +64,7 @@ final class ListenerMotion extends ModuleListener<Quiver, MotionUpdateEvent> {
         if (mainHand.getItem() instanceof ItemBow) {
             return mainHand;
         }
-
-        ItemStack offHand = mc.player.getHeldItemOffhand();
+        ItemStack offHand = mc.player.getHeldItemOffhand(); // for checking if we are holding a bow in either hand
 
         if (offHand.getItem() instanceof ItemBow) {
             return offHand;
