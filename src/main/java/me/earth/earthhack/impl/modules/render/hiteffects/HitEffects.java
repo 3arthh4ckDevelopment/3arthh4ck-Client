@@ -9,6 +9,8 @@ import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.awt.*;
 import java.util.Random;
@@ -40,6 +42,7 @@ public class HitEffects extends BlockESPModule {
     // stuff we use for rendering :D
     EntityLightningBolt bolt = new EntityLightningBolt(mc.player.world, 0D, 0D, 0D, true);
     @SubscribeEvent
+    @SideOnly(Side.CLIENT)
     public void onEntityDamaged(LivingHurtEvent event)
     {
         if(onlyTargets.getValue())
