@@ -229,7 +229,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new Snowballer());
         this.forceRegister(new SelfTrap());
         this.forceRegister(new WebAura());
-        //this.forceRegister(new Quiver());
+        this.forceRegister(new Quiver());
 
         this.forceRegister(new Announcer());
         this.forceRegister(new AntiAim());

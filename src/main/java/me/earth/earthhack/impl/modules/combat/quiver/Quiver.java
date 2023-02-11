@@ -51,7 +51,7 @@ public class Quiver extends Module {
     {
         if(mc.player == null || !hasBow() || arrowCount <= 0)
         {
-            ModuleUtil.disable(this, TextColor.RED + "Disabled, no player.");
+            ModuleUtil.disable(this, TextColor.RED + "Disabled, no player bow or arrows.");
         }
         else
         {
