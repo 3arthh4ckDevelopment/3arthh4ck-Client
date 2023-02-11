@@ -19,7 +19,7 @@ final class ListenerMotion extends ModuleListener<Quiver, MotionUpdateEvent> {
     public void invoke(MotionUpdateEvent event) {
         if (event.getStage() == Stage.POST) {
             ItemStack stack = getStack();
-            if (module.spam.getValue()) {
+            if (module.fast.getValue()) {
                 if (mc.player.onGround) {
                     if (stack != null
                             && !mc.player.getActiveItemStack().isEmpty()

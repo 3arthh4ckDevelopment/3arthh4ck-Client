@@ -21,6 +21,8 @@ public class Quiver extends Module {
             register(new EnumSetting<>("Switch", SwitchMode.Normal));
     protected final Setting<QuiverMode> quiverMode     =
             register(new EnumSetting<>("Mode", QuiverMode.Automatic));
+    protected final Setting<RotationMode> rotateMode     =
+            register(new EnumSetting<>("Rotation", RotationMode.Normal));
     protected final Setting<Integer> delay   =
             register(new NumberSetting<>("Delay", 5, 0, 20));
     protected final Setting<Boolean> tpsSync =
@@ -29,10 +31,8 @@ public class Quiver extends Module {
             register(new BooleanSetting("BlockedCheck", false));
     protected final Setting<Boolean> mineBlocked =
             register(new BooleanSetting("MineBlocked", false));
-    protected final Setting<RotationMode> rotateMode     =
-            register(new EnumSetting<>("Rotation", RotationMode.Normal));
-    protected final Setting<Boolean> spam =
-            register(new BooleanSetting("Spam", true));
+    protected final Setting<Boolean> fast =
+            register(new BooleanSetting("Fast", true));
 
     public Quiver() {
         super("Quiver", Category.Combat);

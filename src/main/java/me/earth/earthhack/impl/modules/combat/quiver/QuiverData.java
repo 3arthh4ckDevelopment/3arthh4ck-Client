@@ -5,7 +5,7 @@ public class QuiverData extends DefaultData<Quiver> {
     public QuiverData(Quiver module){
         super(module);
         register(module.delay,"Delay between shooting an arrow in ticks.");
-        register(module.spam,"Ignore delay completely and shoot arrows" +
+        register(module.fast,"Ignore delay completely and shoot arrows" +
                 " as fast as possible.");
         register(module.tpsSync,"Attempts to sync arrows with the server tps,"
                 + " may result in better performance. Can also"
