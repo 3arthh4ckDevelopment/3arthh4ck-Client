@@ -5,12 +5,16 @@ import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.*;
 import me.earth.earthhack.impl.modules.combat.quiver.modes.*;
+import me.earth.earthhack.impl.util.client.ModuleUtil;
 import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
+import me.earth.earthhack.impl.util.text.TextColor;
 import net.minecraft.init.Items;
 import net.minecraft.network.play.client.*;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 
 public class Quiver extends Module {
-    //TODO: FromInv - to get a bow from player inventory, place in hotbar and then quiver
+    //TODO: FromInv - to get a bow from player inventory, place in hotbar and then quiver, also should be improved later
     protected final Setting<HUDMode> hudMode     =
             register(new EnumSetting<>("HUDMode", HUDMode.Arrows));
     protected final Setting<SwitchMode> switchMode     =
@@ -36,33 +40,58 @@ public class Quiver extends Module {
         this.listeners.add(new ListenerMotion(this));
     }
 
-    // stuff
+    // stuff we will use for quiver
     boolean hasBow;
-    boolean blocked;
     int arrowHits = 0;
     int arrowCount;
-    float oldPitch = mc.player.cameraPitch;
-    float currentYaw = mc.player.cameraYaw;
+    float currentPitch;
+    float currentYaw;
+
     public void doQuiver()
     {
-        if(mc.player == null){
-            this.disable();
+        if(mc.player == null || !hasBow() || arrowCount <= 0)
+        {
+            ModuleUtil.disable(this, TextColor.RED + "Disabled, no player.");
         }
         else
         {
             switch(rotateMode.getName()){
                 case "Normal":
-                    if(quiverMode.getName().equals("Automatic")){
+                    if(quiverMode.getName().equals("Automatic"))
+                    {
                         mc.player.rotationPitch = 90.0f;
-                        if(switchMode.getName().equals("Normal"))
+                        if(!hasBow())
                         {
-
-                        }else
-                        {
-
+                            ModuleUtil.disable(this, TextColor.RED + "Disabled, no bow.");
+                            mc.player.rotationPitch = currentPitch;
+                            mc.player.rotationYaw = currentYaw;
                         }
 
-                    }else{
+                        if(switchMode.getName().equals("Normal") && hasBow())
+                        {
+                            InventoryUtil.switchTo(InventoryUtil.findHotbarItem(Items.BOW));
+                                mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                                mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, mc.player.getHorizontalFacing()));
+                                mc.player.stopActiveHand();
+                                mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                                mc.player.setActiveHand(EnumHand.MAIN_HAND);
+                        }
+                        else if(switchMode.getName().equals("Silent") && hasBow()) // spaghetti? :D
+                        {
+                            InventoryUtil.bypassSwitch(InventoryUtil.findHotbarItem(Items.BOW));
+                            mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, mc.player.getHorizontalFacing()));
+                            mc.player.stopActiveHand();
+                            mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                            mc.player.setActiveHand(EnumHand.MAIN_HAND);
+                        }
+                        else
+                        {
+                            ModuleUtil.disable(this, TextColor.RED + "Disabled, no bow.");
+                        }
+                    }
+                    else
+                    {
                         mc.player.rotationPitch = 90.0f;
                     }
                     break;
@@ -71,29 +100,33 @@ public class Quiver extends Module {
                     {
                         if(!hasBow())
                         {
-                            this.disable();
-                            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(currentYaw, oldPitch, true));
+                            ModuleUtil.disable(this, TextColor.RED + "Disabled, no bow.");
+                            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(currentYaw, currentPitch, true));
                         }
                         else if(hasBow && arrowCount > 0)
                         {
                             mc.player.connection.sendPacket(new CPacketPlayer.Rotation(currentYaw, 90.0f, true));
-                            if(switchMode.getName().equals("Normal") && hasBow()){
+                            if(switchMode.getName().equals("Normal") && hasBow())
+                            {
                                 InventoryUtil.switchTo(InventoryUtil.findHotbarItem(Items.BOW));
-                            }else if(switchMode.getName().equals("Silent") && hasBow()){
+                            }
+                            else if(switchMode.getName().equals("Silent") && hasBow())
+                            {
                                 InventoryUtil.bypassSwitch(InventoryUtil.findHotbarItem(Items.BOW));
-                            }else{
-                                this.disable();
+                                mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                            }
+                            else
+                            {
+                                ModuleUtil.disable(this, TextColor.RED + "Disabled, no bow.");
                             }
                         }
                     }
                     else
                     {
-                        mc.player.connection.sendPacket(new CPacketPlayer.Rotation(currentYaw, 90.0f, true));
-                        if(hasBow() && arrowCount > 0){
-
-                        }else{
-                            this.disable();
-                        }
+                        if(hasBow() && arrowCount > 0)
+                            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(currentYaw, 90.0f, true));
+                        else
+                            ModuleUtil.disable(this, TextColor.RED + "Disabled, no bow or arrows.");
                     }
                 break;
             }
@@ -101,10 +134,7 @@ public class Quiver extends Module {
     }
 
     public boolean hasBow(){
-        if(InventoryUtil.getCount(Items.BOW) != 0)
-            hasBow = true;
-        else
-            hasBow = false;
+        hasBow = InventoryUtil.getCount(Items.BOW) > 0;
         return hasBow;
     }
     public int getArrowCount(){
@@ -114,13 +144,18 @@ public class Quiver extends Module {
 
     public void onEnable()
     {
+        super.onEnable();
         this.doQuiver();
+        if(mc.player != null)
+        {
+            currentPitch = mc.player.cameraPitch; // this might cause problems?
+            currentYaw = mc.player.cameraYaw;     // not sure though
+        }
     }
 
     public void onDisable()
     {
-        this.disable();
-        // maybe something else here? :P
+        super.onDisable(); // hmm?
     }
     @Override
     public String getDisplayInfo()
