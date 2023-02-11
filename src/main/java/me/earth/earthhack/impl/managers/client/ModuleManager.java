@@ -155,6 +155,7 @@ import me.earth.earthhack.impl.modules.render.crystalscale.CrystalScale;
 import me.earth.earthhack.impl.modules.render.esp.ESP;
 import me.earth.earthhack.impl.modules.render.fullbright.Fullbright;
 import me.earth.earthhack.impl.modules.render.handchams.HandChams;
+import me.earth.earthhack.impl.modules.render.hiteffects.HitEffects;
 import me.earth.earthhack.impl.modules.render.holeesp.HoleESP;
 import me.earth.earthhack.impl.modules.render.itemchams.ItemChams;
 import me.earth.earthhack.impl.modules.render.lagometer.LagOMeter;
@@ -362,6 +363,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new PopChams());
         this.forceRegister(new ItemChams());
         this.forceRegister(new Ambience());
+        this.forceRegister(new HitEffects());
 
         this.forceRegister(new PingBypassModule());
 
