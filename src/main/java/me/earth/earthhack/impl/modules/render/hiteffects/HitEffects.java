@@ -9,8 +9,6 @@ import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.awt.*;
 import java.util.Random;
@@ -39,8 +37,6 @@ public class HitEffects extends Module {
     protected final Setting<Boolean> onlyTargets =
             register(new BooleanSetting("OnlyTargets", false));
 
-    // stuff we use for rendering :)
-    @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onEntityDamaged(LivingHurtEvent event)
     {
@@ -55,14 +51,8 @@ public class HitEffects extends Module {
                 if(onlyOnKill.getValue()){
                     if(event.getEntity().isDead)
                         bolt.setLocationAndAngles(LightningPosX, LightningPosY, LightningPosZ, 0.0f, 0.0f);
-                    else
-                        return;
                 }else
                     bolt.setLocationAndAngles(LightningPosX, LightningPosY, LightningPosZ, 0.0f, 0.0f);
-            }
-            if(superheroFx.getValue())
-            {
-
             }
         }
     }
