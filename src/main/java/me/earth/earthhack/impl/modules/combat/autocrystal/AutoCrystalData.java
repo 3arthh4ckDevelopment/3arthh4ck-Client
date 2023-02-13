@@ -53,6 +53,9 @@ public class AutoCrystalData extends DefaultData<AutoCrystal>
         register(module.placeSwing, "-None, won't swing when placing.\n" +
             "-Pre, will swing before you place a crystal.\n" +
             "-Post, will swing after you placed a crystal (Vanilla).");
+        register(module.pingSync, "Attempts to sync your ping with placing crystals. Theoretically, " +
+                "this can optimize your crystal placement to be maximal for your ping." +
+                " As of now, this is experimental.");
         register(module.smartTrace, "Only for really strict RayTrace Servers." +
                 " Has to make complicated Calculations.");
         register(module.fallbackTrace, "Will place upwards if it has to.");

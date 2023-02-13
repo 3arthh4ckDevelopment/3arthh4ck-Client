@@ -32,6 +32,7 @@ import me.earth.earthhack.impl.util.minecraft.CooldownBypass;
 import me.earth.earthhack.impl.util.minecraft.blocks.BlockUtil;
 import me.earth.earthhack.impl.util.minecraft.entity.EntityUtil;
 import me.earth.earthhack.impl.util.misc.collections.CollectionUtil;
+import me.earth.earthhack.impl.util.network.ServerUtil;
 import me.earth.earthhack.impl.util.text.TextColor;
 import me.earth.earthhack.impl.util.thread.SafeRunnable;
 import me.earth.earthhack.impl.util.thread.ThreadUtil;
@@ -130,6 +131,9 @@ public class AutoCrystal extends Module
     public final Setting<SwingTime> placeSwing =
             register(new EnumSetting<>("PlaceSwing", SwingTime.Post))
                 .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> pingSync =
+            register(new BooleanSetting("Ping-Sync", false))
+                    .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> smartTrace =
             register(new BooleanSetting("Smart-Trace", false))
                 .setComplexity(Complexity.Expert);
@@ -211,7 +215,6 @@ public class AutoCrystal extends Module
     protected final Setting<Boolean> alwaysCalc =
             register(new BooleanSetting("Always-Calc", false))
                 .setComplexity(Complexity.Medium);
-
     protected final Setting<Boolean> ncpRange =
             register(new BooleanSetting("NCP-Range", false))
                 .setComplexity(Complexity.Medium);
@@ -949,11 +952,13 @@ public class AutoCrystal extends Module
             new AtomicInteger();
 
     /* ---------------- Timers -------------- */
+
     protected final DiscreteTimer placeTimer =
             new GuardTimer(1000, 5).reset(placeDelay.getValue());
     protected final DiscreteTimer breakTimer =
             new GuardTimer(1000, 5).reset(breakDelay.getValue());
     protected final StopWatch renderTimer = new StopWatch();
+    protected final StopWatch pingSyncTimer = new StopWatch();
     protected final StopWatch bypassTimer = new StopWatch();
     protected final StopWatch obbyTimer = new StopWatch();
     protected final StopWatch obbyCalcTimer = new StopWatch();
@@ -1115,6 +1120,19 @@ public class AutoCrystal extends Module
                 .addPage(p -> p == ACPages.Development, priority, removeTime)
                 .register(Visibilities.VISIBILITY_MANAGER);
 
+        if(pingSync.getValue() && pingSyncTimer.passed(ServerUtil.getPing()))
+        {
+            pingSyncTimer.reset();
+            pingSyncTimer.setTime(0);
+            placeTimer.reset(ServerUtil.getPing() / 10);
+            breakTimer.reset(ServerUtil.getPing() / 10 - 5); // -5 because generally we should break faster than we place :P
+        }
+        else
+        {
+            breakTimer.reset(breakDelay.getValue());
+            placeTimer.reset(breakDelay.getValue());
+        }
+
         boolean start = false;
         for (Setting<?> setting : this.getSettings()) {
             if (setting == this.pages) {
@@ -1161,7 +1179,10 @@ public class AutoCrystal extends Module
         }
 
         EntityPlayer t = getTarget();
-        return t == null ? null : t.getName();
+        if(!pingSync.getValue())
+            return t == null ? null : t.getName();
+        else
+            return t == null ? null : t.getName() + ", " + pingSyncTimer.getTime();
     }
 
     public void setRenderPos(BlockPos pos, float damage) {
@@ -1324,7 +1345,7 @@ public class AutoCrystal extends Module
      */
     protected void checkExecutor()
     {
-        // we use "started" here cause its faster than the atomic one
+        // we use "started" here because it's faster than the atomic one
         if (!started
             && asyncServerThread.getValue()
             && serverThread.getValue()
