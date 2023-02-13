@@ -1179,10 +1179,7 @@ public class AutoCrystal extends Module
         }
 
         EntityPlayer t = getTarget();
-        if(!pingSync.getValue())
             return t == null ? null : t.getName();
-        else
-            return t == null ? null : t.getName() + ", " + pingSyncTimer.getTime();
     }
 
     public void setRenderPos(BlockPos pos, float damage) {
