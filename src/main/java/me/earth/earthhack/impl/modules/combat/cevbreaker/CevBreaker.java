@@ -388,6 +388,10 @@ public class CevBreaker extends Module {
         return target;
     }
 
+    /**
+    *
+    * @return the currently targeted player & mining progress, haven't tested if this crashes if we don't have SpeedMine on though.
+    **/
     @Override
     public String getDisplayInfo()
     {
