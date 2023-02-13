@@ -134,6 +134,9 @@ public class AutoCrystal extends Module
     protected final Setting<Boolean> pingSync =
             register(new BooleanSetting("Ping-Sync", false))
                     .setComplexity(Complexity.Expert);
+    protected final Setting<Float> pingSyncStrength =
+            register(new NumberSetting<>("PingSync-%", 70.0f, 0.0f, 100.0f))
+                    .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> smartTrace =
             register(new BooleanSetting("Smart-Trace", false))
                 .setComplexity(Complexity.Expert);
@@ -1120,12 +1123,21 @@ public class AutoCrystal extends Module
                 .addPage(p -> p == ACPages.Development, priority, removeTime)
                 .register(Visibilities.VISIBILITY_MANAGER);
 
+
         if(pingSync.getValue() && pingSyncTimer.passed(ServerUtil.getPing()))
         {
             pingSyncTimer.reset();
             pingSyncTimer.setTime(0);
-            placeTimer.reset(ServerUtil.getPing() / 10);
-            breakTimer.reset(ServerUtil.getPing() / 10 - 5); // -5 because generally we should break faster than we place :P
+            if(pingSyncStrength.getValue() > 0)
+            {
+                placeTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()));           // math teacher would be proud :^)
+                breakTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()) - 10);      // -10 because generally we should break faster than we place :P
+            }
+            else
+            {
+                pingSync.setValue(false);
+            }
+
         }
         else
         {

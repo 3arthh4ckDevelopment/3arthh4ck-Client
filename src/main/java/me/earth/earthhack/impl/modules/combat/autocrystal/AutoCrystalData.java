@@ -56,6 +56,12 @@ public class AutoCrystalData extends DefaultData<AutoCrystal>
         register(module.pingSync, "Attempts to sync your ping with placing crystals. Theoretically, " +
                 "this can optimize your crystal placement to be maximal for your ping." +
                 " As of now, this is experimental.");
+        register(module.pingSyncStrength, "How much PingSync should sync placing and breaking" +
+                "crystals in percentage. For example, At 10%, " +
+                "the PingSync end delay should be around 7ms if you play " +
+                "with 65ms ping. This delay will adapt to your ping, " +
+                "so you shouldn't have to tweak delays depending on " +
+                "your ping.");
         register(module.smartTrace, "Only for really strict RayTrace Servers." +
                 " Has to make complicated Calculations.");
         register(module.fallbackTrace, "Will place upwards if it has to.");
