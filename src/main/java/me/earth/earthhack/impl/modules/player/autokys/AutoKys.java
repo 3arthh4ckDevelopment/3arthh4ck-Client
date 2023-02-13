@@ -1,4 +1,4 @@
-package me.earth.earthhack.impl.modules.player.suicide;
+package me.earth.earthhack.impl.modules.player.autokys;
 
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
@@ -21,9 +21,9 @@ import net.minecraft.network.play.client.CPacketChatMessage;
 
 import java.util.Objects;
 
-public class Suicide extends DisablingModule {
-    protected final Setting<SuicideMode> mode =
-        register(new EnumSetting<>("Mode", SuicideMode.Command));
+public class AutoKys extends DisablingModule {
+    protected final Setting<AutoKysMode> mode =
+        register(new EnumSetting<>("Mode", AutoKysMode.Command));
     private final Setting<Boolean> ask =
         register(new BooleanSetting("Ask", true));
     protected final Setting<Boolean> armor =
@@ -36,12 +36,12 @@ public class Suicide extends DisablingModule {
         register(new NumberSetting<>("Throw-Delay", 500, 0, 1000));
     private final Setting<Boolean> syncWithAc =
         register(new BooleanSetting("SynchronizeWithAC", false));
-    protected final SuicideAutoCrystal autoCrystal =
-        new SuicideAutoCrystal();
+    protected final AutoKysAutoCrystal autoCrystal =
+        new AutoKysAutoCrystal();
     protected final StopWatch timer = new StopWatch();
     protected boolean displaying;
 
-    public Suicide() {
+    public AutoKys() {
         super("Suicide", Category.Player);
         this.listeners.add(new ListenerMotion(this));
         boolean found = false;
@@ -60,7 +60,7 @@ public class Suicide extends DisablingModule {
             if (found) {
                 Visibilities.VISIBILITY_MANAGER.registerVisibility(
                     setting, Visibilities.andComposer(
-                        () -> mode.getValue() == SuicideMode.AutoCrystal));
+                        () -> mode.getValue() == AutoKysMode.AutoCrystal));
             }
 
             if (setting == ask) {
@@ -121,7 +121,7 @@ public class Suicide extends DisablingModule {
         }
 
         displaying = false;
-        if (mode.getValue() == SuicideMode.Command) {
+        if (mode.getValue() == AutoKysMode.Command) {
             NetworkUtil.sendPacketNoEvent(new CPacketChatMessage("/kill"));
             this.disable();
         }
@@ -135,14 +135,14 @@ public class Suicide extends DisablingModule {
     public boolean shouldTakeOffArmor() {
         return this.isEnabled()
             && !displaying
-            && mode.getValue() != SuicideMode.Command
+            && mode.getValue() != AutoKysMode.Command
             && armor.getValue();
     }
 
     public boolean deactivateOffhand() {
         return this.isEnabled()
             && !displaying
-            && mode.getValue() != SuicideMode.Command
+            && mode.getValue() != AutoKysMode.Command
             && turnOffOffhand.getValue();
     }
 

@@ -1,4 +1,4 @@
-package me.earth.earthhack.impl.modules.player.suicide;
+package me.earth.earthhack.impl.modules.player.autokys;
 
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
@@ -9,9 +9,9 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.network.play.client.CPacketChatMessage;
 
-final class ListenerMotion extends ModuleListener<Suicide, MotionUpdateEvent>
+final class ListenerMotion extends ModuleListener<AutoKys, MotionUpdateEvent>
 {
-    public ListenerMotion(Suicide module)
+    public ListenerMotion(AutoKys module)
     {
         super(module, MotionUpdateEvent.class, 10_000);
     }
@@ -30,7 +30,7 @@ final class ListenerMotion extends ModuleListener<Suicide, MotionUpdateEvent>
             return;
         }
 
-        if (module.mode.getValue() == SuicideMode.Command)
+        if (module.mode.getValue() == AutoKysMode.Command)
         {
             NetworkUtil.sendPacketNoEvent(new CPacketChatMessage("/kill"));
             module.disable();

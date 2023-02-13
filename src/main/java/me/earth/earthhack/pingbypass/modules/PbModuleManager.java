@@ -11,7 +11,7 @@ import me.earth.earthhack.impl.modules.client.pingbypass.PingBypassSubmodule;
 import me.earth.earthhack.impl.modules.combat.autocrystal.AutoCrystal;
 import me.earth.earthhack.impl.modules.misc.nointerp.NoInterp;
 import me.earth.earthhack.impl.modules.player.fakeplayer.FakePlayer;
-import me.earth.earthhack.impl.modules.player.suicide.Suicide;
+import me.earth.earthhack.impl.modules.player.autokys.AutoKys;
 
 public class PbModuleManager extends ModuleManager {
     public void init(ModuleManager manager) {
@@ -28,7 +28,7 @@ public class PbModuleManager extends ModuleManager {
                 || module instanceof NoSpoof) {
                 pbModule = module;
             } else if (module instanceof AutoCrystal
-                || module instanceof Suicide) {
+                || module instanceof AutoKys) {
                 pbModule = new PbModule(module);
                 PbAC.registerAcPages(pbModule);
             } else {
