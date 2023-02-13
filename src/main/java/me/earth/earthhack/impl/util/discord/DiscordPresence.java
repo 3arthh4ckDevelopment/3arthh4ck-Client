@@ -93,9 +93,9 @@ public class DiscordPresence implements Globals
             ? module.details.getValue()
             : mc.player == null
                 ? "Not ingame"
-                : mc.isIntegratedServerRunning()
-                    ? "Playing SinglePlayer"
-                    : "Playing Multiplayer";
+            : mc.isIntegratedServerRunning()
+                ? "Playing SinglePlayer"
+                : "Playing Multiplayer";
     }
 
 }
