@@ -59,7 +59,7 @@ public class Quiver extends Module {
                 case "Normal":
                     if(quiverMode.getName().equals("Automatic"))
                     {
-                        mc.player.rotationPitch = 90.0f;
+                        mc.player.rotationPitch = -90.0f;
                         if(!hasBow())
                         {
                             ModuleUtil.disable(this, TextColor.RED + "Disabled, no bow.");
@@ -92,7 +92,7 @@ public class Quiver extends Module {
                     }
                     else
                     {
-                        mc.player.rotationPitch = 90.0f;
+                        mc.player.rotationPitch = -90.0f;
                     }
                     break;
                 case "Packet":
@@ -105,7 +105,7 @@ public class Quiver extends Module {
                         }
                         else if(hasBow && arrowCount > 0)
                         {
-                            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(currentYaw, 90.0f, true));
+                            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(currentYaw, -90.0f, true));
                             if(switchMode.getName().equals("Normal") && hasBow())
                             {
                                 InventoryUtil.switchTo(InventoryUtil.findHotbarItem(Items.BOW));
@@ -124,7 +124,7 @@ public class Quiver extends Module {
                     else
                     {
                         if(hasBow() && arrowCount > 0)
-                            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(currentYaw, 90.0f, true));
+                            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(currentYaw, -90.0f, true));
                         else
                             ModuleUtil.disable(this, TextColor.RED + "Disabled, no bow or arrows.");
                     }
