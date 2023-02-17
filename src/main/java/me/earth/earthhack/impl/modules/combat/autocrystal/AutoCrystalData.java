@@ -404,9 +404,6 @@ public class AutoCrystalData extends DefaultData<AutoCrystal>
         register(module.pingSyncRemoval, "How much we should be removing from break delay on PingSync" +
                 " calculations. This setting is kinda sensitive, and shouldn't" +
                 " be tweaked too much.");
-        register(module.pingSyncDegain, "Development setting, this removes a bit off the end results" +
-                " of PingSync calculations. Should only be adjusted when PingSync isn't" +
-                " working properly. Not yet implemented."); // WIP!
         register(module.absolutePingSync, "This is when PingSync calculates delay with" +
                 " preset values. When this is not enabled," +
                 " PingSync uses user-specified values.");

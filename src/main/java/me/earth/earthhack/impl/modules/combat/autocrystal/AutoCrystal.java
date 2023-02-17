@@ -731,9 +731,6 @@ public class AutoCrystal extends Module
     protected final Setting<Float> pingSyncRemoval =
             register(new NumberSetting<>("BreakRemoval", 10.0f, 0.0f, 80.0f))
                     .setComplexity(Complexity.Expert);
-    protected final Setting<Float> pingSyncDegain =
-            register(new NumberSetting<>("Degain-%", 70.0f, 0.0f, 100.0f)) //TODO: this
-                    .setComplexity(Complexity.Dev);
 
     /* ---------------- Extrapolation Settings -------------- */
     // TODO: make this not suck, keep in mind that
@@ -1134,7 +1131,7 @@ public class AutoCrystal extends Module
                 .addPage(p -> p == ACPages.Liquids, interact, sponges)
                 .addPage(p -> p == ACPages.AntiTotem, antiTotem, attempts)
                 .addPage(p -> p == ACPages.DamageSync, damageSync, surroundSync)
-                .addPage(p -> p == ACPages.PingSync, pingSync, pingSyncDegain)
+                .addPage(p -> p == ACPages.PingSync, pingSync, pingSyncRemoval)
                 .addPage(p -> p == ACPages.Extrapolation, extrapol, selfExtrapolation)
                 .addPage(p -> p == ACPages.GodModule, idPredict, godSwing)
                 .addPage(p -> p == ACPages.MultiThread, preCalc, blockChangeThread)
@@ -1161,6 +1158,7 @@ public class AutoCrystal extends Module
                     placeTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()));           // math teacher would be proud :^)
                     breakTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()) - Math.round(pingSyncRemoval.getValue()));      // we now use PingSync-Break for the reduction :))
                 }
+
                 if(ignorePingspoof.getValue() && absolutePingSync.getValue())
                 {
                     placeTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()));           // if that else this lmao
