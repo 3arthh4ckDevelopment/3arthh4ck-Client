@@ -61,7 +61,7 @@ public class AutoArmor extends Module
             Caches.getModule(ExpTweaks.class);
     private static final ModuleCache<XCarry> XCARRY =
             Caches.getModule(XCarry.class);
-    private static final ModuleCache<AutoKys> SUICIDE =
+    private static final ModuleCache<AutoKys> AUTOKYS =
             Caches.getModule(AutoKys.class);
 
     protected final Setting<ArmorMode> mode =
@@ -407,7 +407,7 @@ public class AutoArmor extends Module
     /**
      * Returns <tt>false</tt> if autoMend is off,
      * we are not holding Bottles of experience, we are
-     * not using them, or theres a dangerous
+     * not using them, or there's a dangerous
      * position/crystal that could kill or deal
      * big damage to us in proximity.
      *
@@ -415,7 +415,7 @@ public class AutoArmor extends Module
      */
     boolean canAutoMend()
     {
-        if (SUICIDE.returnIfPresent(AutoKys::shouldTakeOffArmor, false))
+        if (AUTOKYS.returnIfPresent(AutoKys::shouldTakeOffArmor, false))
         {
             return takeOffLoot.getValue()
                     || mc.world

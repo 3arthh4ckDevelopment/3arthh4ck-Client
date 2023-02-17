@@ -30,6 +30,7 @@ final class ListenerMotion extends ModuleListener<Quiver, MotionUpdateEvent> {
                         if (stack.getMaxItemUseDuration() - mc.player.getItemInUseCount() > (module.delay.getValue() * 6)) {
                             Locks.acquire(Locks.PLACE_SWITCH_LOCK, () ->
                                     mc.playerController.onStoppedUsingItem(mc.player));
+                            module.doQuiver();
                         }
                     } else {
                         if (lastTimer > 0 && Managers.TIMER.getSpeed() != lastTimer) {

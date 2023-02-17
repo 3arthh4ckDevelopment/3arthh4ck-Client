@@ -49,10 +49,11 @@ public class Quiver extends Module {
 
     public void doQuiver()
     {
-        if(mc.player == null || !hasBow() || arrowCount <= 0)
+        if(mc.player == null)
         {
-            ModuleUtil.disable(this, TextColor.RED + "Disabled, no player bow or arrows.");
-        }
+            ModuleUtil.disable(this, TextColor.RED + "Disabled, no player.");
+        }else if(!hasBow() || arrowCount <= 0)
+            ModuleUtil.disable(this,TextColor.RED + "Disabled, no bow or arrows.");
         else
         {
             switch(rotateMode.getName()){
@@ -93,6 +94,7 @@ public class Quiver extends Module {
                     else
                     {
                         mc.player.rotationPitch = -90.0f;
+                        ModuleUtil.sendMessage(this, TextColor.GREEN + "You can now shoot yourself with arrows.");
                     }
                     break;
                 case "Packet":
@@ -145,12 +147,12 @@ public class Quiver extends Module {
     public void onEnable()
     {
         super.onEnable();
-        this.doQuiver();
         if(mc.player != null)
         {
             currentPitch = mc.player.cameraPitch; // this might cause problems?
-            currentYaw = mc.player.cameraYaw;     // not sure though
+            currentYaw = mc.player.cameraYaw;     // this might cause problems? // TODO: improve this lmao
         }
+        this.doQuiver();
     }
 
     public void onDisable()
