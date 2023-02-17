@@ -131,12 +131,6 @@ public class AutoCrystal extends Module
     public final Setting<SwingTime> placeSwing =
             register(new EnumSetting<>("PlaceSwing", SwingTime.Post))
                 .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> pingSync =
-            register(new BooleanSetting("Ping-Sync", false))
-                    .setComplexity(Complexity.Expert);
-    protected final Setting<Float> pingSyncStrength =
-            register(new NumberSetting<>("PingSync-%", 70.0f, 0.0f, 100.0f))
-                    .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> smartTrace =
             register(new BooleanSetting("Smart-Trace", false))
                 .setComplexity(Complexity.Expert);
@@ -718,6 +712,29 @@ public class AutoCrystal extends Module
             register(new BooleanSetting("SurroundSync", true))
                 .setComplexity(Complexity.Expert);
 
+    /* ------------------ PingSync Settings ----------------- */
+    protected final Setting<Boolean> pingSync =
+            register(new BooleanSetting("Ping-Sync", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Float> pingSyncStrength =
+            register(new NumberSetting<>("PingSync-%", 70.0f, 0.0f, 100.0f))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> absolutePingSync =
+            register(new BooleanSetting("Absolute", true))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> ignorePingBypass =
+            register(new BooleanSetting("IgnorePingbypass", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> ignorePingspoof =
+            register(new BooleanSetting("IgnorePingSpoof", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Float> pingSyncRemoval =
+            register(new NumberSetting<>("BreakRemoval", 10.0f, 0.0f, 80.0f))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Float> pingSyncDegain =
+            register(new NumberSetting<>("Degain-%", 70.0f, 0.0f, 100.0f)) //TODO: this
+                    .setComplexity(Complexity.Dev);
+
     /* ---------------- Extrapolation Settings -------------- */
     // TODO: make this not suck, keep in mind that
     //  we might not be able to place when target moves in a block!
@@ -1117,6 +1134,7 @@ public class AutoCrystal extends Module
                 .addPage(p -> p == ACPages.Liquids, interact, sponges)
                 .addPage(p -> p == ACPages.AntiTotem, antiTotem, attempts)
                 .addPage(p -> p == ACPages.DamageSync, damageSync, surroundSync)
+                .addPage(p -> p == ACPages.PingSync, pingSync, pingSyncDegain)
                 .addPage(p -> p == ACPages.Extrapolation, extrapol, selfExtrapolation)
                 .addPage(p -> p == ACPages.GodModule, idPredict, godSwing)
                 .addPage(p -> p == ACPages.MultiThread, preCalc, blockChangeThread)
@@ -1128,14 +1146,36 @@ public class AutoCrystal extends Module
         {
             pingSyncTimer.reset();
             pingSyncTimer.setTime(0);
+
+            if(PINGBYPASS.isEnabled() && ignorePingBypass.getValue())
+                pingSync.setValue(false);
+
             if(pingSyncStrength.getValue() > 0)
             {
-                placeTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()));           // math teacher would be proud :^)
-                breakTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()) - 10);      // -10 because generally we should break faster than we place :P
+                if(absolutePingSync.getValue())
+                {
+                    placeTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()));           // math teacher would be proud :^)
+                    breakTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()) - 10);      // -10 because generally we should break faster than we place :P
+                }else
+                {
+                    placeTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()));           // math teacher would be proud :^)
+                    breakTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()) - Math.round(pingSyncRemoval.getValue()));      // we now use PingSync-Break for the reduction :))
+                }
+                if(ignorePingspoof.getValue() && absolutePingSync.getValue())
+                {
+                    placeTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()));           // if that else this lmao
+                    breakTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()) - 10);
+                }
+                else if(ignorePingspoof.getValue() && !absolutePingSync.getValue())
+                {
+                    placeTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()));           // if that else this lmao
+                    breakTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()) - Math.round(pingSyncRemoval.getValue()));
+                }
+
             }
             else
             {
-                pingSync.setValue(false);
+                pingSync.setValue(false); // honestly this should probably be rewritten, this just looks like it's not going to be efficient
             }
 
         }
