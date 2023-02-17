@@ -31,6 +31,8 @@ public class LongJump extends DisablingModule
             register(new BooleanSetting("AntiKick", true));
     protected final Setting<Boolean> pauseSpeed    =
             register(new BooleanSetting("PauseSpeed", false));
+    protected final Setting<Float> speedTimeout      =
+            register(new NumberSetting<>("Boost", 100.0f, 1.0f, 500.0f));
     protected final Setting<Bind> invalidBind    =
             register(new BindSetting("Invalid", Bind.fromKey(Keyboard.getKeyM())));
 
@@ -56,8 +58,20 @@ public class LongJump extends DisablingModule
     @Override
     protected void onEnable()
     {
-        if(SPEED.isEnabled() && pauseSpeed.getValue() && !this.isEnabled())
-            SPEED.toggle();
+        if(SPEED.isEnabled() && pauseSpeed.getValue())
+        {
+            try
+            {
+                SPEED.toggle();
+                wait(Math.round(speedTimeout.getValue()));
+                this.enable();
+            }catch(InterruptedException ignored)
+            {
+                // this shouldn't happen so
+            }
+
+        }
+
 
 
         if (mc.player != null)
@@ -75,7 +89,7 @@ public class LongJump extends DisablingModule
     protected void onDisable()
     {
         Managers.TIMER.reset();
-        if(!SPEED.isEnabled() && pauseSpeed.getValue() && !this.isEnabled())
+        if(!SPEED.isEnabled() && pauseSpeed.getValue())
                 SPEED.toggle();
     }
 
