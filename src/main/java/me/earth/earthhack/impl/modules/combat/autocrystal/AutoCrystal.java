@@ -719,6 +719,9 @@ public class AutoCrystal extends Module
     protected final Setting<Float> pingSyncStrength =
             register(new NumberSetting<>("PingSync-%", 70.0f, 0.0f, 100.0f))
                     .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> drawDetails =
+            register(new BooleanSetting("DrawDelay", true))
+                    .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> absolutePingSync =
             register(new BooleanSetting("Absolute", true))
                     .setComplexity(Complexity.Expert);
@@ -987,6 +990,7 @@ public class AutoCrystal extends Module
     protected final StopWatch slideTimer = new StopWatch();
     protected final StopWatch zoomTimer = new StopWatch();
     protected final StopWatch pullTimer = new StopWatch();
+    protected final StopWatch PingSyncResolverTimer = new StopWatch();
 
     /* ---------------- States -------------- */
     protected final Queue<Runnable> post = new ConcurrentLinkedQueue<>();
@@ -1002,6 +1006,7 @@ public class AutoCrystal extends Module
     protected boolean isSpoofing;
     protected boolean noGod;
     protected String damage;
+    protected String resolvedDelay;
 
     /* ---------------- Helpers -------------- */
     protected final ExtrapolationHelper extrapolationHelper =
@@ -1175,6 +1180,14 @@ public class AutoCrystal extends Module
             {
                 pingSync.setValue(false); // honestly this should probably be rewritten, this just looks like it's not going to be efficient
             }
+            if(drawDetails.getValue() && pingSync.getValue()){
+                PingSyncResolverTimer.setTime(0);
+                if(PingSyncResolverTimer.passed(600))
+                    resolvedDelay = (long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()) + ", " + ((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue())); // will have to fix
+
+            }else{
+                PingSyncResolverTimer.reset();
+            }
 
         }
         else
@@ -1227,9 +1240,15 @@ public class AutoCrystal extends Module
         if (switching) {
             return TextColor.GREEN + "Switching";
         }
-
         EntityPlayer t = getTarget();
+        if(drawDetails.getValue()){
+            return t == null ? null : t.getName() + ", " + resolvedDelay;
+        }
+        else
+        {
             return t == null ? null : t.getName();
+        }
+
     }
 
     public void setRenderPos(BlockPos pos, float damage) {

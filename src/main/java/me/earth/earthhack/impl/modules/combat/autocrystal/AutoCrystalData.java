@@ -401,6 +401,9 @@ public class AutoCrystalData extends DefaultData<AutoCrystal>
                 "this can optimize your crystal placement to be maximal for your ping." +
                 " As of now, this is experimental.");
         register(module.pingSyncStrength, "This sets the strength of PingSync applied to calculations.");
+        register(module.drawDetails, "When enabled, will draw end delay of PingSync calculations" +
+                " in AutoCrystal's HUD information. This of course requires PingSync" +
+                " to be enabled.");
         register(module.pingSyncRemoval, "How much we should be removing from break delay on PingSync" +
                 " calculations. This setting is kinda sensitive, and shouldn't" +
                 " be tweaked too much.");
