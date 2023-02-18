@@ -17,7 +17,6 @@ public class ListenerPacket extends ModuleListener<ChorusControl, PacketEvent> {
     public void invoke(PacketEvent event){
         if((mc.world == null || mc.player == null || !module.startCancel) && module.eatingChorus)
             return;
-
         Packet<?> packet = event.getPacket();
 
         // thank you gs++ / TechAle(?)
