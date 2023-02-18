@@ -147,6 +147,7 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
             }
         }
 
+
         if (!module.allowUp.getValue()) {
             BlockPos upUp = pos.up(2);
             IBlockState upState = mc.world.getBlockState(upUp);
