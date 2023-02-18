@@ -89,13 +89,17 @@ public class DiscordPresence implements Globals
 
     private String getDetails()
     {
-        return module.customDetails.getValue()
-            ? module.details.getValue()
-            : mc.player == null
-                ? "Not ingame"
-            : mc.isIntegratedServerRunning()
-                ? "Playing SinglePlayer"
-                : "Playing Multiplayer";
-    }
+        if(module.customDetails.getValue()) {
+            return module.details.getValue();
+        }
+        if (module.showIP.getValue() && mc.player != null && !mc.isIntegratedServerRunning())
+            return "Playing on " + "server ip here"; // TODO this
+        if(mc.player == null){
+             return "Not in-game";
+        }else if(mc.isIntegratedServerRunning())
+             return "Playing Singleplayer";
+        else
+             return "Playing Multiplayer";
 
+    }
 }
