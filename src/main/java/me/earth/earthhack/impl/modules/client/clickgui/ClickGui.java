@@ -21,7 +21,7 @@ public class ClickGui extends Module
     public final Setting<Boolean> catEars =
             register(new BooleanSetting("CatEars", false));
     public final Setting<Boolean> blur =
-            register(new BooleanSetting("Blur", false));
+            register(new BooleanSetting("OldBlur", false));
     public final Setting<Integer> blurAmount =
             register(new NumberSetting<>("Blur-Amount", 8, 1, 20));
     public final Setting<Integer> blurSize =
@@ -65,7 +65,7 @@ public class ClickGui extends Module
         disableOtherGuis();
         Click.CLICK_GUI.set(this);
         screen = mc.currentScreen instanceof Click ? ((Click) mc.currentScreen).screen : mc.currentScreen;
-        // dont save it since some modules add/del settings
+        // don't save it since some modules add/del settings
         Click gui = newClick();
         gui.init();
         gui.onGuiOpened();
