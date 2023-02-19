@@ -67,6 +67,7 @@ import me.earth.earthhack.impl.modules.misc.autoregear.AutoRegear;
 import me.earth.earthhack.impl.modules.misc.autorespawn.AutoRespawn;
 import me.earth.earthhack.impl.modules.misc.buildheight.BuildHeight;
 import me.earth.earthhack.impl.modules.misc.chat.Chat;
+import me.earth.earthhack.impl.modules.misc.choruscontrol.ChorusControl;
 import me.earth.earthhack.impl.modules.misc.extratab.ExtraTab;
 import me.earth.earthhack.impl.modules.misc.logger.Logger;
 import me.earth.earthhack.impl.modules.misc.mcf.MCF;
@@ -243,6 +244,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new AutoRespawn());
         this.forceRegister(new BuildHeight());
         this.forceRegister(new Chat());
+        this.forceRegister(new ChorusControl());
         this.forceRegister(new ExtraTab());
         this.forceRegister(new Logger());
         this.forceRegister(new MCF());

@@ -29,13 +29,13 @@ public class ChorusControl extends Module {
         this.setData(new ChorusControlData(this));
         this.listeners.add(new ListenerEatChorus(this));
         this.listeners.add(new ListenerPacket(this));
-        x = (int) mc.player.posX;
-        y = (int) mc.player.posY;
-        z = (int) mc.player.posZ;
     }
 
     protected void onEnable(){
         startCancel = sendingPackets = false;
+        x = (int) mc.player.posX;
+        y = (int) mc.player.posY;
+        z = (int) mc.player.posZ;
     }
 
     public enum EspMode { // this should have more settings imo

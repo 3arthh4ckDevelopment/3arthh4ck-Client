@@ -14,7 +14,8 @@ public class ListenerPacket extends ModuleListener<ChorusControl, PacketEvent> {
         super(module, PacketEvent.class);
     }
     ArrayList<Packet<?>> packets = new ArrayList<>();
-    public void invoke(PacketEvent event){
+    public void invoke(PacketEvent event)
+    {
         if((mc.world == null || mc.player == null || !module.startCancel) && module.eatingChorus)
             return;
         Packet<?> packet = event.getPacket();
@@ -32,6 +33,19 @@ public class ListenerPacket extends ModuleListener<ChorusControl, PacketEvent> {
         }else if (event.getPacket() instanceof CPacketConfirmTeleport){
             this.packets.add(packet);
             event.setCancelled(true);
+        }
+    }
+
+    public void onUpdate(){
+        if (mc.world == null || mc.player == null)
+            packets.clear();
+
+        else if (mc.gameSettings.keyBindSneak.isPressed() && module.onlySneak.getValue()) {
+            module.sendingPackets = true;
+            for (Packet<?> packet : packets) mc.player.connection.sendPacket(packet);
+            module.sendingPackets = false;
+            packets.clear();
+            module.startCancel = false;
         }
     }
 }
