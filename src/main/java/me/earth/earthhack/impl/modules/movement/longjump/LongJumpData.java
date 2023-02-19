@@ -13,6 +13,11 @@ final class LongJumpData extends DefaultData<LongJump>
                 " disabling this module automatically.");
         register(module.pauseSpeed, "Pauses Speed while jumping, so you" +
                 " don't get lagged back.");
+        register(module.speedCheck, "Takes into account that you may not" +
+                " have speed enabled when enabling" +
+                " LongJump. When enabled, speed will not enable" +
+                " after LongJump is finished, eventhough PauseSpeed" +
+                "is on.");
     }
 
     @Override

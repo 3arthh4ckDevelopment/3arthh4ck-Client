@@ -13,6 +13,7 @@ import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.movement.longjump.mode.JumpMode;
 import me.earth.earthhack.impl.modules.movement.speed.Speed;
 import me.earth.earthhack.impl.util.helpers.disabling.DisablingModule;
+import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.minecraft.MovementUtil;
 import me.earth.earthhack.pingbypass.input.Keyboard;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,6 +32,8 @@ public class LongJump extends DisablingModule
             register(new BooleanSetting("AntiKick", true));
     protected final Setting<Boolean> pauseSpeed    =
             register(new BooleanSetting("PauseSpeed", false));
+    protected final Setting<Boolean> speedCheck    =
+            register(new BooleanSetting("SpeedCheck", false));
     protected final Setting<Integer> speedTimeout      =
             register(new NumberSetting<>("Timeout", 100, 1, 500));
     protected final Setting<Bind> invalidBind    =
@@ -44,7 +47,8 @@ public class LongJump extends DisablingModule
     protected int groundTicks;
     protected double speed;
     protected double distance;
-
+    protected boolean wasSpeedActive;
+    StopWatch timeoutTimer = new StopWatch();
     public LongJump()
     {
         super("LongJump", Category.Movement);
@@ -58,21 +62,13 @@ public class LongJump extends DisablingModule
     @Override
     protected void onEnable()
     {
+        wasSpeedActive = speedCheck.getValue() && SPEED.isEnabled();
+
         if(SPEED.isEnabled() && pauseSpeed.getValue())
         {
-            try
-            {
-                SPEED.toggle();
-                Thread.sleep(speedTimeout.getValue());
-                this.enable();
-            }catch(InterruptedException ignored)
-            {
-                // this shouldn't happen so
-            }
-
+            timeoutTimer.reset();
+            SPEED.disable();
         }
-
-
 
         if (mc.player != null)
         {
@@ -89,8 +85,14 @@ public class LongJump extends DisablingModule
     protected void onDisable()
     {
         Managers.TIMER.reset();
-        if(!SPEED.isEnabled() && pauseSpeed.getValue())
-                SPEED.toggle();
+        if(!SPEED.isEnabled() && pauseSpeed.getValue() && timeoutTimer.passed(speedTimeout.getValue())){
+            if(speedCheck.getValue()){
+                if(wasSpeedActive) // spaghetti? maybe, but don't care
+                    SPEED.enable();
+            }else
+                SPEED.enable();
+        }
+
     }
 
     protected void invalidPacket()
