@@ -1006,7 +1006,7 @@ public class AutoCrystal extends Module
     protected boolean isSpoofing;
     protected boolean noGod;
     protected String damage;
-    protected String resolvedDelay;
+    protected long resolvedDelay;
 
     /* ---------------- Helpers -------------- */
     protected final ExtrapolationHelper extrapolationHelper =
@@ -1182,12 +1182,13 @@ public class AutoCrystal extends Module
             }
             if(drawDetails.getValue() && pingSync.getValue()){
                 PingSyncResolverTimer.setTime(0);
-                if(PingSyncResolverTimer.passed(600))
-                    resolvedDelay = (long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()) + ", " + ((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue())); // will have to fix
-
-            }else{
+                if(PingSyncResolverTimer.passed(ServerUtil.getPing())){
+                    resolvedDelay = (long)ServerUtil.getPing() / 10;
+                    PingSyncResolverTimer.reset();
+                }
+                }else{
                 PingSyncResolverTimer.reset();
-            }
+                }
 
         }
         else
