@@ -196,6 +196,14 @@ public class AutoCrystalData extends DefaultData<AutoCrystal>
             " Calculation that evaluates if you should break before or after" +
             " you update your position on the server.");
 
+        register(module.stopWhenEating, "Stop placing and breaking crystals while" +
+                " you are eating. This can negate disconnects.");
+        register(module.stopWhenMining, "Stops placing and breaking crystals while" +
+                " you are mining. This can help with Speedmine always breaking blocks.");
+        register(module.stopWhenEatingOffhand, "Similar to StopWhenEating, but this" +
+                " only stops AutoCrystal when you are eating with" +
+                " your offhand.");
+
         register(module.holdFacePlace, "Hold Mouse 1 to FacePlace.");
         register(module.facePlace,
             "Faceplaces if the target has less health than this.");
