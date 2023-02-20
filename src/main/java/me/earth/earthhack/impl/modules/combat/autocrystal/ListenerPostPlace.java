@@ -23,6 +23,7 @@ final class ListenerPostPlace extends ModuleListener<AutoCrystal,
             && !module.noGod
             && module.breakTimer.passed(module.breakDelay.getValue())
             && !(module.stopWhenEating.getValue() && module.isEating())
+            && !(module.stopWhenEatingOffhand.getValue() && module.isEatingOffhand())
             && !(module.stopWhenMining.getValue() && module.isMining())
             && mc.player
                  .getHeldItem(event.getPacket().getHand())

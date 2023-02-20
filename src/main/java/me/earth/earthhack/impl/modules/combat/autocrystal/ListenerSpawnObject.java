@@ -69,6 +69,7 @@ final class ListenerSpawnObject extends
             || mc.world == null
             || !module.spectator.getValue() && mc.player.isSpectator()
             || module.stopWhenEating.getValue() && module.isEating()
+            || module.stopWhenEatingOffhand.getValue() && module.isEatingOffhand()
             || module.stopWhenMining.getValue() && module.isMining()
             || ((ISPacketSpawnObject) event.getPacket()).isAttacked())
         {

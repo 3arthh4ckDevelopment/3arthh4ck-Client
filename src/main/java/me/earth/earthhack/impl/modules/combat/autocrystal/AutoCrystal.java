@@ -43,6 +43,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
 import java.awt.*;
@@ -66,7 +67,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 //  so the last spawned crystal will have the highest id probably.
 //  Which would allow for a really good id prediction of the next tick.
 //  Only worth if we have really low ms and we can receive packets between
-//  the ticks and the world doesnt have many players.
+//  the ticks and the world doesn't have many players.
 // TODO: more mine stuff!
 // TODO: SmartRange for OBBY!!!
 public class AutoCrystal extends Module
@@ -378,6 +379,8 @@ public class AutoCrystal extends Module
                 .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> stopWhenEating =
             register(new BooleanSetting("StopWhenEating", false));
+    protected final Setting<Boolean> stopWhenEatingOffhand =
+            register(new BooleanSetting("StopEatingOffhand", false));
     protected final Setting<Boolean> stopWhenMining =
             register(new BooleanSetting("StopWhenMining", false));
     protected final Setting<Boolean> dangerFacePlace =
@@ -1514,6 +1517,13 @@ public class AutoCrystal extends Module
         return mc.player.isHandActive()
             && !stack.isEmpty()
             && stack.getItem().getItemUseAction(stack) == EnumAction.EAT;
+    }
+
+    public boolean isEatingOffhand() {
+        ItemStack stack = mc.player.getActiveItemStack();
+        return mc.player.getActiveHand().equals(EnumHand.OFF_HAND)
+                && !stack.isEmpty()
+                && stack.getItem().getItemUseAction(stack) == EnumAction.EAT;
     }
 
     public boolean isMining() {
