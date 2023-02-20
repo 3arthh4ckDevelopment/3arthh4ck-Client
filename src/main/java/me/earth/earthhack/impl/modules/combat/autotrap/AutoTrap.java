@@ -1,5 +1,6 @@
 package me.earth.earthhack.impl.modules.combat.autotrap;
 
+import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.event.events.Stage;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
@@ -9,8 +10,11 @@ import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.events.network.PacketEvent;
 import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.combat.autotrap.modes.TrapTarget;
 import me.earth.earthhack.impl.modules.combat.autotrap.util.Trap;
+import me.earth.earthhack.impl.modules.render.logoutspots.LogoutSpots;
+import me.earth.earthhack.impl.modules.render.logoutspots.util.LogoutSpot;
 import me.earth.earthhack.impl.util.helpers.blocks.ObbyListenerModule;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.Rotate;
 import me.earth.earthhack.impl.util.helpers.blocks.util.TargetResult;
@@ -65,6 +69,9 @@ protected final Setting<Boolean> top               =
             register(new NumberSetting<>("Extend", 2, 1, 3));
     protected final Setting<TrapTarget> targetMode =
             register(new EnumSetting<>("Target", TrapTarget.Closest));
+    protected final Setting<Boolean> logOutSpot      =
+            register(new BooleanSetting("TrapLogouts", false));
+    // TODO: TrapLogouts: trap in a way where feet are exposed, so if the player re-logs in the trap their feet are exposed and likely caught off-guard
     protected final Setting<Float> speed           =
             register(new NumberSetting<>("Speed", 19.0f, 0.0f, 50.0f));
     protected final Setting<Boolean> freeCam       =
@@ -91,6 +98,9 @@ protected final Setting<Boolean> top               =
     /** The current target */
     protected EntityPlayer target;
 
+    private static final ModuleCache<LogoutSpots> LOGOUTSPOTS =
+            Caches.getModule(LogoutSpots.class);                                // for setting TrapLogouts
+    protected final Map<UUID, LogoutSpot> loggedOutPlayer = new ConcurrentHashMap<>();
     public AutoTrap()
     {
         super("AutoTrap", Category.Combat);
@@ -177,6 +187,10 @@ protected final Setting<Boolean> top               =
         if (newTrapping == null)
         {
             newTrapping = getPositions(newTarget);
+        }
+
+        if(logOutSpot.getValue() && LOGOUTSPOTS.isEnabled()) {
+            // TODO this :D
         }
 
         return result.setTargets(newTrapping);
