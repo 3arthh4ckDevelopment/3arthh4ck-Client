@@ -262,6 +262,8 @@ final class ListenerSpawnObject extends
                         boolean slow)
     {
         HelperInstantAttack.attack(module, packet, event, entityIn, slow);
+        module.crystalsAmount++;
+        module.CrystalsPerSecondTimer.setTime(0);
     }
 
     private float checkPos(Entity entity)

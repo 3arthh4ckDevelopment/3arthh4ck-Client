@@ -16,11 +16,9 @@ import java.util.Random;
 public class HitEffects extends Module {
     public HitEffects(){
         super("HitEffects", Category.Render);
+        this.listeners.add(new ListenerDamage(this));
     }
 
-    Random rnd = new Random();
-    String[] heroFxText = {"kaboom", "wham", "zap", "boom", "whack", "smash", "knockout"};
-    Color[] heroFxColor = {Color.RED, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.BLUE, Color.CYAN, Color.ORANGE};
     protected EntityPlayer target;
     protected final Setting<Boolean> lightning =
             register(new BooleanSetting("Lightning", true));
@@ -37,23 +35,4 @@ public class HitEffects extends Module {
     protected final Setting<Boolean> onlyTargets =
             register(new BooleanSetting("OnlyTargets", false));
 
-    @SubscribeEvent
-    public void onEntityDamaged(LivingHurtEvent event)
-    {
-        if(onlyTargets.getValue())
-        {
-            if(lightning.getValue())
-            {
-                EntityLightningBolt bolt = new EntityLightningBolt(mc.player.world, 0D, 0D, 0D, true);
-                double LightningPosX = event.getEntity().posX;
-                double LightningPosY = event.getEntity().posY;
-                double LightningPosZ = event.getEntity().posZ;
-                if(onlyOnKill.getValue()){
-                    if(event.getEntity().isDead)
-                        bolt.setLocationAndAngles(LightningPosX, LightningPosY, LightningPosZ, 0.0f, 0.0f);
-                }else
-                    bolt.setLocationAndAngles(LightningPosX, LightningPosY, LightningPosZ, 0.0f, 0.0f);
-            }
-        }
-    }
 }
