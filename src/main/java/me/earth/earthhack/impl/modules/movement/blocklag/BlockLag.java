@@ -25,6 +25,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
@@ -36,7 +37,7 @@ public class BlockLag extends DisablingModule
 
     protected final Setting<BlockLagPages> pages =
             register(new EnumSetting<>("Page", BlockLagPages.Offsets));
-
+    // --------------------- OFFSETS --------------------- //
     protected final Setting<OffsetMode> offsetMode =
             register(new EnumSetting<>("Mode", OffsetMode.Smart));
     protected final Setting<Double> vClip =
@@ -47,6 +48,8 @@ public class BlockLag extends DisablingModule
             register(new NumberSetting<>("Max-Down", 10.0, 0.0, 1337.0));
     protected final Setting<Double> minUp =
             register(new NumberSetting<>("Min-Up", 3.0, 0.0, 1337.0));
+    protected final Setting<Boolean> invalidPacket =
+            register(new BooleanSetting("InvalidPacket", false));
     protected final Setting<Double> maxUp =
             register(new NumberSetting<>("Max-Up", 10.0, 0.0, 1337.0));
     protected final Setting<Integer> delay =
@@ -60,6 +63,7 @@ public class BlockLag extends DisablingModule
     protected final Setting<Boolean> discrete =
             register(new BooleanSetting("Discrete", true));
 
+    // --------------------- ROTATIONS --------------------- //
     protected final Setting<Boolean> rotate =
             register(new BooleanSetting("Rotate", false));
     protected final Setting<Boolean> anvil =
@@ -94,7 +98,7 @@ public class BlockLag extends DisablingModule
             register(new EnumSetting<>("Stage", BlockLagStage.All));
     protected final Setting<Boolean> deltaY =
             register(new BooleanSetting("Delta-Y", true));
-
+    // --------------------- ATTACK, POP --------------------- //
     protected final Setting<Boolean> attack =
             register(new BooleanSetting("Attack", false));
     protected final Setting<Boolean> instantAttack =
@@ -109,7 +113,7 @@ public class BlockLag extends DisablingModule
             register(new NumberSetting<>("Pop-Time", 500, 0, 500));
     protected final Setting<Integer> cooldown =
             register(new NumberSetting<>("Cooldown", 500, 0, 500));
-
+    // --------------- EXPLOSION, VELOCITY, SCALE --------------- //
     protected final Setting<Boolean> scaleExplosion =
             register(new BooleanSetting("Scale-Explosion", false));
     protected final Setting<Boolean> scaleVelocity =
@@ -153,11 +157,25 @@ public class BlockLag extends DisablingModule
             return;
         }
 
+        if(invalidPacket.getValue())
+            invalidPacket(); // bad practice? lmao maybe
+
         startPos = getPlayerPos();
         if (singlePlayerCheck(startPos))
         {
             this.disable();
         }
+    }
+
+    protected void invalidPacket()
+    {
+        updatePosition(0.0, Integer.MAX_VALUE, 0.0);
+    }
+
+    protected void updatePosition(double x, double y, double z)
+    {
+        mc.player.connection.sendPacket(
+                new CPacketPlayer.Position(x, y, z, mc.player.onGround));
     }
 
     protected void attack(Packet<?> attacking, int slot) {

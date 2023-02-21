@@ -87,7 +87,7 @@ public class LongJump extends DisablingModule
         Managers.TIMER.reset();
         if(!SPEED.isEnabled() && pauseSpeed.getValue() && timeoutTimer.passed(speedTimeout.getValue())){
             if(speedCheck.getValue()){
-                if(wasSpeedActive) // spaghetti? maybe, but don't care
+                if(wasSpeedActive)
                     SPEED.enable();
             }else
                 SPEED.enable();
