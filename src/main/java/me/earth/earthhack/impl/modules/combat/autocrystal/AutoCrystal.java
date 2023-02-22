@@ -1269,7 +1269,7 @@ public class AutoCrystal extends Module
         }
 
         if(drawDetails.getValue()){
-            return t == null ? null : t.getName() + ", " + resolvedDelay;
+            return t == null ? null : t.getName() + ", " + resolvedDelay; // this results in "null" ? have to fix it i guess
         }
         else
         {
