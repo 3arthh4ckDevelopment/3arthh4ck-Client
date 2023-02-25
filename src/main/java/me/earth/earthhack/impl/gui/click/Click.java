@@ -76,16 +76,16 @@ public class Click extends GuiScreen {
         int y = CLICK_GUI.get().catEars.getValue() ? 14 : 2;
         for (Category moduleCategory : categories) {
             if (moduleManager.getModulesFromCategory(moduleCategory).size() > 0) {
-                getFrames().add(new CategoryFrame(moduleCategory, moduleManager, x, y, 110, 16));
+                getFrames().add(new CategoryFrame(moduleCategory, moduleManager, x, y, 110 * CLICK_GUI.get().guiScale.getValue(), 16 * CLICK_GUI.get().guiScale.getValue()));
                 if (x + 220 >= new ScaledResolution(Minecraft.getMinecraft()).getScaledWidth()) {
                     x = CLICK_GUI.get().catEars.getValue() ? 14 : 2;
-                    y += CLICK_GUI.get().catEars.getValue() ? 32 : 20;
+                    y += CLICK_GUI.get().catEars.getValue() ? 32 : 20;      //TODO: Support GUIScale for CatEars
                 } else x += (CLICK_GUI.get().catEars.getValue() ? 132 : 112);
             }
         }
 
         if (addDescriptionFrame) {
-            descriptionFrame = new DescriptionFrame(x, y, CLICK_GUI.get().descriptionWidth.getValue(), 16);
+            descriptionFrame = new DescriptionFrame(x, y, CLICK_GUI.get().descriptionWidth.getValue() * CLICK_GUI.get().guiScale.getValue(), 16 * CLICK_GUI.get().guiScale.getValue());
             getFrames().add(descriptionFrame);
         }
 

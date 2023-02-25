@@ -9,13 +9,14 @@ import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.api.setting.settings.StringSetting;
 import me.earth.earthhack.impl.gui.click.Click;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.util.client.SimpleData;
 import net.minecraft.client.gui.GuiScreen;
 
 import java.awt.*;
 
 public class ClickGui extends Module
 {
+    public final Setting<Float> guiScale =
+            register(new NumberSetting<>("Scale", 1.0f, 0.1f, 2.0f));
     public final Setting<Color> color =
             register(new ColorSetting("Color", new Color(0, 80, 255)));
     public final Setting<Boolean> catEars =
@@ -50,7 +51,7 @@ public class ClickGui extends Module
     {
         super("ClickGui", Category.Client);
         this.listeners.add(new ListenerScreen(this));
-        this.setData(new SimpleData(this, "Beautiful ClickGui by oHare"));
+        this.setData(new ClickGuiData(this));
     }
 
     public ClickGui(String name)
