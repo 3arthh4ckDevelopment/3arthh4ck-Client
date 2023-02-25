@@ -115,13 +115,25 @@ The client is very simple to build with IntelliJ IDEA, which is the IDE I recomm
 
 ### Issues
 When writing an issue, please use the following format, or at minimum, use labels accordingly:
+
+
 #### Bug Report
-[What is wrong:]
-[When does this happen:]
-[How to reproduce the bug:]
-[What you think the severity is:]
+
+What is wrong:
+
+When does this happen:
+
+How to reproduce the bug:
+
+What you think the severity is:
+
+
 #### Feature Request
-[What this benefits:]
-[Any cons?:]
-[Complexity/Difficulty (if known):]
-[(if possible) Video/example of already existing feature:]
+
+What this benefits:
+
+Any cons?:
+
+Complexity/Difficulty (if known):
+
+(if possible) Video/example of already existing feature:
