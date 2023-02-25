@@ -40,10 +40,6 @@ public class Click extends GuiScreen {
             Caches.getSetting(Commands.class, BooleanSetting.class, "BackgroundGui", false);
     private static final ResourceLocation BLACK_PNG =
             new ResourceLocation("earthhack:textures/gui/black.png");
-
-    public static DescriptionFrame descriptionFrame =
-            new DescriptionFrame(0, 0, 200, 16);
-
     private final ArrayList<Frame> frames = new ArrayList<>();
     private Category[] categories = Category.values();
     private final ModuleManager moduleManager;
@@ -53,6 +49,9 @@ public class Click extends GuiScreen {
     private boolean pingBypass;
 
     public final GuiScreen screen;
+
+    public static DescriptionFrame descriptionFrame =
+            new DescriptionFrame(0, 0, 200, 18); // moved this here, so it's possible to use all the variables above
 
     public Click(GuiScreen screen) {
         this.moduleManager = Managers.MODULES;
@@ -78,9 +77,9 @@ public class Click extends GuiScreen {
             if (moduleManager.getModulesFromCategory(moduleCategory).size() > 0) {
                 getFrames().add(new CategoryFrame(moduleCategory, moduleManager, x, y, 110 * CLICK_GUI.get().guiScale.getValue(), 16 * CLICK_GUI.get().guiScale.getValue()));
                 if (x + 220 >= new ScaledResolution(Minecraft.getMinecraft()).getScaledWidth()) {
-                    x = CLICK_GUI.get().catEars.getValue() ? 14 : 2;
-                    y += CLICK_GUI.get().catEars.getValue() ? 32 : 20;      //TODO: Support GUIScale for CatEars
-                } else x += (CLICK_GUI.get().catEars.getValue() ? 132 : 112);
+                    x = CLICK_GUI.get().catEars.getValue() ? 14 * Math.round(CLICK_GUI.get().guiScale.getValue()) : 2 * Math.round(CLICK_GUI.get().guiScale.getValue());
+                    y += CLICK_GUI.get().catEars.getValue() ? 32 * CLICK_GUI.get().guiScale.getValue() : 20 * CLICK_GUI.get().guiScale.getValue();
+                } else x += (CLICK_GUI.get().catEars.getValue() ? 132 * CLICK_GUI.get().guiScale.getValue() : 112 * CLICK_GUI.get().guiScale.getValue());
             }
         }
 

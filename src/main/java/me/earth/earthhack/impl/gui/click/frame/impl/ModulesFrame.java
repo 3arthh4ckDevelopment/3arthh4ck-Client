@@ -25,6 +25,7 @@ public class ModulesFrame extends Frame {
     private static final ModuleCache<ClickGui> CLICK_GUI = Caches.getModule(ClickGui.class);
     private static final ResourceLocation LEFT_EAR = new ResourceLocation("earthhack:textures/gui/left_ear.png");
     private static final ResourceLocation RIGH_EAR = new ResourceLocation("earthhack:textures/gui/right_ear.png");
+    private static final float scale = CLICK_GUI.get().guiScale.getValue();
 
     public ModulesFrame(String name, float posX, float posY, float width, float height) {
         super(name, posX, posY, width, height);

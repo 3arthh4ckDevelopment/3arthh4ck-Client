@@ -16,7 +16,7 @@ import java.awt.*;
 public class ClickGui extends Module
 {
     public final Setting<Float> guiScale =
-            register(new NumberSetting<>("Scale", 1.0f, 0.1f, 2.0f));
+            register(new NumberSetting<>("Scale", 1.0f, 0.1f, 2.0f)); //TODO : better way of doing this
     public final Setting<Color> color =
             register(new ColorSetting("Color", new Color(0, 80, 255)));
     public final Setting<Boolean> catEars =
@@ -58,6 +58,7 @@ public class ClickGui extends Module
     {
         super(name, Category.Client);
         this.listeners.add(new ListenerScreen(this));
+        this.setData(new ClickGuiData(this));
     }
 
     @Override
