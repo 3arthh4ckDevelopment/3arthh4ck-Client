@@ -93,7 +93,7 @@ public class Surround extends ObbyModule
     protected final Setting<SurroundFreecamMode> freecam =
         register(new EnumSetting<>("Freecam", SurroundFreecamMode.Off));
     public final Setting<Boolean> autoOnTeleport =
-            register(new BooleanSetting("EnableOnTP", false));
+            register(new BooleanSetting("AutoOnTeleport", false));
     public final Setting<Boolean> teleport =
         register(new BooleanSetting("Teleport", false));
     protected final Setting<Double> yTeleportRange =
