@@ -18,6 +18,7 @@ public class Frame {
     private boolean extended,dragging;
     private final ArrayList<Component> components = new ArrayList<>();
     private int scrollY;
+    // public static final ModuleCache<ClickGui> CLICK_GUI = Caches.getModule(ClickGui.class);
 
     public Frame(String label, float posX, float posY, float width, float height) {
         this.label = label;

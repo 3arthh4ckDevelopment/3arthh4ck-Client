@@ -25,7 +25,6 @@ public class ModulesFrame extends Frame {
     private static final ModuleCache<ClickGui> CLICK_GUI = Caches.getModule(ClickGui.class);
     private static final ResourceLocation LEFT_EAR = new ResourceLocation("earthhack:textures/gui/left_ear.png");
     private static final ResourceLocation RIGH_EAR = new ResourceLocation("earthhack:textures/gui/right_ear.png");
-    private static final float scale = CLICK_GUI.get().guiScale.getValue();
 
     public ModulesFrame(String name, float posX, float posY, float width, float height) {
         super(name, posX, posY, width, height);
@@ -41,7 +40,7 @@ public class ModulesFrame extends Frame {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
         final float scrollMaxHeight = new ScaledResolution(
-            Minecraft.getMinecraft()).getScaledHeight();
+                Minecraft.getMinecraft()).getScaledHeight();
         final Color clr = CLICK_GUI.get().color.getValue();
         if (CLICK_GUI.get().catEars.getValue()) {
             Minecraft.getMinecraft().getTextureManager().bindTexture(LEFT_EAR);
@@ -136,7 +135,7 @@ public class ModulesFrame extends Frame {
                 if (component.isExtended()) {
                     for (Component component1 : ((ModuleComponent) component).getComponents()) {
                         if (component1 instanceof SettingComponent
-                            && Visibilities.VISIBILITY_MANAGER.isVisible(((SettingComponent<?, ?>) component1).getSetting())) {
+                                && Visibilities.VISIBILITY_MANAGER.isVisible(((SettingComponent<?, ?>) component1).getSetting())) {
                             cHeight += component1.getHeight();
                         }
                     }

@@ -213,7 +213,7 @@ public class Click extends GuiScreen {
         });
     }
 
-    public ArrayList<Frame> getFrames() {                                   
+    public ArrayList<Frame> getFrames() {
         return frames;
     }
 
