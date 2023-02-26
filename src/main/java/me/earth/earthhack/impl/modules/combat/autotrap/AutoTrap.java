@@ -190,7 +190,8 @@ protected final Setting<Boolean> top               =
         }
 
         if(logOutSpot.getValue() && LOGOUTSPOTS.isEnabled()) {
-            // TODO this :D
+            newTrapping = getPositions(loggedOutPlayer.get(LOGOUTSPOTS).getModel().getPlayer());
+            // I wonder if this works, a mystery quite unsolved
         }
 
         return result.setTargets(newTrapping);

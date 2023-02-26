@@ -17,10 +17,11 @@ final class ListenerLeave extends ModuleListener<LogoutSpots, ConnectionEvent.Le
         super(module, ConnectionEvent.Leave.class);
     }
 
+    EntityPlayer player;
     @Override
     public void invoke(ConnectionEvent.Leave event)
     {
-        EntityPlayer player = event.getPlayer();
+        player = event.getPlayer();
         if (module.message.getValue() != MessageMode.None)
         {
             String text = null;
@@ -51,5 +52,4 @@ final class ListenerLeave extends ModuleListener<LogoutSpots, ConnectionEvent.Le
             module.spots.put(player.getUniqueID(), spot);
         }
     }
-
 }
