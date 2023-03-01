@@ -9,6 +9,7 @@ import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.gui.visibility.PageBuilder;
 import me.earth.earthhack.impl.gui.visibility.Visibilities;
+import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.movement.blocklag.mode.BlockLagStage;
 import me.earth.earthhack.impl.modules.movement.blocklag.mode.OffsetMode;
@@ -25,7 +26,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
@@ -48,8 +48,6 @@ public class BlockLag extends DisablingModule
             register(new NumberSetting<>("Max-Down", 10.0, 0.0, 1337.0));
     protected final Setting<Double> minUp =
             register(new NumberSetting<>("Min-Up", 3.0, 0.0, 1337.0));
-    protected final Setting<Boolean> invalidPacket =
-            register(new BooleanSetting("InvalidPacket", false));
     protected final Setting<Double> maxUp =
             register(new NumberSetting<>("Max-Up", 10.0, 0.0, 1337.0));
     protected final Setting<Integer> delay =
@@ -124,6 +122,13 @@ public class BlockLag extends DisablingModule
             register(new NumberSetting<>("Scale-Delay", 250, 0, 1000));
     protected final Setting<Double> scaleFactor =
             register(new NumberSetting<>("Scale-Factor", 1.0, 0.1, 10.0));
+    // --------------- BYPASS --------------- //
+    protected final Setting<Float> motionAmount =
+            register(new NumberSetting<>("Motion-Amount", 10f, 0.1f, 1337.0f));
+    protected final Setting<Boolean> useTimer =
+            register(new BooleanSetting("UseTimer", false));
+    protected final Setting<Float> timerAmount =
+            register(new NumberSetting<>("Timer-Speed", 0.7f, 0.1f, 5.0f));
 
     protected final StopWatch scaleTimer = new StopWatch();
     protected final StopWatch timer = new StopWatch();
@@ -144,6 +149,7 @@ public class BlockLag extends DisablingModule
             .addPage(v -> v == BlockLagPages.Misc, rotate, deltaY)
             .addPage(v -> v == BlockLagPages.Attack, attack, cooldown)
             .addPage(v -> v == BlockLagPages.Scale, scaleExplosion, scaleFactor)
+            .addPage(v -> v == BlockLagPages.Bypass, motionAmount, timerAmount)
             .register(Visibilities.VISIBILITY_MANAGER);
     }
 
@@ -157,9 +163,6 @@ public class BlockLag extends DisablingModule
             return;
         }
 
-        if(invalidPacket.getValue())
-            invalidPacket(); // bad practice? lmao maybe
-
         startPos = getPlayerPos();
         if (singlePlayerCheck(startPos))
         {
@@ -167,16 +170,7 @@ public class BlockLag extends DisablingModule
         }
     }
 
-    protected void invalidPacket()
-    {
-        updatePosition(0.0, Integer.MAX_VALUE, 0.0);
-    }
 
-    protected void updatePosition(double x, double y, double z)
-    {
-        mc.player.connection.sendPacket(
-                new CPacketPlayer.Position(x, y, z, mc.player.onGround));
-    }
 
     protected void attack(Packet<?> attacking, int slot) {
         if (slot != -1) {
@@ -322,5 +316,10 @@ public class BlockLag extends DisablingModule
         }
 
         return false;
+    }
+
+    protected void onDisable(){
+        super.onDisable();
+        Managers.TIMER.setTimer(1);
     }
 }

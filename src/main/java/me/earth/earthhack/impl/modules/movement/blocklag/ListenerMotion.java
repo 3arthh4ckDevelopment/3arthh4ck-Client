@@ -4,6 +4,7 @@ import me.earth.earthhack.api.event.events.Stage;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.modules.movement.blocklag.mode.OffsetMode;
 import me.earth.earthhack.impl.util.client.ModuleUtil;
 import me.earth.earthhack.impl.util.math.RayTraceUtil;
 import me.earth.earthhack.impl.util.math.position.PositionUtil;
@@ -147,6 +148,15 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
             }
         }
 
+        if(module.offsetMode.getValue() == OffsetMode.Bypass
+                && mc.player != null)
+        {
+            if(module.useTimer.getValue()){
+                Managers.TIMER.setTimer(module.timerAmount.getValue());
+            }
+            mc.player.jump();
+            mc.player.motionY = module.motionAmount.getValue();
+        }
 
         if (!module.allowUp.getValue()) {
             BlockPos upUp = pos.up(2);
