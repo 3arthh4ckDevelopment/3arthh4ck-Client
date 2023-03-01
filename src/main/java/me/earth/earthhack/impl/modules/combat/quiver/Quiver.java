@@ -33,6 +33,8 @@ public class Quiver extends Module {
             register(new EnumSetting<>("Mode", QuiverMode.Automatic));
     protected final Setting<RotationMode> rotateMode     =
             register(new EnumSetting<>("Rotation", RotationMode.Packet));
+    protected final Setting<Boolean> switchBack =
+            register(new BooleanSetting("SwitchBack", true));
     protected final Setting<Integer> delay   =
             register(new NumberSetting<>("Delay", 5, 0, 100));
     protected final Setting<Integer> cyclesAmount   =
@@ -42,7 +44,7 @@ public class Quiver extends Module {
     protected final Setting<Boolean> mineBlocked =
             register(new BooleanSetting("MineBlocked", false));
     protected final Setting<Boolean> fast =
-            register(new BooleanSetting("Fast", true));
+            register(new BooleanSetting("Fast", false));
     public Quiver(){
         super("Quiver", Category.Combat);
         this.setData(new QuiverData(this));
@@ -68,6 +70,7 @@ public class Quiver extends Module {
     StopWatch shootTime = new StopWatch();
     String hudmode;
 
+    int oldSlot;
     public void onEnable()
     {
         shootTime.reset();
@@ -100,7 +103,7 @@ public class Quiver extends Module {
         switch(quiverMode.getValue())
         {
             case Automatic:
-                if(cycles < cyclesAmount.getValue())
+                if(cycles < cyclesAmount.getValue()) // For cycles, we should probably only repeat the shooting, since we are already rotated and have switched.
                 {
                     // ---------- SWITCH ---------- //
                     if (switchMode.getValue() == SwitchMode.Normal && stage == 0)
@@ -150,11 +153,13 @@ public class Quiver extends Module {
                     {
                         ModuleUtil.disableRed(this, "Something went wrong!");
                     }
-                    // ---------- DISABLE ---------- //
+                    // ---------- DISABLE & SWITCH BACK ---------- //
                     if(stage == 4)
                     {
                         this.disable();
                         RotationUtil.faceSmoothly(mc.player.cameraYaw, mc.player.cameraPitch, yaw, pitch, 10L, 10L);
+                        if(switchBack.getValue())
+                            InventoryUtil.switchTo(getOldSlot());
                         cycles++;
                         if(cycles < cyclesAmount.getValue())
                             this.enable();
@@ -172,8 +177,13 @@ public class Quiver extends Module {
     }
     public int getSwapSlot()
     {
+        oldSlot = mc.player.inventory.currentItem;
         swapSlot = InventoryUtil.findHotbarItem(Items.BOW);
         return swapSlot;
+    }
+
+    public int getOldSlot(){
+        return oldSlot;
     }
 
     public String getDisplayInfo()
