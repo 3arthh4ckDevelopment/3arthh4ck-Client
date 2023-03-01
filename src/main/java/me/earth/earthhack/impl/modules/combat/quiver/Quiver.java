@@ -199,5 +199,6 @@ public class Quiver extends Module {
         stage = 0;
         hits = 0;
         shootTime.reset();
+        cycles = 0;
     }
 }
