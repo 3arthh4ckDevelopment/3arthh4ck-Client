@@ -4,12 +4,15 @@ import me.earth.earthhack.api.module.data.DefaultData;
 public class QuiverData extends DefaultData<Quiver> {
     public QuiverData(Quiver module){
         super(module);
-        register(module.delay,"Delay between shooting an arrow in ticks.");
+        register(module.delay,"Minecraft Bow mechanics work like this:\n" +
+                "When you start drawing back your bow, it takes" +
+                " 0.1 seconds or 100 milliseconds to shoot one" +
+                " arrow at minimal (typically 1hp) damage." +
+                " Quiver, by default, draws back for 100ms, and then adds" +
+                " this settings value to the delay. This can be a sort-of" +
+                " failsafe and keep Quiver from failing.");
         register(module.fast,"Ignore delay completely and shoot arrows" +
                 " as fast as possible.");
-        register(module.tpsSync,"Attempts to sync arrows with the server tps,"
-                + " may result in better performance. Can also"
-                + " cause issues.");
         register(module.rotateMode, "Select mode to use when rotating."
                 + "\nNormal - Normal rotations."
                 + "\nPacket - Rotate with packets, may seem faster, but can cause"
