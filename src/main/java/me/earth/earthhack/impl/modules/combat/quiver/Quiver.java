@@ -15,6 +15,7 @@ import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.math.rotation.RotationUtil;
 import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
 
+import me.earth.earthhack.impl.util.text.TextColor;
 import net.minecraft.init.Items;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
@@ -32,13 +33,14 @@ public class Quiver extends Module {
     protected final Setting<QuiverMode> quiverMode     =
             register(new EnumSetting<>("Mode", QuiverMode.Automatic));
     protected final Setting<RotationMode> rotateMode     =
-            register(new EnumSetting<>("Rotation", RotationMode.Packet));
+            register(new EnumSetting<>("Rotation", RotationMode.Normal));
     protected final Setting<Boolean> switchBack =
             register(new BooleanSetting("SwitchBack", true));
     protected final Setting<Integer> delay   =
             register(new NumberSetting<>("Delay", 5, 0, 100));
     protected final Setting<Integer> cyclesAmount   =
             register(new NumberSetting<>("Cycles", 2, 1, 3));
+    // Cycles should be fixed, since at the moment it doesn't function properly.
     protected final Setting<Boolean> blockedCheck =
             register(new BooleanSetting("BlockedCheck", false));
     protected final Setting<Boolean> mineBlocked =
@@ -59,13 +61,13 @@ public class Quiver extends Module {
     int cycles = 0;
     int stage = 0;
     /* Stage: Because using an enum is kinda annoying to write out when it changes, we should just use an integer.
-    * Meaning:
-    * 0 - Switch
-    * 1 - Rotate
-    * 2 - Pulling it back
-    * 3 - Shoot
-    * 4 - Disable
-    *  Lmao I don't think 4 is actually even necessary, but just added it so maybe in the future stage 3 can be made better.
+     * Meaning:
+     * 0 - Switch
+     * 1 - Rotate
+     * 2 - Pulling it back
+     * 3 - Shoot
+     * 4 - Disable
+     *  Lmao I don't think 4 is actually even necessary, but just added it so maybe in the future stage 3 can be made better.
      */
     StopWatch shootTime = new StopWatch();
     String hudmode;
@@ -85,13 +87,13 @@ public class Quiver extends Module {
 
         if(getSwapSlot() < 0)
         {
-            ModuleUtil.disableRed(this, "Disabled because of no bow found!");
+            ModuleUtil.disable(this, TextColor.RED + "Disabled, no bow.");
         }
         else
             doQuiver();
         if(mc.player == null)
         {
-            ModuleUtil.disableRed(this, "Disabled because you are not in-game, or are dead!");
+            ModuleUtil.disable(this, TextColor.RED + "Disabled, not in a world.");
         }
         else
             doQuiver();
@@ -103,26 +105,24 @@ public class Quiver extends Module {
         switch(quiverMode.getValue())
         {
             case Automatic:
-                if(cycles < cyclesAmount.getValue()) // For cycles, we should probably only repeat the shooting, since we are already rotated and have switched.
-                {
                     // ---------- SWITCH ---------- //
                     if (switchMode.getValue() == SwitchMode.Normal && stage == 0)
                     {
                         InventoryUtil.switchTo(getSwapSlot());
                         stage++;
                     }
-                    else if(switchMode.getValue() == SwitchMode.Silent)
+                    else if(switchMode.getValue() == SwitchMode.FakeSilent)
                     {
                         InventoryUtil.switchToBypass(getSwapSlot());
                         stage++;
                     }
 
-                    // ---------- ROTATING ---------- //
+                    // ---------- ROTATIONS ---------- //
                     if(rotateMode.getValue() == RotationMode.Normal)
                     {
                         if(stage == 1)
                         {
-                            RotationUtil.faceSmoothly(mc.player.cameraYaw, mc.player.cameraPitch, yaw, -90L, 20L, 20L);
+                            mc.player.setPositionAndRotation(mc.player.posX, mc.player.posY, mc.player.posZ, yaw, -90);
                             stage++;
                         }
                         else
@@ -132,7 +132,8 @@ public class Quiver extends Module {
                     {
                         if(stage == 1)
                         {
-                            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, -90, true));
+                            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, -90, false));
+                            // This doesn't work? Will need to fix.
                             stage++;
                         } else
                             return;
@@ -143,7 +144,7 @@ public class Quiver extends Module {
                         mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
                         stage++;
                     }
-                    // ---------- SHOOT ---------- //
+                    // ---------- SHOOT W/ BOW ---------- //
                     if(stage == 3 && InventoryUtil.isHolding(Items.BOW) && shootTime.passed(100 + delay.getValue()))
                     {
                         mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, mc.player.getHorizontalFacing()));
@@ -153,25 +154,33 @@ public class Quiver extends Module {
                     {
                         ModuleUtil.disableRed(this, "Something went wrong!");
                     }
-                    // ---------- DISABLE & SWITCH BACK ---------- //
+                    // ---------- DISABLE & SWITCHING BACK ---------- //
                     if(stage == 4)
                     {
-                        this.disable();
-                        RotationUtil.faceSmoothly(mc.player.cameraYaw, mc.player.cameraPitch, yaw, pitch, 10L, 10L);
+                        if(rotateMode.getValue() == RotationMode.Normal)
+                            mc.player.setPositionAndRotation(mc.player.posX, mc.player.posY, mc.player.posZ, yaw, pitch);
+                        else if(rotateMode.getValue() == RotationMode.Packet)
+                            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, false));
                         if(switchBack.getValue())
                             InventoryUtil.switchTo(getOldSlot());
                         cycles++;
-                        if(cycles < cyclesAmount.getValue())
+                        if(cycles != cyclesAmount.getValue())
+                        {
+                            if(cycles > cyclesAmount.getValue())
+                                cycles = 0;
                             this.enable();
+                        }
+                        this.disable();
                     }
                     break;
-                }
             case Manual:
                 InventoryUtil.switchTo(getSwapSlot()); // This is very primitive...? Should maybe be improved.
                 if(rotateMode.getValue().equals(RotationMode.Normal))
-                    RotationUtil.faceSmoothly(mc.player.cameraYaw, mc.player.cameraPitch, yaw, -90L, 20L, 20L);
+                    // RotationUtil.faceSmoothly(mc.player.cameraYaw, mc.player.cameraPitch, yaw, -90L, 20L, 20L); // Old way of handling this...
+                    mc.player.setPositionAndRotation(mc.player.posX, mc.player.posY, mc.player.posZ, yaw, -90);
+                    // TODO: Listener for manually shot hits, so we can disable and rotate to normal
                 else if(rotateMode.getValue().equals(RotationMode.Packet))
-                    mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, -90.0f, true));
+                    mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, -90.0f, false));
                 break;
         }
     }
@@ -186,9 +195,12 @@ public class Quiver extends Module {
         return oldSlot;
     }
 
+    /**
+     * Hits, Arrows and None. These are the modes, we will give to the player to list in the Arraylist.
+     * @return information we should list in the Arraylist.
+     */
     public String getDisplayInfo()
     {
-
         if(hudMode.getValue() == HUDMode.Arrows)
         {
             hudmode = String.valueOf(arrowCount);
@@ -196,10 +208,9 @@ public class Quiver extends Module {
         else if(hudMode.getValue() == HUDMode.Hits){
             hudmode = String.valueOf(hits);
         }
-        else if (hudMode.getValue() == HUDMode.None){ // spaghetti? lol
+        else if (hudMode.getValue() == HUDMode.None){ // spaghetti? lol, should be rewritten.
             hudmode = null;
         }
-
         return hudmode;
     }
 
@@ -210,5 +221,10 @@ public class Quiver extends Module {
         hits = 0;
         shootTime.reset();
         cycles = 0;
+        // Rotating back is in the 4th stage of Quiver, but this is a measure to ensure that we are rotating back.
+        if(rotateMode.getValue() == RotationMode.Normal)
+            mc.player.setPositionAndRotation(mc.player.posX, mc.player.posY, mc.player.posZ, yaw, pitch);
+        else if(rotateMode.getValue() == RotationMode.Packet)
+            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, false));
     }
 }
