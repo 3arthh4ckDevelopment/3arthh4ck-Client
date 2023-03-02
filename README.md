@@ -2,10 +2,10 @@
 
 # 3arthh4ck
 
-[![CodeFactor](https://www.codefactor.io/repository/github/3arthqu4ke/3arthh4ck/badge/main)](https://www.codefactor.io/repository/github/3arthqu4ke/3arthh4ck/overview/main)
-[![GitHub All Releases](https://img.shields.io/github/downloads/3arthqu4ke/3arthh4ck/total.svg)](https://github.com/3arthqu4ke/3arthh4ck/releases)
+[![CodeFactor](https://www.codefactor.io/repository/github/nukiz/3arthh4ck-continued/badge/main)](https://www.codefactor.io/repository/github/3arthqu4ke/3arthh4ck/overview/main)
+[![GitHub All Releases](https://img.shields.io/github/downloads/nukiz/3arthh4ck-continued/total.svg)](https://github.com/3arthqu4ke/3arthh4ck/releases)
 [![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/3arthqu4ke/pingbypass?logo=docker)](https://hub.docker.com/r/3arthqu4ke/pingbypass)
-[![Lines of code](docs/loc.svg)](https://tokei.rs/b1/github/3arthqu4ke/3arthh4ck?category=code)
+[![Lines of code](docs/loc.svg)](https://tokei.rs/b1/github/nukiz/3arthh4ck-continued?category=code)
 ![Repo size](https://img.shields.io/github/repo-size/3arthqu4ke/3arthh4ck.svg)
 [![Build](https://github.com/3arthqu4ke/3arthh4ck/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/3arthqu4ke/3arthh4ck/actions)
 
