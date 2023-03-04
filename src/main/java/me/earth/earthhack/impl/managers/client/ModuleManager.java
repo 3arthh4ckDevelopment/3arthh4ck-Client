@@ -94,6 +94,7 @@ import me.earth.earthhack.impl.modules.movement.autosprint.AutoSprint;
 import me.earth.earthhack.impl.modules.movement.avoid.Avoid;
 import me.earth.earthhack.impl.modules.movement.blocklag.BlockLag;
 import me.earth.earthhack.impl.modules.movement.boatfly.BoatFly;
+import me.earth.earthhack.impl.modules.movement.clip.Clip;
 import me.earth.earthhack.impl.modules.movement.elytraflight.ElytraFlight;
 import me.earth.earthhack.impl.modules.movement.entitycontrol.EntityControl;
 import me.earth.earthhack.impl.modules.movement.entityspeed.EntitySpeed;
@@ -166,6 +167,7 @@ import me.earth.earthhack.impl.modules.render.rainbowenchant.RainbowEnchant;
 import me.earth.earthhack.impl.modules.render.search.Search;
 import me.earth.earthhack.impl.modules.render.skeleton.Skeleton;
 import me.earth.earthhack.impl.modules.render.sounds.Sounds;
+import me.earth.earthhack.impl.modules.render.swing.Swing;
 import me.earth.earthhack.impl.modules.render.tracers.Tracers;
 import me.earth.earthhack.impl.modules.render.trails.Trails;
 import me.earth.earthhack.impl.modules.render.trajectories.Trajectories;
@@ -184,6 +186,8 @@ public class ModuleManager extends IterationRegister<Module>
     public void init()
     {
         Earthhack.getLogger().info("Initializing Modules.");
+
+        //client
         this.forceRegister(new AccountSpoof());
         this.forceRegister(new AntiCheat());
         this.forceRegister(new AutoConfig());
@@ -206,6 +210,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new TabModule());
         this.forceRegister(new Media());
 
+        //combat
         this.forceRegister(new AntiSurround());
         this.forceRegister(new AntiTrap());
         this.forceRegister(new Auto32k());
@@ -228,6 +233,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new SelfTrap());
         this.forceRegister(new WebAura());
 
+        //misc
         this.forceRegister(new Announcer());
         this.forceRegister(new AntiAim());
         this.forceRegister(new AntiPackets());
@@ -269,11 +275,13 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new PacketDelay());
         this.forceRegister(new RPC());
 
+        //movement
         this.forceRegister(new Anchor());
         this.forceRegister(new AutoSprint());
         this.forceRegister(new Avoid());
         this.forceRegister(new BlockLag());
         this.forceRegister(new BoatFly());
+        this.forceRegister(new Clip());
         this.forceRegister(new ElytraFlight());
         this.forceRegister(new EntityControl());
         this.forceRegister(new EntitySpeed());
@@ -296,6 +304,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new TickShift());
         this.forceRegister(new Velocity());
 
+        //player
         this.forceRegister(new AutoMine());
         this.forceRegister(new AutoTool());
         this.forceRegister(new Blink());
@@ -326,6 +335,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new Timer());
         this.forceRegister(new XCarry());
 
+        //render
         this.forceRegister(new BlockHighlight());
         this.forceRegister(new BreadCrumbs());
         this.forceRegister(new Chams());
@@ -341,6 +351,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new Search());
         this.forceRegister(new Skeleton());
         this.forceRegister(new Sounds());
+        this.forceRegister(new Swing());
         this.forceRegister(new Tracers());
         this.forceRegister(new CameraClip());
         this.forceRegister(new ViewModel());
