@@ -1,7 +1,8 @@
 package me.earth.earthhack.impl.modules.combat.quiver;
 
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
-import net.minecraft.entity.projectile.EntityTippedArrow;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 
 public class ListenerHits extends ModuleListener<Quiver, LivingHurtEvent>
@@ -17,8 +18,9 @@ public class ListenerHits extends ModuleListener<Quiver, LivingHurtEvent>
      */
     public void invoke(LivingHurtEvent event)
     {
-        if(event.getEntity() instanceof EntityTippedArrow){
-            module.hits++;
+        if(event.getEntity() instanceof EntityPlayer){
+            if(event.getSource() == DamageSource.MAGIC) // Don't know if this actually works, but tipped arrows should technically count as magic
+                module.hits++;
         }
 
         // Maybe something else here?

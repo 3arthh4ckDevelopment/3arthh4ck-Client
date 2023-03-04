@@ -3,19 +3,15 @@ package me.earth.earthhack.impl.modules.combat.quiver;
 import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
-import me.earth.earthhack.api.setting.settings.BooleanSetting;
-import me.earth.earthhack.api.setting.settings.EnumSetting;
-import me.earth.earthhack.api.setting.settings.NumberSetting;
-import me.earth.earthhack.impl.modules.combat.quiver.modes.HUDMode;
-import me.earth.earthhack.impl.modules.combat.quiver.modes.QuiverMode;
-import me.earth.earthhack.impl.modules.combat.quiver.modes.RotationMode;
-import me.earth.earthhack.impl.modules.combat.quiver.modes.SwitchMode;
+import me.earth.earthhack.api.setting.settings.*;
+import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.modules.combat.quiver.modes.*;
 import me.earth.earthhack.impl.util.client.ModuleUtil;
 import me.earth.earthhack.impl.util.math.StopWatch;
-import me.earth.earthhack.impl.util.math.rotation.RotationUtil;
 import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
-
+import me.earth.earthhack.impl.util.network.PacketUtil;
 import me.earth.earthhack.impl.util.text.TextColor;
+
 import net.minecraft.init.Items;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
@@ -24,7 +20,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
 public class Quiver extends Module {
-    // TODO: Filter tipped arrows to separate places, like speed and strength arrows so we can use them more efficiently
+    // TODO: Filter tipped arrows like strength and speed separately, so we can shoot both
     // As of now, getArrows is limited to all Tipped Arrows. This should be different.
     protected final Setting<HUDMode> hudMode     =
             register(new EnumSetting<>("HUDMode", HUDMode.Arrows));
@@ -33,14 +29,13 @@ public class Quiver extends Module {
     protected final Setting<QuiverMode> quiverMode     =
             register(new EnumSetting<>("Mode", QuiverMode.Automatic));
     protected final Setting<RotationMode> rotateMode     =
-            register(new EnumSetting<>("Rotation", RotationMode.Normal));
+            register(new EnumSetting<>("Rotation", RotationMode.Client));
     protected final Setting<Boolean> switchBack =
             register(new BooleanSetting("SwitchBack", true));
     protected final Setting<Integer> delay   =
             register(new NumberSetting<>("Delay", 5, 0, 100));
     protected final Setting<Integer> cyclesAmount   =
             register(new NumberSetting<>("Cycles", 2, 1, 3));
-    // Cycles should be fixed, since at the moment it doesn't function properly.
     protected final Setting<Boolean> blockedCheck =
             register(new BooleanSetting("BlockedCheck", false));
     protected final Setting<Boolean> mineBlocked =
@@ -56,10 +51,12 @@ public class Quiver extends Module {
     int swapSlot;
     float yaw;
     float pitch;
+    double x, y, z;
     int arrowCount;
     int hits;
     int cycles = 0;
     int stage = 0;
+
     /* Stage: Because using an enum is kinda annoying to write out when it changes, we should just use an integer.
      * Meaning:
      * 0 - Switch
@@ -80,10 +77,13 @@ public class Quiver extends Module {
         cycles = 0;
         stage = 0;
         hits = 0;
+        x = mc.player.posX;
+        y = mc.player.posY;
+        z = mc.player.posZ;
         arrowCount = InventoryUtil.getCount(Items.TIPPED_ARROW);
 
-        pitch = mc.player.rotationPitch;
-        yaw = mc.player.rotationYawHead;
+        yaw   = Managers.ROTATION.getServerYaw();
+        pitch = Managers.ROTATION.getServerPitch();
 
         if(getSwapSlot() < 0)
         {
@@ -91,6 +91,7 @@ public class Quiver extends Module {
         }
         else
             doQuiver();
+
         if(mc.player == null)
         {
             ModuleUtil.disable(this, TextColor.RED + "Disabled, not in a world.");
@@ -118,26 +119,8 @@ public class Quiver extends Module {
                     }
 
                     // ---------- ROTATIONS ---------- //
-                    if(rotateMode.getValue() == RotationMode.Normal)
-                    {
-                        if(stage == 1)
-                        {
-                            mc.player.setPositionAndRotation(mc.player.posX, mc.player.posY, mc.player.posZ, yaw, -90);
-                            stage++;
-                        }
-                        else
-                            return;
-                    }
-                    else if(rotateMode.getValue() == RotationMode.Packet)
-                    {
-                        if(stage == 1)
-                        {
-                            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, -90, false));
-                            // This doesn't work? Will need to fix.
-                            stage++;
-                        } else
-                            return;
-                    }
+                    if(stage == 1)
+                        setRotations();
                     // ---------- DRAW BACK ---------- //
                     if(stage == 2)
                     {
@@ -157,32 +140,66 @@ public class Quiver extends Module {
                     // ---------- DISABLE & SWITCHING BACK ---------- //
                     if(stage == 4)
                     {
-                        if(rotateMode.getValue() == RotationMode.Normal)
-                            mc.player.setPositionAndRotation(mc.player.posX, mc.player.posY, mc.player.posZ, yaw, pitch);
-                        else if(rotateMode.getValue() == RotationMode.Packet)
-                            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, false));
+                        // ROTATION
+                            setRotations();
+                        // SWITCHING BACK
                         if(switchBack.getValue())
                             InventoryUtil.switchTo(getOldSlot());
+                        // CYCLES
                         cycles++;
-                        if(cycles != cyclesAmount.getValue())
-                        {
-                            if(cycles > cyclesAmount.getValue())
-                                cycles = 0;
-                            this.enable();
-                        }
-                        this.disable();
+                        if(cycles > cyclesAmount.getValue())
+                            cycles = 0;
+                        if(cycles < cyclesAmount.getValue()) // spaghetti?
+                            stage = 1;
+                        if(cycles == cyclesAmount.getValue())
+                            this.disable();
                     }
                     break;
             case Manual:
-                InventoryUtil.switchTo(getSwapSlot()); // This is very primitive...? Should maybe be improved.
-                if(rotateMode.getValue().equals(RotationMode.Normal))
-                    // RotationUtil.faceSmoothly(mc.player.cameraYaw, mc.player.cameraPitch, yaw, -90L, 20L, 20L); // Old way of handling this...
-                    mc.player.setPositionAndRotation(mc.player.posX, mc.player.posY, mc.player.posZ, yaw, -90);
-                    // TODO: Listener for manually shot hits, so we can disable and rotate to normal
-                else if(rotateMode.getValue().equals(RotationMode.Packet))
-                    mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, -90.0f, false));
+                // SWITCH
+                if(stage == 0)
+                {
+                    InventoryUtil.switchTo(getSwapSlot());
+                    stage++;
+                }
+                // ROTATE
+                if(stage == 1)
+                {
+                    setRotations();
+                    // The rest is for the user!
+                }
                 break;
         }
+    }
+
+    public void setRotations()
+    {
+        switch(rotateMode.getValue()){
+            case Normal:
+                if(stage == 1)
+                    PacketUtil.doRotation(yaw, -90.0f, mc.player.onGround); // Basically packet? Just different, I guess
+                else if(stage == 4)
+                    PacketUtil.doRotation(yaw, pitch, mc.player.onGround); // RotationUtil didn't seem to want to work w this, so just use packets! :)
+                else return;
+            break;
+
+            case Packet: // Honestly idk if this looks like shit, or if it's actually good code lmao.
+                if(stage == 1)
+                    mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, -90.0f, mc.player.onGround));
+                else if(stage == 4)
+                    mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, mc.player.onGround));
+                else return;
+            break;
+
+            case Client:
+                if(stage == 1)
+                    mc.player.setPositionAndRotation(x, y, z, yaw, -90f);
+                else if(stage == 4)
+                    mc.player.setPositionAndRotation(x, y, z, yaw, pitch);
+                else return;
+            break;
+        }
+
     }
     public int getSwapSlot()
     {
@@ -222,7 +239,7 @@ public class Quiver extends Module {
         shootTime.reset();
         cycles = 0;
         // Rotating back is in the 4th stage of Quiver, but this is a measure to ensure that we are rotating back.
-        if(rotateMode.getValue() == RotationMode.Normal)
+        if(rotateMode.getValue() == RotationMode.Client)
             mc.player.setPositionAndRotation(mc.player.posX, mc.player.posY, mc.player.posZ, yaw, pitch);
         else if(rotateMode.getValue() == RotationMode.Packet)
             mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, false));
