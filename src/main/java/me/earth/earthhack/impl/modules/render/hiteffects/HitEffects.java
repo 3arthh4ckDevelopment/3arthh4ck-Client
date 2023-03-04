@@ -5,27 +5,18 @@ import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
-import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
-import java.awt.*;
-import java.util.Random;
 
 public class HitEffects extends Module {
     public HitEffects(){
         super("HitEffects", Category.Render);
         this.listeners.add(new ListenerDamage(this));
+        this.setData(new HitEffectsData(this));
     }
 
     protected EntityPlayer target;
     protected final Setting<Boolean> lightning =
             register(new BooleanSetting("Lightning", true));
-    protected final Setting<Boolean> screenShader =
-            register(new BooleanSetting("ScreenShader", false));
-    protected final Setting<Integer> screenShaderLength =
-            register(new NumberSetting<>("ShaderLength", 2,1,5));
     protected final Setting<Boolean> superheroFx =
             register(new BooleanSetting("SuperheroFX", false));
     protected final Setting<Float> superheroFadeTime =

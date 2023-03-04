@@ -22,7 +22,7 @@ public class ListenerDamage extends ModuleListener<HitEffects, LivingHurtEvent> 
     String fxHero;
     Color fxColor;
     boolean firstDraw;
-    String[] heroFxText = {"kaboom", "wham", "zap", "boom", "whack", "smash", "knockout"};
+    String[] heroFxText = {"kaboom", "wham", "zap", "boom", "whack", "smash", "knockout", "wow", "pow", "power", "rekt"};
     Color[] heroFxColor = {Color.RED, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.BLUE, Color.CYAN, Color.ORANGE};
 
     // TIMERS
@@ -34,17 +34,13 @@ public class ListenerDamage extends ModuleListener<HitEffects, LivingHurtEvent> 
         {
             if(module.lightning.getValue())
             {
-                EntityLightningBolt bolt = new EntityLightningBolt(mc.player.world, 0D, 0D, 0D, true);
-                double LightningPosX = event.getEntity().posX;
-                double LightningPosY = event.getEntity().posY;
-                double LightningPosZ = event.getEntity().posZ;
                 if(module.onlyOnKill.getValue())
                 {
                     if(event.getEntity().isDead)
-                        bolt.setLocationAndAngles(LightningPosX, LightningPosY, LightningPosZ, 0.0f, 0.0f);
+                        mc.world.spawnEntity(new EntityLightningBolt(mc.player.world, event.getEntity().posX, event.getEntity().posY, event.getEntity().posZ, true));
                 }
                 else
-                    bolt.setLocationAndAngles(LightningPosX, LightningPosY, LightningPosZ, 0.0f, 0.0f);
+                    mc.world.spawnEntity(new EntityLightningBolt(mc.player.world, event.getEntity().posX, event.getEntity().posY, event.getEntity().posZ, true));
             }
             if(module.superheroFx.getValue())
             {
@@ -69,5 +65,10 @@ public class ListenerDamage extends ModuleListener<HitEffects, LivingHurtEvent> 
         fxColor = heroFxColor[rnd.nextInt(heroFxColor.length)];
 
         return fxColor;
+    }
+
+    public void drawHeroFx()
+    {
+        //TODO: This, with some fun settings
     }
 }
