@@ -37,6 +37,11 @@ public class CrystalChams extends Module {
         register(new ColorSetting("Color", new Color(255, 255, 255, 255)));
     public final Setting<Color> wireFrameColor =
         register(new ColorSetting("WireframeColor", new Color(255, 255, 255, 255)));
+        public final NumberSetting<Float> spinSpeed =
+            register(new NumberSetting<>("SpinSpeed", 1.0f, 0.1f, 100f));
+    public final NumberSetting<Float> bounceSpeed =
+            register(new NumberSetting<>("BounceSpeed", 1.0f, 0.0f, 100f));
+    
 
     public CrystalChams() {
         super("CrystalChams", Category.Render);
@@ -106,8 +111,8 @@ public class CrystalChams extends Module {
                               wireColor.getGreen() / 255.0f,
                               wireColor.getBlue() / 255.0f,
                               wireColor.getAlpha() / 255.0f);
-                    e.getModel().render(e.getEntity(), e.getLimbSwing(), e.getLimbSwingAmount(),
-                                        e.getAgeInTicks(), e.getNetHeadYaw(), e.getHeadPitch(), e.getScale());
+                    e.getModel().render(e.getEntity(), e.getLimbSwing(), e.getLimbSwingAmount() * spinSpeed.getValue(),
+                                        e.getAgeInTicks()*bounceSpeed.getValue(), e.getNetHeadYaw(), e.getHeadPitch(), e.getScale());
                     glPopAttrib();
                 }
 
@@ -129,8 +134,8 @@ public class CrystalChams extends Module {
                               chamsColor.getGreen() / 255.0f,
                               chamsColor.getBlue() / 255.0f,
                               chamsColor.getAlpha() / 255.0f);
-                    e.getModel().render(e.getEntity(), e.getLimbSwing(), e.getLimbSwingAmount(),
-                                        e.getAgeInTicks(), e.getNetHeadYaw(), e.getHeadPitch(), e.getScale());
+                    e.getModel().render(e.getEntity(), e.getLimbSwing(), e.getLimbSwingAmount() * spinSpeed.getValue(),
+                                        e.getAgeInTicks()*bounceSpeed.getValue(), e.getNetHeadYaw(), e.getHeadPitch(), e.getScale());
                     glPopAttrib();
                 }
             }
