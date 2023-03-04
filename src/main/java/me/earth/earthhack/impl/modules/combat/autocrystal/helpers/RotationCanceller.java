@@ -139,7 +139,7 @@ public class RotationCanceller implements Globals
     }
 
     /**
-     * Drops the current packet. It won't be send.
+     * Drops the current packet. It won't be sent.
      */
     public synchronized void drop()
     {
