@@ -1,13 +1,13 @@
-> :warning: This is a continuation of outdated and archived 1.12.2 client. More and more servers are updating to newer versions. Any new PingBypass I release will be found [here](https://github.com/3arthqu4ke/PingBypass).
+> :warning: This is a continuation of an archived 1.12.2 client. More and more servers are updating to newer versions. Any new PingBypass release will be found [here](https://github.com/3arthqu4ke/PingBypass).
 
 # 3arthh4ck
 
-[![CodeFactor](https://www.codefactor.io/repository/github/3arthqu4ke/3arthh4ck/badge/main)](https://www.codefactor.io/repository/github/3arthqu4ke/3arthh4ck/overview/main)
-[![GitHub All Releases](https://img.shields.io/github/downloads/3arthqu4ke/3arthh4ck/total.svg)](https://github.com/3arthqu4ke/3arthh4ck/releases)
-[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/3arthqu4ke/pingbypass?logo=docker)](https://hub.docker.com/r/3arthqu4ke/pingbypass)
-[![Lines of code](docs/loc.svg)](https://tokei.rs/b1/github/3arthqu4ke/3arthh4ck?category=code)
-![Repo size](https://img.shields.io/github/repo-size/3arthqu4ke/3arthh4ck.svg)
-[![Build](https://github.com/3arthqu4ke/3arthh4ck/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/3arthqu4ke/3arthh4ck/actions)
+[![CodeFactor](https://www.codefactor.io/repository/github/GentlemanMC/3arthh4ck/badge/main)](https://www.codefactor.io/repository/github/GentlemanMC/3arthh4ck/overview/main)
+[![GitHub All Releases](https://img.shields.io/github/downloads/GentlemanMC/3arthh4ck/total.svg)](https://github.com/GentlemanMC/3arthh4ck/releases)
+[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/GentlemanMC/pingbypass?logo=docker)](https://hub.docker.com/r/GentlemanMC/pingbypass)
+[![Lines of code](docs/loc.svg)](https://tokei.rs/b1/github/GentlemanMC/3arthh4ck?category=code)
+![Repo size](https://img.shields.io/github/repo-size/GentlemanMC/3arthh4ck.svg)
+[![Build](https://github.com/GentlemanMC/3arthh4ck/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/GentlemanMC/3arthh4ck/actions)
 
 3arthh4ck is Minecraft 1.12.2 utility mod for anarchy PvP. With the 1.7.0 release it also takes over the role
 of the now outdated PingBypass [Server](https://github.com/3arthqu4ke/PingBypass) and 
@@ -31,9 +31,9 @@ which account you use on your client, the Minecraft account on the server will a
 ### Setup with docker
 1.  Install [docker](https://docs.docker.com/engine/install/) on your server.
 
-2.  Run `docker pull 3arthqu4ke/pingbypass`.
+2.  Run `docker pull GentlemanMC/pingbypass`.
 
-3.  Run `docker run -i -t -p <ip>:<port>:25565 3arthqu4ke/pingbypass`.
+3.  Run `docker run -i -t -p <ip>:<port>:25565 GentlemanMC/pingbypass`.
 
 4.  You should now be in the shell of the docker container.
 
