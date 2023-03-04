@@ -52,7 +52,8 @@ public class Notifications extends Module
         super("Notifications", Category.Client);
         this.listeners.add(new ListenerTotems(this));
         this.listeners.add(new ListenerDeath(this));
-        this.listeners.add(new ListenerAddEntity(this));
+        this.listeners.add(new ListenerPlayerEnter(this));
+        this.listeners.add(new ListenerPlayerLeave(this));
         this.setData(new NotificationData(this));
 
         Bus.EVENT_BUS.register(
@@ -171,7 +172,20 @@ public class Notifications extends Module
         }
     }
 
-    public void onEntityAdd(Entity player)
+
+    public void onPlayerLeave(Entity player) {
+        if (this.isEnabled() && leave.getValue()) {
+            String message =
+                    visualRangePlayerColor.getValue().getColor()
+                            + player.getName()
+                            + leftColor.getValue().getColor()
+                            + " has just left your visual range";
+
+            Managers.CHAT.sendDeleteMessage(message,
+                    player.getName(), ChatIDs.VISUALRANGE_LEAVE);
+        }
+    }
+    public void onPlayerEnter(Entity player)
     {
         if (this.isEnabled() && entered.getValue())
         {
@@ -179,10 +193,10 @@ public class Notifications extends Module
                     visualRangePlayerColor.getValue().getColor()
                     + player.getName()
                     + enteredColor.getValue().getColor()
-                    + "has just entered your visual range";
+                    + " has just entered your visual range";
 
             Managers.CHAT.sendDeleteMessage(message,
-                    player.getName(), 69);
+                    player.getName(), ChatIDs.VISUALRANGE_ENTER);
         }
     }
 

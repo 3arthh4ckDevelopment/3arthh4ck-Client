@@ -1,4 +1,4 @@
-package me.earth.earthhack.impl.modules.render.swing;
+package me.earth.earthhack.impl.modules.player.swing;
 
 import me.earth.earthhack.api.module.data.DefaultData;
 

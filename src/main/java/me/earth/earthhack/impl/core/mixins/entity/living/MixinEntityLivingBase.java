@@ -10,7 +10,7 @@ import me.earth.earthhack.impl.event.events.misc.DeathEvent;
 import me.earth.earthhack.impl.event.events.movement.LiquidJumpEvent;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.misc.nointerp.NoInterp;
-import me.earth.earthhack.impl.modules.render.swing.Swing;
+import me.earth.earthhack.impl.modules.player.swing.Swing;
 import me.earth.earthhack.impl.modules.movement.elytraflight.ElytraFlight;
 import me.earth.earthhack.impl.modules.movement.elytraflight.mode.ElytraMode;
 import me.earth.earthhack.impl.modules.player.fasteat.FastEat;
