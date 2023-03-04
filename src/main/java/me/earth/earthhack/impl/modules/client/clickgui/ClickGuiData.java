@@ -18,7 +18,7 @@ public class ClickGuiData extends DefaultData<ClickGui> {
         register(module.blurAmount, "Blur strength for Blur.");
         register(module.blurSize, "Size of the blur, for Blur.");
     }
-    public String getData() {
-        return "Beautiful ClickGui by oHare";
+    public String getDescription() {
+        return "Beautiful ClickGui by oHare.";
     }
 }
