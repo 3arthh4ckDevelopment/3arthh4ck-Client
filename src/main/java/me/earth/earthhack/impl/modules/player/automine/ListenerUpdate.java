@@ -10,10 +10,7 @@ import me.earth.earthhack.impl.modules.combat.anvilaura.AnvilAura;
 import me.earth.earthhack.impl.modules.combat.surround.Surround;
 import me.earth.earthhack.impl.modules.movement.step.Step;
 import me.earth.earthhack.impl.modules.player.automine.mode.AutoMineMode;
-import me.earth.earthhack.impl.modules.player.automine.util.BigConstellation;
-import me.earth.earthhack.impl.modules.player.automine.util.Constellation;
-import me.earth.earthhack.impl.modules.player.automine.util.CrystalConstellation;
-import me.earth.earthhack.impl.modules.player.automine.util.EchestConstellation;
+import me.earth.earthhack.impl.modules.player.automine.util.*;
 import me.earth.earthhack.impl.modules.player.speedmine.Speedmine;
 import me.earth.earthhack.impl.modules.player.speedmine.mode.MineMode;
 import me.earth.earthhack.impl.util.client.ModuleUtil;
@@ -32,6 +29,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.tileentity.TileEntityShulkerBox;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -228,6 +226,40 @@ final class ListenerUpdate extends ModuleListener<AutoMine, UpdateEvent>
                     return;
                 }
             }
+
+            if (module.constellation == null
+                    && module.shulkers.getValue())
+            {
+                TileEntity closest = null;
+                double minDist = Double.MAX_VALUE;
+                for (TileEntity entity : mc.world.loadedTileEntityList)
+                {
+                    if (entity instanceof TileEntityShulkerBox
+                            && BlockUtil.getDistanceSq(entity.getPos())
+                            < MathUtil.square(module.shulkersRange.getValue()))
+                    {
+                        double dist = entity.getPos().distanceSqToCenter(
+                                RotationUtil.getRotationPlayer().posX,
+                                RotationUtil.getRotationPlayer().posY
+                                        + mc.player.getEyeHeight(),
+                                RotationUtil.getRotationPlayer().posZ);
+
+                        if (dist < minDist)
+                        {
+                            minDist = dist;
+                            closest = entity;
+                        }
+                    }
+                }
+
+                if (closest != null)
+                {
+                    module.offer(new ShulkerConstellation(closest.getPos()));
+                    module.attackPos(closest.getPos());
+                    return;
+                }
+            }
+
 
             if ((module.constellation == null
                 || !module.constellation.cantBeImproved()
