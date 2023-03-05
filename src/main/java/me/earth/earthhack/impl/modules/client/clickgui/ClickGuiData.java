@@ -15,6 +15,8 @@ public class ClickGuiData extends DefaultData<ClickGui> {
                 " Planned to have a new blur" +
                 " implemented soon, this is why" +
                 " this is currently called OldBlur.");
+        register(module.newBlur, "Blurs the background of the ClickGUI." +
+                " This is a reworked version of OldBlur.");
         register(module.blurAmount, "Blur strength for Blur.");
         register(module.blurSize, "Size of the blur, for Blur.");
     }
