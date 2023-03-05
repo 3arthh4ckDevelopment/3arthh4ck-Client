@@ -10,7 +10,6 @@ import me.earth.earthhack.impl.event.events.misc.UpdateEvent;
 import me.earth.earthhack.impl.event.listeners.LambdaListener;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import me.earth.earthhack.impl.util.client.SimpleData;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.math.MathHelper;
 
@@ -45,9 +44,7 @@ public class Clip extends Module {
     public Clip()
     {
         super("Clip", Category.Movement);
-        SimpleData data = new SimpleData(
-                this, "Clip into blocks.");
-        this.setData(data);
+        this.setData(new ClipData(this));
         this.listeners.add(new LambdaListener<>(UpdateEvent.class, e -> {
             if (mc.gameSettings.keyBindForward.isKeyDown()
                     || mc.gameSettings.keyBindBack.isKeyDown()
@@ -68,7 +65,12 @@ public class Clip extends Module {
                     mc.player.connection.sendPacket(new CPacketPlayer.Position(setCenter.x, setCenter.y, setCenter.z, true));
                     mc.player.setPosition(setCenter.x, setCenter.y, setCenter.z);
 
-                    disable();
+                    if (disable.getValue())
+                        if (disabletime >= updates.getValue()) {
+                            disable();
+                        }
+                    disabletime++;
+
                     break;
 
                 case Corner:

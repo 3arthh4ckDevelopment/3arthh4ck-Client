@@ -13,7 +13,7 @@ import net.minecraft.util.EnumHand;
 
 public class Swing extends Module {
     public final NumberSetting<Integer> swingSpeed =
-            register(new NumberSetting<>("Mode", 6, 0, 20));
+            register(new NumberSetting<>("Swing-Delay", 6, 0, 20));
 
     public final BooleanSetting clientside =
             register(new BooleanSetting("ClientSide", false));

@@ -39,8 +39,8 @@ public class CrystalChams extends Module {
         register(new ColorSetting("WireframeColor", new Color(255, 255, 255, 255)));
         public final NumberSetting<Float> spinSpeed =
             register(new NumberSetting<>("SpinSpeed", 1.0f, 0.1f, 100f));
-    public final NumberSetting<Float> bounceSpeed =
-            register(new NumberSetting<>("BounceSpeed", 1.0f, 0.0f, 100f));
+    public final NumberSetting<Float> bounceFactor =
+            register(new NumberSetting<>("BounceFactor", 1.0f, 0.0f, 100f));
     
 
     public CrystalChams() {
@@ -112,7 +112,7 @@ public class CrystalChams extends Module {
                               wireColor.getBlue() / 255.0f,
                               wireColor.getAlpha() / 255.0f);
                     e.getModel().render(e.getEntity(), e.getLimbSwing(), e.getLimbSwingAmount() * spinSpeed.getValue(),
-                                        e.getAgeInTicks()*bounceSpeed.getValue(), e.getNetHeadYaw(), e.getHeadPitch(), e.getScale());
+                                        e.getAgeInTicks()*bounceFactor.getValue(), e.getNetHeadYaw(), e.getHeadPitch(), e.getScale());
                     glPopAttrib();
                 }
 
@@ -135,7 +135,7 @@ public class CrystalChams extends Module {
                               chamsColor.getBlue() / 255.0f,
                               chamsColor.getAlpha() / 255.0f);
                     e.getModel().render(e.getEntity(), e.getLimbSwing(), e.getLimbSwingAmount() * spinSpeed.getValue(),
-                                        e.getAgeInTicks()*bounceSpeed.getValue(), e.getNetHeadYaw(), e.getHeadPitch(), e.getScale());
+                                        e.getAgeInTicks()*bounceFactor.getValue(), e.getNetHeadYaw(), e.getHeadPitch(), e.getScale());
                     glPopAttrib();
                 }
             }
