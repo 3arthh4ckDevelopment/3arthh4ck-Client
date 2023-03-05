@@ -125,6 +125,10 @@ public class BlockLag extends DisablingModule
     // --------------- BYPASS --------------- //
     protected final Setting<Float> motionAmount =
             register(new NumberSetting<>("Motion-Amount", 10f, 0.1f, 1337.0f));
+    protected final Setting<Boolean> useBlink =
+            register(new BooleanSetting("UseBlink", true));
+    protected final Setting<Integer> blinkDuration =
+            register(new NumberSetting<>("Blink-Duration", 3200, 0, 5000));
     protected final Setting<Boolean> useTimer =
             register(new BooleanSetting("UseTimer", false));
     protected final Setting<Float> timerAmount =
@@ -132,6 +136,8 @@ public class BlockLag extends DisablingModule
 
     protected final StopWatch scaleTimer = new StopWatch();
     protected final StopWatch timer = new StopWatch();
+    protected final StopWatch blinkTimer = new StopWatch();
+    protected final StopWatch jumpTimer = new StopWatch();
     protected double motionY;
     protected BlockPos startPos;
 
@@ -159,9 +165,7 @@ public class BlockLag extends DisablingModule
         timer.setTime(0);
         super.onEnable();
         if (mc.world == null || mc.player == null)
-        {
             return;
-        }
 
         startPos = getPlayerPos();
         if (singlePlayerCheck(startPos))
