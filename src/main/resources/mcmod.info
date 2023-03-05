@@ -1,16 +1,15 @@
 [
-{
-  "modid": "earthhack",
-  "name": "3arthh4ck",
-  "description": "A 1.12.2 Anarchy Client.",
-  "version": "1.8.6",
-  "mcversion": "1.12.2",
-  "url": "",
-  "updateUrl": "",
-  "authorList": ["3arthqu4ke","Gerald","Megyn","Ohare"],
-  "credits": "Phobos",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": []
-}
+  {
+    "modid": "earthhack",
+    "name": "3arthh4ck",
+    "description": "An utility mod oriented towards Anarchy PvP",
+    "version": "1.8.7",
+    "mcversion": "1.12.2",
+    "url": "https://github.com/nukiz/3arthh4ck-continued/",
+    "authorList": ["3arthqu4ke", "oHare", "Megyn", "Gerald", "nukkkiz"],
+    "credits": "Phobos",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
 ]
