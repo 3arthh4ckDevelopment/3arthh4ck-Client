@@ -4,7 +4,6 @@
 
 [![CodeFactor](https://www.codefactor.io/repository/github/GentlemanMC/3arthh4ck/badge/main)](https://www.codefactor.io/repository/github/GentlemanMC/3arthh4ck/overview/main)
 [![GitHub All Releases](https://img.shields.io/github/downloads/GentlemanMC/3arthh4ck/total.svg)](https://github.com/GentlemanMC/3arthh4ck/releases)
-[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/GentlemanMC/pingbypass?logo=docker)](https://hub.docker.com/r/GentlemanMC/pingbypass)
 [![Lines of code](docs/loc.svg)](https://tokei.rs/b1/github/GentlemanMC/3arthh4ck?category=code)
 ![Repo size](https://img.shields.io/github/repo-size/GentlemanMC/3arthh4ck.svg)
 [![Build](https://github.com/GentlemanMC/3arthh4ck/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/GentlemanMC/3arthh4ck/actions)
