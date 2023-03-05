@@ -7,12 +7,15 @@ import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
+import me.earth.earthhack.impl.event.events.misc.UpdateEvent;
+import me.earth.earthhack.impl.event.listeners.LambdaListener;
 import me.earth.earthhack.impl.gui.visibility.PageBuilder;
 import me.earth.earthhack.impl.gui.visibility.Visibilities;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.movement.blocklag.mode.BlockLagStage;
 import me.earth.earthhack.impl.modules.movement.blocklag.mode.OffsetMode;
+import me.earth.earthhack.impl.modules.player.blink.Blink;
 import me.earth.earthhack.impl.modules.player.freecam.Freecam;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.Pop;
 import me.earth.earthhack.impl.util.helpers.disabling.DisablingModule;
@@ -140,12 +143,26 @@ public class BlockLag extends DisablingModule
     protected final StopWatch jumpTimer = new StopWatch();
     protected double motionY;
     protected BlockPos startPos;
-
+    private static final ModuleCache<Blink> BLINK =
+            Caches.getModule(Blink.class);
+    protected boolean blinkTimerRunning;
+    protected boolean jumpTimerRunning;
     public BlockLag()
     {
         super("BlockLag", Category.Movement);
         this.setData(new BlockLagData(this));
         this.listeners.add(new ListenerMotion(this));
+        // Listener for disabling Blink. For Bypass.
+        this.listeners.add(new LambdaListener<>(UpdateEvent.class, e -> {
+            if(blinkTimerRunning){
+                if(blinkTimer.passed(blinkDuration.getValue())){
+                    BLINK.disable();
+                    blinkTimerRunning = false;
+                    blinkTimer.reset();
+                }
+            }
+        }));
+
         Bus.EVENT_BUS.register(new ListenerVelocity(this));
         Bus.EVENT_BUS.register(new ListenerExplosion(this));
         Bus.EVENT_BUS.register(new ListenerSpawnObject(this));
@@ -162,11 +179,13 @@ public class BlockLag extends DisablingModule
     @Override
     protected void onEnable()
     {
+        jumpTimerRunning = true;
+        blinkTimerRunning = false;
+
         timer.setTime(0);
         super.onEnable();
         if (mc.world == null || mc.player == null)
             return;
-
         startPos = getPlayerPos();
         if (singlePlayerCheck(startPos))
         {

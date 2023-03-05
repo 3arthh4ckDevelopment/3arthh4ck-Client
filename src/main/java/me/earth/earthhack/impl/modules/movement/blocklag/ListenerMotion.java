@@ -162,17 +162,22 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
                 Managers.TIMER.setTimer(module.timerAmount.getValue());
 
             mc.player.jump();
-            module.jumpTimer.setTime(0);
+            module.jumpTimer.reset();
 
             if (module.useBlink.getValue()) {
+
+                mc.player.jump();
+                module.jumpTimer.reset();
+                module.jumpTimerRunning = true;
+
                     if (module.jumpTimer.passed(295)) {
-                        mc.player.jump(); // testing
-                        try{
-                            BLINK.enable();
-                            mc.player.motionY = module.motionAmount.getValue();
-                            module.blinkTimer.reset();
-                            wait(module.blinkDuration.getValue()); // Absolutely horrible way of doing this, but a placeholder for now
-                        }catch(InterruptedException ignored) {}
+                        mc.player.jump(); // Makes this work for some reason.
+                        module.jumpTimer.reset();
+
+                        BLINK.enable();
+                        mc.player.motionY = module.motionAmount.getValue();
+                        module.blinkTimerRunning = true;
+                        module.blinkTimer.reset();
                     }
             }
         }
