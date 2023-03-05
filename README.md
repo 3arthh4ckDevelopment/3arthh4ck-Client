@@ -15,7 +15,9 @@ By default, any message prefixed with a `+` will be handled as command, e.g. `+t
 Because of bloat I decided to hide some of the more complicated Settings by default. You can find those by using the 
 Settings module.
 
-## Proxy/PingBypass
+<details>
+<summary> Proxy/PingBypass </summary>
+    
 ![Image of a PingBypass server](docs/pingbypass.png)  
 3arthh4ck can be used as a Proxy server. With ping being such an important factor in crystal PvP this allows you to play
 on servers far away from where you are without the disadvantage of high ping. This proxy can, opposed to the old
@@ -93,3 +95,4 @@ This is just what the docker container already automates.
     * Launch the game with `launch <id of the forge version> -id`.
 
 9.  You are now done with the server. Just follow the steps after 7. in the docker setup.
+</details>
