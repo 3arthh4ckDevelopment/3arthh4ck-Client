@@ -51,7 +51,7 @@ public class Click extends GuiScreen {
     public final GuiScreen screen;
 
     public static DescriptionFrame descriptionFrame =
-            new DescriptionFrame(0, 0, 200, 18); // moved this here, so it's possible to use all the variables above
+            new DescriptionFrame(0, 0, 200, 18); // moved this here, so it's possible to use all the variables above in the future
 
     public Click(GuiScreen screen) {
         this.moduleManager = Managers.MODULES;
@@ -75,16 +75,16 @@ public class Click extends GuiScreen {
         int y = CLICK_GUI.get().catEars.getValue() ? 14 : 2;
         for (Category moduleCategory : categories) {
             if (moduleManager.getModulesFromCategory(moduleCategory).size() > 0) {
-                getFrames().add(new CategoryFrame(moduleCategory, moduleManager, x, y, 110 * CLICK_GUI.get().guiScale.getValue(), 16 * CLICK_GUI.get().guiScale.getValue()));
+                getFrames().add(new CategoryFrame(moduleCategory, moduleManager, x, y, 110, 16));
                 if (x + 220 >= new ScaledResolution(Minecraft.getMinecraft()).getScaledWidth()) {
-                    x = CLICK_GUI.get().catEars.getValue() ? 14 * Math.round(CLICK_GUI.get().guiScale.getValue()) : 2 * Math.round(CLICK_GUI.get().guiScale.getValue());
-                    y += CLICK_GUI.get().catEars.getValue() ? 32 * CLICK_GUI.get().guiScale.getValue() : 20 * CLICK_GUI.get().guiScale.getValue();
-                } else x += (CLICK_GUI.get().catEars.getValue() ? 132 * CLICK_GUI.get().guiScale.getValue() : 112 * CLICK_GUI.get().guiScale.getValue());
+                    x = CLICK_GUI.get().catEars.getValue() ? 14 * Math.round(CLICK_GUI.get().guiScale.getValue()) : 2;
+                    y += CLICK_GUI.get().catEars.getValue() ? 32 * CLICK_GUI.get().guiScale.getValue() : 20;
+                } else x += (CLICK_GUI.get().catEars.getValue() ? 132 * CLICK_GUI.get().guiScale.getValue() : 112);
             }
         }
 
         if (addDescriptionFrame) {
-            descriptionFrame = new DescriptionFrame(x, y, CLICK_GUI.get().descriptionWidth.getValue() * CLICK_GUI.get().guiScale.getValue(), 16 * CLICK_GUI.get().guiScale.getValue());
+            descriptionFrame = new DescriptionFrame(x, y, CLICK_GUI.get().descriptionWidth.getValue(), 16);
             getFrames().add(descriptionFrame);
         }
 
@@ -131,6 +131,7 @@ public class Click extends GuiScreen {
                 bufferbuilder.pos(this.width, this.height, 0.0D).tex((float)this.width / 32.0F, (float)this.height / 32.0F + (float)0).color(64, 64, 64, 255).endVertex();
                 bufferbuilder.pos(this.width, 0.0D, 0.0D).tex((float)this.width / 32.0F, 0).color(64, 64, 64, 255).endVertex();
                 bufferbuilder.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0).color(64, 64, 64, 255).endVertex();
+                // GlStateManager.scale(0.0D * CLICK_GUI.get().guiScale.getValue(), this.height * CLICK_GUI.get().guiScale.getValue(), 0.0D * CLICK_GUI.get().guiScale.getValue());
                 tessellator.draw();
             }
         }

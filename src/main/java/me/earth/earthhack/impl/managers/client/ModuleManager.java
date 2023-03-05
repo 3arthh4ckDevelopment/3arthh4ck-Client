@@ -402,4 +402,12 @@ public class ModuleManager extends IterationRegister<Module>
         }
         return iModules;
     }
+
+    public ArrayList<Module> getHiddenModules() {
+        ArrayList<Module> hiddenModules = new ArrayList<>();
+        for (Module hidModule : getRegistered()) {
+            if (hidModule.getHiddenState()) hiddenModules.add(hidModule);
+        }
+        return hiddenModules;
+    }
 }
