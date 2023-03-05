@@ -40,5 +40,4 @@ public class Safety extends Module
         return Managers.SAFETY.isSafe() ? TextColor.GREEN + "Safe"
                                         : TextColor.RED + "Unsafe";
     }
-
 }
