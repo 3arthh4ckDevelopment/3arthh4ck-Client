@@ -37,7 +37,7 @@ public class ShowCommand extends AbstractModuleCommand {
 
         if (args.length == 2)
         {
-            if(module.getHiddenState() && !module.isRegistered())
+            if(module.getHiddenState())
             {
                 module.setHiddenState(false);
                 module.setHidden(Hidden.Visible); // For showing the module from the Arraylist, this isn't that necessary but a detail.
@@ -46,9 +46,8 @@ public class ShowCommand extends AbstractModuleCommand {
                     if(!module.isRegistered())
                         Managers.MODULES.register(module);
                     else
-                        ChatUtil.sendMessage(TextColor.RED + " This module is already shown!"); // hmm? Maybe this should be rewritten soon.
-                }catch(AlreadyRegisteredException ignored){} // This is ignored, since it won't happen because of our countermeasures
-
+                        ChatUtil.sendMessage(TextColor.RED + " This module is already shown!");
+                }catch(AlreadyRegisteredException ignored){}
                 ChatUtil.sendMessage(TextColor.GREEN + " Module successfully shown!");
             }
             else

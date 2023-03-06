@@ -36,22 +36,26 @@ public class HideCommand extends AbstractModuleCommand {
 
         if (args.length == 2)
         {
-            if(!module.getHiddenState() && module.isRegistered())
+            if(!module.getHiddenState())
             {
                 module.setHiddenState(true);
                 module.setHidden(Hidden.Hidden); // For hiding the module from the Arraylist, this isn't that necessary but a detail.
                 Managers.MODULES.getHiddenModules().add(module); // Adding the module to this List, so it's accessible I guess.
 
                 try{
-                    if(!module.isEnabled() && module.getBind() == null)
+                    if(module.isRegistered())
                     {
-                        Managers.MODULES.unregister(module);
-                        module.setRegistered(false);
-                        ChatUtil.sendMessage(TextColor.GREEN + " Module successfully hidden!");
+                        if(module.isEnabled() || module.getBind() != null){
+                            ChatUtil.sendMessage(TextColor.RED + " You can't hide modules you have bound or are using!");
+                            return;
+                        }
+                            Managers.MODULES.unregister(module);
+                            module.setRegistered(false);
+                            ChatUtil.sendMessage(TextColor.GREEN + " Module successfully hidden!");
                     }
                     else
                     {
-                        ChatUtil.sendMessage(TextColor.RED + " You can't hide modules you are using or have bound to anything!");
+                        ChatUtil.sendMessage(TextColor.RED + " This module is already hidden!");
                     }
 
                     /*
