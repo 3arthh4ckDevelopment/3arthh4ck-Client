@@ -20,6 +20,8 @@ public class ClickGui extends Module
             register(new ColorSetting("Color", new Color(0, 80, 255)));
     public final Setting<Boolean> catEars =
             register(new BooleanSetting("CatEars", false));
+    public final Setting<Integer> scrollSpeed =
+            register(new NumberSetting<>("Scroll-speed", 5, 1, 200));
     public final Setting<Boolean> blur =
             register(new BooleanSetting("Blur", false));
     public final Setting<Integer> blurAmount =
