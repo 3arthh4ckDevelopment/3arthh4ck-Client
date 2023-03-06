@@ -25,7 +25,7 @@ public interface ModuleData<M extends SettingContainer>
     int getColor();
 
     /**
-     * Returns the modules description.
+     * Returns the module's description.
      * Hopefully detailed!
      *
      * @return a description of the module.
@@ -47,7 +47,7 @@ public interface ModuleData<M extends SettingContainer>
      * The exact Collection will be returned, meaning adding
      * and removing presets is supported.
      *
-     * @return the modules presets.
+     * @return the module's presets.
      */
     Collection<ModulePreset<M>> getPresets();
 
