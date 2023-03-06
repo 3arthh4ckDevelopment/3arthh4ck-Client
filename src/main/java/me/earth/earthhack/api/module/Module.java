@@ -38,6 +38,7 @@ public abstract class Module extends SettingContainer
     private final AtomicBoolean enableCheck = new AtomicBoolean();
     private final AtomicBoolean inOnEnable  = new AtomicBoolean();
     boolean hiddenState;
+    boolean registered;
 
     private final Setting<String> name;
     private final Setting<Bind> bind =
@@ -254,6 +255,14 @@ public abstract class Module extends SettingContainer
      */
     public boolean getHiddenState(){
         return hiddenState;
+    }
+
+    public boolean isRegistered() {
+        return registered;
+    }
+
+    public void setRegistered(boolean value) {
+        registered = value;
     }
 
     /**

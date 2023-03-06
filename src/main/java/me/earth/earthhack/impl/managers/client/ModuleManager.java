@@ -383,12 +383,14 @@ public class ModuleManager extends IterationRegister<Module>
     public void unregister(Module module) throws CantUnregisterException
     {
         super.unregister(module);
+        module.setRegistered(false);
         Bus.EVENT_BUS.unsubscribe(module);
     }
 
     protected void forceRegister(Module module)
     {
         registered.add(module);
+        module.setRegistered(true);
         if (module instanceof Registrable)
         {
             ((Registrable) module).onRegister();
