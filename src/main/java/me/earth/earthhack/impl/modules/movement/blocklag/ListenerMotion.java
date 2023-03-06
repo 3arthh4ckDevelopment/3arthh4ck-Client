@@ -1,13 +1,10 @@
 package me.earth.earthhack.impl.modules.movement.blocklag;
 
-import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.event.events.Stage;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.movement.blocklag.mode.OffsetMode;
-import me.earth.earthhack.impl.modules.player.blink.Blink;
 import me.earth.earthhack.impl.util.client.ModuleUtil;
 import me.earth.earthhack.impl.util.math.RayTraceUtil;
 import me.earth.earthhack.impl.util.math.position.PositionUtil;
@@ -37,9 +34,6 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
     public ListenerMotion(BlockLag module) {
         super(module, MotionUpdateEvent.class);
     }
-
-    private static final ModuleCache<Blink> BLINK =
-            Caches.getModule(Blink.class);
 
     @Override
     public void invoke(MotionUpdateEvent event) {
@@ -170,15 +164,16 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
                 module.jumpTimer.reset();
                 module.jumpTimerRunning = true;
 
-                    if (module.jumpTimer.passed(295)) {
-                        mc.player.jump(); // Makes this work for some reason.
-                        module.jumpTimer.reset();
-
-                        BLINK.enable();
+                if (module.jumpTimer.passed(295)) {
+                    mc.player.jump(); // Makes this work at all
+                    try {
+                        BlockLag.BLINK.enable();
                         mc.player.motionY = module.motionAmount.getValue();
-                        module.blinkTimerRunning = true;
                         module.blinkTimer.reset();
+                        wait(module.blinkDuration.getValue()); // Absolutely horrible way of doing this, but a placeholder for now, since the 'new' one didn't work.
+                    } catch (InterruptedException ignored) {
                     }
+                }
             }
         }
 

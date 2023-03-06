@@ -7,8 +7,6 @@ import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
-import me.earth.earthhack.impl.event.events.misc.UpdateEvent;
-import me.earth.earthhack.impl.event.listeners.LambdaListener;
 import me.earth.earthhack.impl.gui.visibility.PageBuilder;
 import me.earth.earthhack.impl.gui.visibility.Visibilities;
 import me.earth.earthhack.impl.managers.Managers;
@@ -143,7 +141,7 @@ public class BlockLag extends DisablingModule
     protected final StopWatch jumpTimer = new StopWatch();
     protected double motionY;
     protected BlockPos startPos;
-    private static final ModuleCache<Blink> BLINK =
+    protected static final ModuleCache<Blink> BLINK =
             Caches.getModule(Blink.class);
     protected boolean blinkTimerRunning;
     protected boolean jumpTimerRunning;
@@ -152,16 +150,6 @@ public class BlockLag extends DisablingModule
         super("BlockLag", Category.Movement);
         this.setData(new BlockLagData(this));
         this.listeners.add(new ListenerMotion(this));
-        // Listener for disabling Blink. For Bypass.
-        this.listeners.add(new LambdaListener<>(UpdateEvent.class, e -> {
-            if(blinkTimerRunning){
-                if(blinkTimer.passed(blinkDuration.getValue())){
-                    BLINK.disable();
-                    blinkTimerRunning = false;
-                    blinkTimer.reset();
-                }
-            }
-        }));
 
         Bus.EVENT_BUS.register(new ListenerVelocity(this));
         Bus.EVENT_BUS.register(new ListenerExplosion(this));
