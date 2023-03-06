@@ -168,6 +168,7 @@ public class BlockLag extends DisablingModule
         super.onEnable();
         if (mc.world == null || mc.player == null)
             return;
+
         startPos = getPlayerPos();
         if (singlePlayerCheck(startPos))
         {

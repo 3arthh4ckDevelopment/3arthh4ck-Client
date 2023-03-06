@@ -167,8 +167,8 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
                 if (module.jumpTimer.passed(295)) {
                     mc.player.jump(); // Makes this work? Lmao
                         BLINK.enable();
-                        mc.player.motionY = module.motionAmount.getValue();
                         module.blinkTimer.reset();
+                        mc.player.motionY = module.motionAmount.getValue();
                 }
             }
         }
