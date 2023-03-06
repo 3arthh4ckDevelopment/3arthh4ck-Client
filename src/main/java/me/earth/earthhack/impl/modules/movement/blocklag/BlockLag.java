@@ -35,7 +35,8 @@ public class BlockLag extends DisablingModule
 {
     protected static final ModuleCache<Freecam> FREECAM =
             Caches.getModule(Freecam.class);
-
+    static final ModuleCache<Blink> BLINK =
+            Caches.getModule(Blink.class);
     protected final Setting<BlockLagPages> pages =
             register(new EnumSetting<>("Page", BlockLagPages.Offsets));
     // --------------------- OFFSETS --------------------- //
@@ -141,10 +142,6 @@ public class BlockLag extends DisablingModule
     protected final StopWatch jumpTimer = new StopWatch();
     protected double motionY;
     protected BlockPos startPos;
-    protected static final ModuleCache<Blink> BLINK =
-            Caches.getModule(Blink.class);
-    protected boolean blinkTimerRunning;
-    protected boolean jumpTimerRunning;
     public BlockLag()
     {
         super("BlockLag", Category.Movement);
@@ -167,9 +164,6 @@ public class BlockLag extends DisablingModule
     @Override
     protected void onEnable()
     {
-        jumpTimerRunning = true;
-        blinkTimerRunning = false;
-
         timer.setTime(0);
         super.onEnable();
         if (mc.world == null || mc.player == null)
@@ -332,5 +326,8 @@ public class BlockLag extends DisablingModule
     protected void onDisable(){
         super.onDisable();
         Managers.TIMER.setTimer(1);
+
+        if(useBlink.getValue() && blinkTimer.passed(blinkDuration.getValue()))
+            BLINK.disable();
     }
 }
