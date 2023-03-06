@@ -24,7 +24,7 @@ import java.awt.*;
 public class ModulesFrame extends Frame {
     private static final ModuleCache<ClickGui> CLICK_GUI = Caches.getModule(ClickGui.class);
     private static final ResourceLocation LEFT_EAR = new ResourceLocation("earthhack:textures/gui/left_ear.png");
-    private static final ResourceLocation RIGH_EAR = new ResourceLocation("earthhack:textures/gui/right_ear.png");
+    private static final ResourceLocation RIGHT_EAR = new ResourceLocation("earthhack:textures/gui/right_ear.png");
 
     public ModulesFrame(String name, float posX, float posY, float width, float height) {
         super(name, posX, posY, width, height);
@@ -46,7 +46,7 @@ public class ModulesFrame extends Frame {
             Minecraft.getMinecraft().getTextureManager().bindTexture(LEFT_EAR);
             GlStateManager.color(clr.getRed() / 255.f, clr.getGreen() / 255.f, clr.getBlue() / 255.f, 1.0F);
             Gui.drawScaledCustomSizeModalRect((int) getPosX() - 8, (int) getPosY() - 8, 0, 0, 20, 20, 20, 20, 20, 20);
-            Minecraft.getMinecraft().getTextureManager().bindTexture(RIGH_EAR);
+            Minecraft.getMinecraft().getTextureManager().bindTexture(RIGHT_EAR);
             GlStateManager.color(clr.getRed() / 255.f, clr.getGreen() / 255.f, clr.getBlue() / 255.f, 1.0F);
             Gui.drawScaledCustomSizeModalRect((int) (getPosX() + getWidth()) - 12, (int) getPosY() - 8, 0, 0, 20, 20, 20, 20, 20, 20);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
