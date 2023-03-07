@@ -19,11 +19,13 @@ import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
+import static me.earth.earthhack.impl.modules.combat.quiver.modes.HUDMode.Arrows;
+
 public class Quiver extends Module {
     // TODO: Filter tipped arrows like strength and speed separately, so we can shoot both
     // As of now, getArrows is limited to all Tipped Arrows. This should be different.
     protected final Setting<HUDMode> hudMode     =
-            register(new EnumSetting<>("HUDMode", HUDMode.Arrows));
+            register(new EnumSetting<>("HUDMode", Arrows));
     protected final Setting<SwitchMode> switchMode     =
             register(new EnumSetting<>("Switch", SwitchMode.Normal));
     protected final Setting<QuiverMode> quiverMode     =
@@ -66,9 +68,9 @@ public class Quiver extends Module {
      * 4 - Disable
      *  Lmao I don't think 4 is actually even necessary, but just added it so maybe in the future stage 3 can be made better.
      */
+
     StopWatch shootTime = new StopWatch();
     String hudmode;
-
     int oldSlot;
     public void onEnable()
     {
@@ -130,7 +132,14 @@ public class Quiver extends Module {
                     // ---------- SHOOT W/ BOW ---------- //
                     if(stage == 3 && InventoryUtil.isHolding(Items.BOW) && shootTime.passed(100 + delay.getValue()))
                     {
+
                         mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, mc.player.getHorizontalFacing()));
+
+                        if(cycles != cyclesAmount.getValue())
+                            stage--;
+                        else if(cycles > cyclesAmount.getValue())
+                            cycles = cyclesAmount.getValue();
+
                         stage++;
                     }
                     else
@@ -199,7 +208,6 @@ public class Quiver extends Module {
                 else return;
             break;
         }
-
     }
     public int getSwapSlot()
     {
@@ -218,15 +226,19 @@ public class Quiver extends Module {
      */
     public String getDisplayInfo()
     {
-        if(hudMode.getValue() == HUDMode.Arrows)
+        switch(hudMode.getValue())
         {
-            hudmode = String.valueOf(arrowCount);
-        }
-        else if(hudMode.getValue() == HUDMode.Hits){
-            hudmode = String.valueOf(hits);
-        }
-        else if (hudMode.getValue() == HUDMode.None){ // spaghetti? lol, should be rewritten.
-            hudmode = null;
+            case Arrows:
+                hudmode = String.valueOf(arrowCount);
+            break;
+
+            case Hits:
+                hudmode = String.valueOf(hits);
+            break;
+
+            case None:
+                hudmode = null;
+            break;
         }
         return hudmode;
     }
@@ -238,10 +250,5 @@ public class Quiver extends Module {
         hits = 0;
         shootTime.reset();
         cycles = 0;
-        // Rotating back is in the 4th stage of Quiver, but this is a measure to ensure that we are rotating back.
-        if(rotateMode.getValue() == RotationMode.Client)
-            mc.player.setPositionAndRotation(mc.player.posX, mc.player.posY, mc.player.posZ, yaw, pitch);
-        else if(rotateMode.getValue() == RotationMode.Packet)
-            mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, false));
     }
 }
