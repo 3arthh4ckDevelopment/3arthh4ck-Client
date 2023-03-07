@@ -255,8 +255,6 @@ public class AutoCrystalData extends DefaultData<AutoCrystal>
         register(module.fadeComp, "Makes Fade compatible with Zoom and Slide.");
         register(module.fadeTime, "Time to render the Fade ESP for.");
         register(module.renderDamage, "Renders the Damage a position deals.");
-        register(module.placedCrystals, "Draws the amount of crystals per second" +
-                " in the arraylist. This is similar to what Future does.");
 
         register(module.setDead, "Removes Crystals after it attacked them." +
             " Only use SetDead settings on servers where you" +

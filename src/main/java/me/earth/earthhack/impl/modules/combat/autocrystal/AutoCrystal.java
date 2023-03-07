@@ -38,6 +38,7 @@ import me.earth.earthhack.impl.util.thread.SafeRunnable;
 import me.earth.earthhack.impl.util.thread.ThreadUtil;
 import me.earth.earthhack.pingbypass.PingBypass;
 import me.earth.earthhack.pingbypass.input.Mouse;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
@@ -516,9 +517,6 @@ public class AutoCrystal extends Module
     protected final Setting<RenderDamagePos> renderDamage =
             register(new EnumSetting<>("DamageRender", RenderDamagePos.None))
                 .setComplexity(Complexity.Medium);
-    protected final Setting<Boolean> placedCrystals =
-            register(new BooleanSetting("DrawBroken", false))
-                    .setComplexity(Complexity.Medium);
     protected final Setting<RenderDamage> renderMode =
             register(new EnumSetting<>("DamageMode", RenderDamage.Normal))
                 .setComplexity(Complexity.Medium);
@@ -993,7 +991,6 @@ public class AutoCrystal extends Module
     protected final StopWatch slideTimer = new StopWatch();
     protected final StopWatch zoomTimer = new StopWatch();
     protected final StopWatch pullTimer = new StopWatch();
-    protected final StopWatch CrystalsPerSecondTimer = new StopWatch();
 
     /* ---------------- States -------------- */
     protected final Queue<Runnable> post = new ConcurrentLinkedQueue<>();
@@ -1009,7 +1006,6 @@ public class AutoCrystal extends Module
     protected boolean isSpoofing;
     protected boolean noGod;
     protected String damage;
-    protected int crystalsAmount;
 
     /* ---------------- Helpers -------------- */
     protected final ExtrapolationHelper extrapolationHelper =
@@ -1190,12 +1186,6 @@ public class AutoCrystal extends Module
             placeTimer.reset(breakDelay.getValue());
         }
 
-        if(placedCrystals.getValue() && CrystalsPerSecondTimer.passed(1000)){
-            crystalsAmount = 0;
-            CrystalsPerSecondTimer.setTime(0);
-        }
-
-
         boolean start = false;
         for (Setting<?> setting : this.getSettings()) {
             if (setting == this.pages) {
@@ -1234,20 +1224,10 @@ public class AutoCrystal extends Module
         Managers.SET_DEAD.removeObserver(this.soundObserver);
         reset();
     }
-
     @Override
     public String getDisplayInfo() {
 
         EntityPlayer t = getTarget();
-
-        if(t == null){
-            CrystalsPerSecondTimer.setTime(0);
-            crystalsAmount = 0;
-        }
-
-        if(placedCrystals.getValue()){
-            return t == null ? null : t.getName() + ", " + crystalsAmount;
-        }
 
         if (switching) {
             return TextColor.GREEN + "Switching";
@@ -1385,7 +1365,6 @@ public class AutoCrystal extends Module
         rotation = null;
         switching = false;
         bypassPos = null;
-        crystalsAmount = 0;
         post.clear();
         mc.addScheduledTask(crystalRender::clear);
 
