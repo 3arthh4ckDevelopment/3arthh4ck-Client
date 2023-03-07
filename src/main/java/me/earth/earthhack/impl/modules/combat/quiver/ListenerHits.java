@@ -19,8 +19,12 @@ public class ListenerHits extends ModuleListener<Quiver, LivingHurtEvent>
     public void invoke(LivingHurtEvent event)
     {
         if(event.getEntity() instanceof EntityPlayer){
-            if(event.getSource() == DamageSource.MAGIC) // Don't know if this actually works, but tipped arrows should technically count as magic
+            if(event.getSource() == DamageSource.MAGIC){
                 module.hits++;
+                module.cycles++;
+            }
+
+
         }
 
         // Maybe something else here?

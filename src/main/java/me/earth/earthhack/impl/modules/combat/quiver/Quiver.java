@@ -135,12 +135,12 @@ public class Quiver extends Module {
 
                         mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, mc.player.getHorizontalFacing()));
 
-                        if(cycles != cyclesAmount.getValue())
+                        if(cycles < cyclesAmount.getValue())        // If cycles are smaller than CyclesAmount, stage is set back 1
                             stage--;
-                        else if(cycles > cyclesAmount.getValue())
+                        else if(cycles > cyclesAmount.getValue())   // If cycles are somehow bigger than CyclesAmount, it is set back to CyclesAmount
                             cycles = cyclesAmount.getValue();
-
-                        stage++;
+                        else                                        // If cycles aren't bigger or under than CyclesAmount, it must be equal, so we continue
+                            stage++;
                     }
                     else
                     {
