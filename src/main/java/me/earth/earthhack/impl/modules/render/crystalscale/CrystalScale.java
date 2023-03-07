@@ -21,9 +21,9 @@ public class CrystalScale extends Module
     public final Setting<Boolean> modify  =
             register(new BooleanSetting("Modify", false));
     public final Setting<Float > spinSpeed  =
-            register(new NumberSetting<>("Spin-Speed", 0f, 0f, 0f));
+            register(new NumberSetting<>("Spin-Speed", 0.0f, -8.0f, 8.0f));
     public final Setting<Float> bounceSpeed =
-            register(new NumberSetting<>("Bounce-Speed", 0f, 0f, 0f));
+            register(new NumberSetting<>("Bounce-Speed", 0.0f, -8.0f, 8.0f));
     public final Map<Integer, TimeAnimation> scaleMap =
             new ConcurrentHashMap<>();
 
@@ -32,7 +32,6 @@ public class CrystalScale extends Module
         super("CrystalScale", Category.Render);
         this.listeners.add(new ListenerDestroyEntities(this));
         this.listeners.add(new ListenerSpawnObject(this));
-        this.listeners.add(new ListenerEntity(this));
         this.setData(new CrystalScaleData(this));
     }
 }
