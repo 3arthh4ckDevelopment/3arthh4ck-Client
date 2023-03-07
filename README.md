@@ -1,4 +1,4 @@
-> :warning: This is a measly continuation of 3arthqu4ke's now discontinued 3arthh4ck. Any new PingBypass 3arthqu4ke releases will be found [here](https://github.com/3arthqu4ke/PingBypass).
+> :warning: This is a continuation of 3arthqu4ke's now discontinued 3arthh4ck. Any new PingBypass 3arthqu4ke releases will be found [here](https://github.com/3arthqu4ke/PingBypass).
 
 # 3arthh4ck
 
