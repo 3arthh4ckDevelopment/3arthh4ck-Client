@@ -10,6 +10,7 @@ import me.earth.earthhack.impl.event.events.misc.DeathEvent;
 import me.earth.earthhack.impl.event.events.movement.LiquidJumpEvent;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.misc.nointerp.NoInterp;
+import me.earth.earthhack.impl.modules.player.swing.Swing;
 import me.earth.earthhack.impl.modules.movement.elytraflight.ElytraFlight;
 import me.earth.earthhack.impl.modules.movement.elytraflight.mode.ElytraMode;
 import me.earth.earthhack.impl.modules.player.fasteat.FastEat;
@@ -19,6 +20,7 @@ import me.earth.earthhack.impl.modules.render.norender.NoRender;
 import me.earth.earthhack.impl.util.minecraft.ICachedDamage;
 import me.earth.earthhack.impl.util.minecraft.MotionTracker;
 import me.earth.earthhack.impl.util.thread.EnchantmentUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
@@ -27,10 +29,13 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
@@ -38,7 +43,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Accessor;
-import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -46,10 +50,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Objects;
+
 @Mixin(EntityLivingBase.class)
 public abstract class MixinEntityLivingBase extends MixinEntity
         implements IEntityLivingBase, IEntityNoInterp,
-                        ICachedDamage, IEntityRemoteAttack
+        ICachedDamage, IEntityRemoteAttack
 {
     private static final ModuleCache<ElytraFlight> ELYTRA_FLIGHT =
             Caches.getModule(ElytraFlight.class);
@@ -59,6 +65,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity
             Caches.getModule(NoInterp.class);
     private static final ModuleCache<Spectate> SPECTATE =
             Caches.getModule(Spectate.class);
+
+    private static final ModuleCache<Swing> SWING =
+            Caches.getModule(Swing.class);
+
     private static final ModuleCache<NoRender> NO_RENDER =
             Caches.getModule(NoRender.class);
 
@@ -73,6 +83,12 @@ public abstract class MixinEntityLivingBase extends MixinEntity
     protected int activeItemStackUseCount;
     @Shadow
     protected ItemStack activeItemStack;
+
+    @Shadow
+    public abstract boolean isPotionActive(Potion var1);
+
+    @Shadow
+    public abstract PotionEffect getActivePotionEffect(Potion var1);
 
     protected double noInterpX;
     protected double noInterpY;
@@ -100,9 +116,6 @@ public abstract class MixinEntityLivingBase extends MixinEntity
     @Shadow
     public abstract boolean isServerWorld();
 
-    @Override
-    @Invoker(value = "getArmSwingAnimationEnd")
-    public abstract int armSwingAnimationEnd();
 
     @Override
     @Accessor(value = "ticksSinceLastSwing")
@@ -251,8 +264,8 @@ public abstract class MixinEntityLivingBase extends MixinEntity
         return shouldCache()
                 ? armorToughness
                 : (float) this
-                    .getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS)
-                    .getAttributeValue();
+                .getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS)
+                .getAttributeValue();
     }
 
     @Override
@@ -261,14 +274,14 @@ public abstract class MixinEntityLivingBase extends MixinEntity
         return shouldCache()
                 ? explosionModifier
                 : EnchantmentUtil.getEnchantmentModifierDamage(
-                        this.getArmorInventoryList(), source);
+                this.getArmorInventoryList(), source);
     }
 
     @Redirect(
-        method = "attackEntityFrom",
-        at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/world/World;isRemote:Z"))
+            method = "attackEntityFrom",
+            at = @At(
+                    value = "FIELD",
+                    target = "Lnet/minecraft/world/World;isRemote:Z"))
     public boolean isRemoteHook(World world)
     {
         if (world.isRemote)
@@ -291,10 +304,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity
     }
 
     @Redirect(
-        method = "onUpdate",
-        at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/entity/EntityLivingBase;posX:D"))
+            method = "onUpdate",
+            at = @At(
+                    value = "FIELD",
+                    target = "Lnet/minecraft/entity/EntityLivingBase;posX:D"))
     public double posXHookOnUpdate(EntityLivingBase base)
     {
         if (NoInterp.update(NOINTERP.get(), base))
@@ -306,10 +319,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity
     }
 
     @Redirect(
-        method = "onUpdate",
-        at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/entity/EntityLivingBase;posZ:D"))
+            method = "onUpdate",
+            at = @At(
+                    value = "FIELD",
+                    target = "Lnet/minecraft/entity/EntityLivingBase;posZ:D"))
     public double posZHookOnUpdate(EntityLivingBase base)
     {
         if (NOINTERP.isEnabled()
@@ -336,8 +349,8 @@ public abstract class MixinEntityLivingBase extends MixinEntity
     }
 
     @Inject(
-        method = "notifyDataManagerChange",
-        at = @At("RETURN"))
+            method = "notifyDataManagerChange",
+            at = @At("RETURN"))
     public void notifyDataManagerChangeHook(DataParameter<?> key,
                                             CallbackInfo info)
     {
@@ -352,9 +365,9 @@ public abstract class MixinEntityLivingBase extends MixinEntity
     }
 
     @Inject(
-        method = "handleJumpWater",
-        at = @At("HEAD"),
-        cancellable = true)
+            method = "handleJumpWater",
+            at = @At("HEAD"),
+            cancellable = true)
     public void handleJumpWaterHook(CallbackInfo info)
     {
         LiquidJumpEvent event =
@@ -368,9 +381,9 @@ public abstract class MixinEntityLivingBase extends MixinEntity
     }
 
     @Inject(
-        method = "handleJumpLava",
-        at = @At("HEAD"),
-        cancellable = true)
+            method = "handleJumpLava",
+            at = @At("HEAD"),
+            cancellable = true)
     public void handleJumpLavaHook(CallbackInfo info)
     {
         LiquidJumpEvent event =
@@ -391,10 +404,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity
     }
 
     @Redirect(
-        method = "onItemUseFinish",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/entity/EntityLivingBase;resetActiveHand()V"))
+            method = "onItemUseFinish",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/EntityLivingBase;resetActiveHand()V"))
     public void resetActiveHandHook(EntityLivingBase base)
     {
         if (world.isRemote
@@ -407,7 +420,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity
             // TODO: service for pick slot cooldown bypass!!!
             this.activeItemStackUseCount = 0;
             ((EntityPlayerSP) base).connection
-                .sendPacket(new CPacketPlayerTryUseItem(base.getActiveHand()));
+                    .sendPacket(new CPacketPlayerTryUseItem(base.getActiveHand()));
         }
         else
         {
@@ -429,28 +442,52 @@ public abstract class MixinEntityLivingBase extends MixinEntity
         }
     }
 
+    @Inject(method = "getArmSwingAnimationEnd", at = @At("HEAD"), cancellable = true)
+    public void getArmSwingAnimationEndHook(CallbackInfoReturnable<Integer> cir) {
+        int swingSpeed = SWING.isEnabled() ? SWING.get().swingSpeed.getValue() : 6;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        if (player == null) {
+            return;
+        }
+        if (this.isPotionActive(MobEffects.HASTE)) {
+            cir.setReturnValue(swingSpeed - (1 + (Objects.requireNonNull(getActivePotionEffect(MobEffects.HASTE))).getAmplifier()));
+        } else {
+            cir.setReturnValue((this.isPotionActive(MobEffects.MINING_FATIGUE) ? swingSpeed + (1 + Objects.requireNonNull(getActivePotionEffect(MobEffects.MINING_FATIGUE)).getAmplifier()) * 2 : swingSpeed));
+        }
+    }
+
+    public int armSwingAnimationEnd() {
+        if (this.isPotionActive(MobEffects.HASTE))
+        {
+            return 6 - (1 + this.getActivePotionEffect(MobEffects.HASTE).getAmplifier());
+        }
+        else
+        {
+            return this.isPotionActive(MobEffects.MINING_FATIGUE) ? 6 + (1 + this.getActivePotionEffect(MobEffects.MINING_FATIGUE).getAmplifier()) * 2 : 6;
+        }
+    }
     @Inject(
-        method = "setPositionAndRotationDirect",
-        at = @At("RETURN"))
+            method = "setPositionAndRotationDirect",
+            at = @At("RETURN"))
     public void setPositionAndRotationDirectHook(double x,
-                                                  double y,
-                                                  double z,
-                                                  float yaw,
-                                                  float pitch,
-                                                  int posRotationIncrements,
-                                                  boolean teleport,
-                                                  CallbackInfo ci)
+                                                 double y,
+                                                 double z,
+                                                 float yaw,
+                                                 float pitch,
+                                                 int posRotationIncrements,
+                                                 boolean teleport,
+                                                 CallbackInfo ci)
     {
         if (NOINTERP.isEnabled())
         {
             NoInterp.handleNoInterp(NOINTERP.get(),
-                                    Entity.class.cast(this),
-                                    posRotationIncrements,
-                                    x,
-                                    y,
-                                    z,
-                                    yaw,
-                                    pitch);
+                    Entity.class.cast(this),
+                    posRotationIncrements,
+                    x,
+                    y,
+                    z,
+                    yaw,
+                    pitch);
         }
     }
 

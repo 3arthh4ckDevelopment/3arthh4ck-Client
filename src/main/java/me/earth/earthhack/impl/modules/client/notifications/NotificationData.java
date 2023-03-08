@@ -21,6 +21,16 @@ final class NotificationData extends DefaultData<Notifications>
                 "Color of the TotemPop Message.");
         this.register(module.totemPlayerColor,
                 "Color of the PlayerName the TotemPop Message.");
+        this.descriptions.put(module.entered,
+                "Announces when players enter visual range.");
+        this.register(module.leave,
+                "Announces when players leave visual range.");
+        this.register(module.enteredColor,
+                "Color of the enter Message.");
+        this.register(module.leftColor,
+                "Color of the leave message.");
+        this.register(module.visualRangePlayerColor,
+                "Color of the PlayerName in the VisualRange messages.");
     }
 
     @Override

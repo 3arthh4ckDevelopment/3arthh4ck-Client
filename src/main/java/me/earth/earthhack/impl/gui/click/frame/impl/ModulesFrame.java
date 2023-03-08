@@ -60,7 +60,7 @@ public class ModulesFrame extends Frame {
         }
         if (isExtended()) {
             if (RenderUtil.mouseWithinBounds(mouseX, mouseY, getPosX(), getPosY() + getHeight(), getWidth(), (Math.min(getScrollCurrentHeight(), scrollMaxHeight)) + 1) && getScrollCurrentHeight() > scrollMaxHeight) {
-                final float scrollSpeed = Math.min(getScrollCurrentHeight(), scrollMaxHeight) / (Minecraft.getDebugFPS() >> 3);
+                final float scrollSpeed =(CLICK_GUI.get().scrollSpeed.getValue() >> 2);
                 int wheel = Mouse.getDWheel();
                 if (wheel < 0) {
                     if (getScrollY() - scrollSpeed < -(getScrollCurrentHeight() - Math.min(getScrollCurrentHeight(), scrollMaxHeight)))

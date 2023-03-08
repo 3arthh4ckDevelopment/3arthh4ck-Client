@@ -27,6 +27,16 @@ public class Notifications extends Module
             register(new EnumSetting<>("Amount-Color", TextColor.None));
     protected final Setting<TextColor> totemPlayerColor =
             register(new EnumSetting<>("Player-Color", TextColor.None));
+    protected final Setting<Boolean> leave  =
+            register(new BooleanSetting("Leave", true));
+    protected final Setting<Boolean> entered =
+            register(new BooleanSetting("Entered", true));
+    protected final Setting<TextColor> visualRangePlayerColor =
+            register(new EnumSetting<>("Visualrange Player-Color", TextColor.None));
+    protected final Setting<TextColor> leftColor =
+            register(new EnumSetting<>("Left-Color", TextColor.None));
+    protected final Setting<TextColor> enteredColor =
+            register(new EnumSetting<>("Entered-Color", TextColor.None));
     protected final Setting<Boolean> modules     =
             register(new BooleanSetting("Modules", true));
     protected final Setting<Boolean> configure   =
@@ -42,6 +52,8 @@ public class Notifications extends Module
         super("Notifications", Category.Client);
         this.listeners.add(new ListenerTotems(this));
         this.listeners.add(new ListenerDeath(this));
+        this.listeners.add(new ListenerPlayerEnter(this));
+        this.listeners.add(new ListenerPlayerLeave(this));
         this.setData(new NotificationData(this));
 
         Bus.EVENT_BUS.register(
@@ -157,6 +169,34 @@ public class Notifications extends Module
             Managers.CHAT.sendDeleteMessage(message,
                                             player.getName(),
                                             ChatIDs.TOTEM_POPS);
+        }
+    }
+
+
+    public void onPlayerLeave(Entity player) {
+        if (this.isEnabled() && leave.getValue()) {
+            String message =
+                    visualRangePlayerColor.getValue().getColor()
+                            + player.getName()
+                            + leftColor.getValue().getColor()
+                            + " has just left your visual range";
+
+            Managers.CHAT.sendDeleteMessage(message,
+                    player.getName(), ChatIDs.VISUALRANGE_LEAVE);
+        }
+    }
+    public void onPlayerEnter(Entity player)
+    {
+        if (this.isEnabled() && entered.getValue())
+        {
+            String message =
+                    visualRangePlayerColor.getValue().getColor()
+                    + player.getName()
+                    + enteredColor.getValue().getColor()
+                    + " has just entered your visual range";
+
+            Managers.CHAT.sendDeleteMessage(message,
+                    player.getName(), ChatIDs.VISUALRANGE_ENTER);
         }
     }
 

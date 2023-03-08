@@ -122,6 +122,10 @@ public class AutoMine extends BlockAddingModule implements IAutomine
         register(new BooleanSetting("Echests", false));
     protected final Setting<Float> echestRange =
         register(new NumberSetting<>("Echest-Range", 3.0f, 0.1f, 100.0f));
+    protected final Setting<Boolean> shulkers =
+            register(new BooleanSetting("Shulkers", true));
+    protected final Setting<Float> shulkersRange =
+            register(new NumberSetting<>("Shulkers-range", 3.0f, 0.1f, 100.0f));
     protected final Setting<Integer> maxTime =
         register(new NumberSetting<>("MaxTime", 20000, 0, 60000));
     protected final Setting<Boolean> checkCrystalDownTime =
