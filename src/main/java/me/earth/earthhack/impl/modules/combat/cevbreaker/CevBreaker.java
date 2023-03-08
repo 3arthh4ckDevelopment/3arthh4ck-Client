@@ -1,4 +1,4 @@
-package me.earth.earthhack.impl.modules.combat.bomber;
+package me.earth.earthhack.impl.modules.combat.cevbreaker;
 
 import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.event.events.Stage;
@@ -11,8 +11,8 @@ import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
-import me.earth.earthhack.impl.modules.combat.bomber.enums.CrystalBomberMode;
-import me.earth.earthhack.impl.modules.combat.bomber.enums.CrystalBomberStage;
+import me.earth.earthhack.impl.modules.combat.cevbreaker.enums.CevBreakerMode;
+import me.earth.earthhack.impl.modules.combat.cevbreaker.enums.CevBreakerStage;
 import me.earth.earthhack.impl.modules.player.speedmine.Speedmine;
 import me.earth.earthhack.impl.modules.player.speedmine.mode.MineMode;
 import me.earth.earthhack.impl.util.math.MathUtil;
@@ -44,14 +44,14 @@ import net.minecraft.util.math.Vec3d;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CrystalBomber extends Module {
+public class CevBreaker extends Module {
 
-    protected final Setting<CrystalBomberMode> mode =
-            register(new EnumSetting<>("Mode", CrystalBomberMode.Normal));
+    protected final Setting<CevBreakerMode> mode =
+            register(new EnumSetting<>("Mode", CevBreakerMode.Normal));
     protected final Setting<Float> range =
             register(new NumberSetting<>("Range", 6.0f, 0.1f, 6.0f));
     protected final Setting<Float> toggleAt =
-            register(new NumberSetting<>("ToggleAt", 8.0f, 0.1f, 20.0f));
+            register(new NumberSetting<>("ToggleAt", 8.0f, 0.1f, 20.0f)); // not used?
     protected final Setting<Float> enemyRange =
             register(new NumberSetting<>("EnemyRange", 6.0f, 0.1f, 16.0f));
     protected final Setting<Integer> delay =
@@ -87,12 +87,14 @@ public class CrystalBomber extends Module {
     private final StopWatch timer = new StopWatch();
     private final StopWatch delayTimer = new StopWatch();
     private final StopWatch cooldownTimer = new StopWatch();
+    protected final StopWatch targetTimer = new StopWatch();
 
-    private CrystalBomberStage stage = CrystalBomberStage.FirstHit;
+    private CevBreakerStage stage = CevBreakerStage.FirstHit;
     private boolean firstHit = false;
 
-    public CrystalBomber() {
-        super("CrystalBomber", Category.Combat);
+    public CevBreaker() {
+        super("CevBreaker", Category.Combat);
+        this.setData(new CevBreakerData(this));
         this.listeners.add(new ListenerMotion(this));
     }
 
@@ -101,8 +103,9 @@ public class CrystalBomber extends Module {
         targetPos = null;
         lastTargetPos = null;
         target = null;
-        stage = CrystalBomberStage.FirstHit;
+        stage = CevBreakerStage.FirstHit;
         timer.reset();
+        targetTimer.reset();
         delayTimer.reset();
         cooldownTimer.reset();
         /*if (fullOffhand.getValue()) {
@@ -110,7 +113,7 @@ public class CrystalBomber extends Module {
         }*/
     }
 
-    protected void doCrystalBomber(MotionUpdateEvent event) {
+    protected void doCevBreaker(MotionUpdateEvent event) {
         if (event.getStage() == Stage.PRE) {
             updateTarget();
             if (target != null) {
@@ -119,7 +122,7 @@ public class CrystalBomber extends Module {
                 }
                 targetPos = PositionUtil.getPosition(target).up().up();
                 if (lastTargetPos != null && !lastTargetPos.equals(new Vec3d(targetPos))) {
-                    stage = CrystalBomberStage.FirstHit;
+                    stage = CevBreakerStage.FirstHit;
                     firstHit = true;
                 }
                 if (delayTimer.passed(delay.getValue())) {
@@ -137,7 +140,7 @@ public class CrystalBomber extends Module {
                                     break;
                                 }
                             } else {
-                                stage = CrystalBomberStage.PlaceObsidian;
+                                stage = CevBreakerStage.PlaceObsidian;
                                 delayTimer.reset();
                                 break;
                             }
@@ -165,7 +168,7 @@ public class CrystalBomber extends Module {
                                 }
                             } else {
                                 if (reCheckCrystal.getValue()) {
-                                    stage = CrystalBomberStage.Crystal;
+                                    stage = CevBreakerStage.Crystal;
                                     delayTimer.reset();
                                     break;
                                 }
@@ -180,10 +183,10 @@ public class CrystalBomber extends Module {
                                         break;
                                     }
                                 } else if (mc.world.getBlockState(targetPos).getBlock() == Blocks.OBSIDIAN) {
-                                    if (mode.getValue() == CrystalBomberMode.Instant) {
-                                        stage = CrystalBomberStage.Crystal;
+                                    if (mode.getValue() == CevBreakerMode.Instant) {
+                                        stage = CevBreakerStage.Crystal;
                                     } else {
-                                        stage = CrystalBomberStage.FirstHit;
+                                        stage = CevBreakerStage.FirstHit;
                                     }
                                     break;
                                 }
@@ -201,13 +204,13 @@ public class CrystalBomber extends Module {
                                 if (SPEEDMINE.get().getPos() == null || !(new Vec3d(SPEEDMINE.get().getPos()).equals(new Vec3d(targetPos)))) {
                                     mc.playerController.onPlayerDamageBlock(targetPos, mc.player.getHorizontalFacing().getOpposite());
                                 } else if (new Vec3d(SPEEDMINE.get().getPos()).equals(new Vec3d(targetPos)) && (SPEEDMINE.get().getMode() == MineMode.Instant || SPEEDMINE.get().getMode() == MineMode.Civ)) {
-                                    stage = CrystalBomberStage.Crystal;
+                                    stage = CevBreakerStage.Crystal;
                                     delayTimer.reset();
                                     timer.reset();
                                     firstHit = false;
                                     break;
                                 }
-                                stage = CrystalBomberStage.Crystal;
+                                stage = CevBreakerStage.Crystal;
                                 delayTimer.reset();
                                 timer.reset();
                                 firstHit = true;
@@ -217,7 +220,7 @@ public class CrystalBomber extends Module {
                             /*if (offhandSwitch.getValue()) {
                                 doOffhandSwitch();
                             }*/
-                            int crystalSlot = getCrsytalSlot();
+                            int crystalSlot = getCrystalSlot();
                             offhand = mc.player.getHeldItemOffhand().getItem() == Items.END_CRYSTAL;
                             if (!offhand /*&& !offhandSwitch.getValue() || !isValidForOffhand()*/) {
                                 lastSlot = mc.player.inventory.currentItem;
@@ -238,7 +241,7 @@ public class CrystalBomber extends Module {
                                 mc.player.inventory.currentItem = lastSlot;
                                 mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
                             }*/
-                            stage = CrystalBomberStage.Pickaxe;
+                            stage = CevBreakerStage.Pickaxe;
                             delayTimer.reset();
                             break;
                         case Pickaxe:
@@ -253,7 +256,7 @@ public class CrystalBomber extends Module {
                                             InventoryUtil.switchTo(pickSlot);
                                         }
                                         SPEEDMINE.get().forceSend();
-                                        stage = CrystalBomberStage.Explode;
+                                        stage = CevBreakerStage.Explode;
                                         if (bypass.getValue()) {
                                             InventoryUtil.switchToBypass(pickSlot);
                                         } else {
@@ -275,7 +278,7 @@ public class CrystalBomber extends Module {
                                         InventoryUtil.switchTo(pickSlot);
                                     }
                                     SPEEDMINE.get().forceSend();
-                                    stage = CrystalBomberStage.Explode;
+                                    stage = CevBreakerStage.Explode;
                                     delayTimer.reset();
                                     cooldownTimer.reset();
                                     if (bypass.getValue()) {
@@ -296,26 +299,26 @@ public class CrystalBomber extends Module {
                                         rotating = false;
                                         if (/*EntityUtil.rayTraceHitCheck(crystal, true) && mc.player.getDistanceSq(crystal) <= MathUtil.square(range.getValue()) || */mc.player.getDistanceSq(crystal) <= MathUtil.square(range.getValue())) {
                                             attackEntity(crystal, true, true);
-                                            stage = CrystalBomberStage.PlaceObsidian;
+                                            stage = CevBreakerStage.PlaceObsidian;
                                             delayTimer.reset();
                                             break;
                                         }
                                     } else {
                                         if (reCheckCrystal.getValue()) {
-                                            stage = CrystalBomberStage.Crystal;
+                                            stage = CevBreakerStage.Crystal;
                                             delayTimer.reset();
                                             break;
                                         }
                                     }
                                 } else {
                                     if (reCheckCrystal.getValue()) {
-                                        stage = CrystalBomberStage.Crystal;
+                                        stage = CevBreakerStage.Crystal;
                                         delayTimer.reset();
                                         break;
                                     }
                                 }
                             } else {
-                                stage = CrystalBomberStage.Explode;
+                                stage = CevBreakerStage.Explode;
                                 break;
                             }
                         case PlaceObsidian:
@@ -338,18 +341,18 @@ public class CrystalBomber extends Module {
                                             placeBlock(targetPos.offset(facing), facing.getOpposite(), rotations, obbySlot);
                                         }
                                     }
-                                    if (mode.getValue() == CrystalBomberMode.Instant) {
-                                        stage = CrystalBomberStage.Crystal;
+                                    if (mode.getValue() == CevBreakerMode.Instant) {
+                                        stage = CevBreakerStage.Crystal;
                                     } else {
-                                        stage = CrystalBomberStage.FirstHit;
+                                        stage = CevBreakerStage.FirstHit;
                                     }
                                     delayTimer.reset();
                                     break;
                                 } else if (mc.world.getBlockState(targetPos).getBlock() == Blocks.OBSIDIAN) {
-                                    if (mode.getValue() == CrystalBomberMode.Instant) {
-                                        stage = CrystalBomberStage.Crystal;
+                                    if (mode.getValue() == CevBreakerMode.Instant) {
+                                        stage = CevBreakerStage.Crystal;
                                     } else {
-                                        stage = CrystalBomberStage.FirstHit;
+                                        stage = CevBreakerStage.FirstHit;
                                     }
                                     delayTimer.reset();
                                     break;
@@ -373,6 +376,27 @@ public class CrystalBomber extends Module {
             if (mc.player.getDistanceSq(player) < mc.player.getDistanceSq(currentPlayer)) currentPlayer = player;
         }
         target = currentPlayer;
+        this.targetTimer.reset();
+    }
+
+    public EntityPlayer getTarget()
+    {
+        if (targetTimer.passed(600))
+        {
+            target = null;
+        }
+        return target;
+    }
+
+    /**
+    *
+    * @return the currently targeted player & mining progress, haven't tested if this crashes if we don't have SpeedMine on though.
+    **/
+    @Override
+    public String getDisplayInfo()
+    {
+        return getTarget() == null ? null : getTarget().getName() +
+                ", " + SPEEDMINE.get().getDisplayInfo();
     }
 
     private int getPickSlot() {
@@ -384,7 +408,7 @@ public class CrystalBomber extends Module {
         return -1;
     }
 
-    private int getCrsytalSlot() {
+    private int getCrystalSlot() {
         for (int i = 0; i < 9; ++i) {
             if (mc.player.inventory.getStackInSlot(i).getItem() == Items.END_CRYSTAL) {
                 return (i);
@@ -410,8 +434,8 @@ public class CrystalBomber extends Module {
     }
 
     private void recheckCrystal() {
-        if (mc.world.getBlockState(targetPos).getBlock() == Blocks.OBSIDIAN && mc.world.getEntitiesWithinAABB(EntityEnderCrystal.class, new AxisAlignedBB(targetPos.up())).isEmpty() && stage != CrystalBomberStage.FirstHit) {
-            stage = CrystalBomberStage.Crystal;
+        if (mc.world.getBlockState(targetPos).getBlock() == Blocks.OBSIDIAN && mc.world.getEntitiesWithinAABB(EntityEnderCrystal.class, new AxisAlignedBB(targetPos.up())).isEmpty() && stage != CevBreakerStage.FirstHit) {
+            stage = CevBreakerStage.Crystal;
         }
     }
 

@@ -6,6 +6,7 @@ import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.core.mixins.block.MixinBlockSoulSand;
+import me.earth.earthhack.impl.core.mixins.block.MixinBlockSlime;
 import me.earth.earthhack.impl.gui.click.Click;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.util.minecraft.KeyBoardUtil;

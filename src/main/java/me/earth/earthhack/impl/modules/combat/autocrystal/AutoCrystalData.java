@@ -53,6 +53,12 @@ public class AutoCrystalData extends DefaultData<AutoCrystal>
         register(module.placeSwing, "-None, won't swing when placing.\n" +
             "-Pre, will swing before you place a crystal.\n" +
             "-Post, will swing after you placed a crystal (Vanilla).");
+        register(module.pingSyncStrength, "How much PingSync should sync placing and breaking" +
+                "crystals in percentage. For example, At 10%, " +
+                "the PingSync end delay should be around 7ms if you play " +
+                "with 65ms ping. This delay will adapt to your ping, " +
+                "so you shouldn't have to tweak delays depending on " +
+                "your ping.");
         register(module.smartTrace, "Only for really strict RayTrace Servers." +
                 " Has to make complicated Calculations.");
         register(module.fallbackTrace, "Will place upwards if it has to.");
@@ -189,6 +195,14 @@ public class AutoCrystalData extends DefaultData<AutoCrystal>
         register(module.motionCalc, "Only when not MultiThreading: Starts a" +
             " Calculation that evaluates if you should break before or after" +
             " you update your position on the server.");
+
+        register(module.stopWhenEating, "Stop placing and breaking crystals while" +
+                " you are eating. This can negate disconnects.");
+        register(module.stopWhenMining, "Stops placing and breaking crystals while" +
+                " you are mining. This can help with Speedmine always breaking blocks.");
+        register(module.stopWhenEatingOffhand, "Similar to StopWhenEating, but this" +
+                " only stops AutoCrystal when you are eating with" +
+                " your offhand.");
 
         register(module.holdFacePlace, "Hold Mouse 1 to FacePlace.");
         register(module.facePlace,
@@ -390,6 +404,22 @@ public class AutoCrystalData extends DefaultData<AutoCrystal>
             "slowly you probably won't be able to outplace the targets" +
             " Surround. This setting leaves a crystal there until the next " +
             "DamageSync period.");
+
+        register(module.pingSync, "Attempts to sync your ping with placing/breaking crystals. Theoretically, " +
+                "this can optimize your crystal placement to be maximal for your ping." +
+                " As of now, this is experimental.");
+        register(module.pingSyncStrength, "This sets the strength of PingSync applied to calculations.");
+        register(module.pingSyncRemoval, "How much we should be removing from break delay on PingSync" +
+                " calculations. This setting is kinda sensitive, and shouldn't" +
+                " be tweaked too much.");
+        register(module.absolutePingSync, "This is when PingSync calculates delay with" +
+                " preset values. When this is not enabled," +
+                " PingSync uses user-specified values.");
+        register(module.ignorePingBypass, "When enabled, PingSync won't be applied" +
+                " when playing on a PingBypass connection.");
+        register(module.ignorePingspoof, "Normally, PingSync will apply your 'end' ping," +
+                " which also has PingSpoof applied. When this is enabled, PingSync will" +
+                " calculate delays with your real ping.");
 
         register(module.extrapol, "Predicts where the targeted player " +
             "will be in x ticks. In development!!!");

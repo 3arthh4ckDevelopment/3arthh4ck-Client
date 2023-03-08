@@ -39,9 +39,9 @@ import me.earth.earthhack.impl.modules.combat.autocrystal.AutoCrystal;
 import me.earth.earthhack.impl.modules.combat.autothirtytwok.Auto32k;
 import me.earth.earthhack.impl.modules.combat.autotrap.AutoTrap;
 import me.earth.earthhack.impl.modules.combat.bedbomb.BedBomb;
-import me.earth.earthhack.impl.modules.combat.bomber.CrystalBomber;
 import me.earth.earthhack.impl.modules.combat.bowkill.BowKiller;
 import me.earth.earthhack.impl.modules.combat.bowspam.BowSpam;
+import me.earth.earthhack.impl.modules.combat.cevbreaker.CevBreaker;
 import me.earth.earthhack.impl.modules.combat.criticals.Criticals;
 import me.earth.earthhack.impl.modules.combat.holefiller.HoleFiller;
 import me.earth.earthhack.impl.modules.combat.killaura.KillAura;
@@ -67,6 +67,7 @@ import me.earth.earthhack.impl.modules.misc.autoregear.AutoRegear;
 import me.earth.earthhack.impl.modules.misc.autorespawn.AutoRespawn;
 import me.earth.earthhack.impl.modules.misc.buildheight.BuildHeight;
 import me.earth.earthhack.impl.modules.misc.chat.Chat;
+import me.earth.earthhack.impl.modules.misc.choruscontrol.ChorusControl;
 import me.earth.earthhack.impl.modules.misc.extratab.ExtraTab;
 import me.earth.earthhack.impl.modules.misc.logger.Logger;
 import me.earth.earthhack.impl.modules.misc.mcf.MCF;
@@ -142,7 +143,7 @@ import me.earth.earthhack.impl.modules.player.scaffold.Scaffold;
 import me.earth.earthhack.impl.modules.player.sorter.Sorter;
 import me.earth.earthhack.impl.modules.player.spectate.Spectate;
 import me.earth.earthhack.impl.modules.player.speedmine.Speedmine;
-import me.earth.earthhack.impl.modules.player.suicide.Suicide;
+import me.earth.earthhack.impl.modules.player.autokys.AutoKys;
 import me.earth.earthhack.impl.modules.player.timer.Timer;
 import me.earth.earthhack.impl.modules.player.xcarry.XCarry;
 import me.earth.earthhack.impl.modules.render.ambience.Ambience;
@@ -155,6 +156,7 @@ import me.earth.earthhack.impl.modules.render.crystalscale.CrystalScale;
 import me.earth.earthhack.impl.modules.render.esp.ESP;
 import me.earth.earthhack.impl.modules.render.fullbright.Fullbright;
 import me.earth.earthhack.impl.modules.render.handchams.HandChams;
+import me.earth.earthhack.impl.modules.render.hiteffects.HitEffects;
 import me.earth.earthhack.impl.modules.render.holeesp.HoleESP;
 import me.earth.earthhack.impl.modules.render.itemchams.ItemChams;
 import me.earth.earthhack.impl.modules.render.lagometer.LagOMeter;
@@ -223,7 +225,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new BowSpam());
         this.forceRegister(new BowKiller());
         this.forceRegister(new Criticals());
-        this.forceRegister(new CrystalBomber());
+        this.forceRegister(new CevBreaker());
         this.forceRegister(new HoleFiller());
         this.forceRegister(new KillAura());
         this.forceRegister(new LegSwitch());
@@ -234,6 +236,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new Snowballer());
         this.forceRegister(new SelfTrap());
         this.forceRegister(new WebAura());
+        this.forceRegister(new Quiver());
 
         //misc
         this.forceRegister(new Announcer());
@@ -248,6 +251,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new AutoRespawn());
         this.forceRegister(new BuildHeight());
         this.forceRegister(new Chat());
+        this.forceRegister(new ChorusControl());
         this.forceRegister(new ExtraTab());
         this.forceRegister(new Logger());
         this.forceRegister(new MCF());
@@ -333,7 +337,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new Sorter());
         this.forceRegister(new Spectate());
         this.forceRegister(new Speedmine());
-        this.forceRegister(new Suicide());
+        this.forceRegister(new AutoKys());
         this.forceRegister(new Timer());
         this.forceRegister(new XCarry());
 
@@ -371,6 +375,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new PopChams());
         this.forceRegister(new ItemChams());
         this.forceRegister(new Ambience());
+        this.forceRegister(new HitEffects());
 
         this.forceRegister(new PingBypassModule());
 
@@ -390,12 +395,14 @@ public class ModuleManager extends IterationRegister<Module>
     public void unregister(Module module) throws CantUnregisterException
     {
         super.unregister(module);
+        module.setRegistered(false);
         Bus.EVENT_BUS.unsubscribe(module);
     }
 
     protected void forceRegister(Module module)
     {
         registered.add(module);
+        module.setRegistered(true);
         if (module instanceof Registrable)
         {
             ((Registrable) module).onRegister();
@@ -408,5 +415,13 @@ public class ModuleManager extends IterationRegister<Module>
             if (iModule.getCategory() == moduleCategory) iModules.add(iModule);
         }
         return iModules;
+    }
+
+    public ArrayList<Module> getHiddenModules() {
+        ArrayList<Module> hiddenModules = new ArrayList<>();
+        for (Module hidModule : getRegistered()) {
+            if (hidModule.getHiddenState()) hiddenModules.add(hidModule);
+        }
+        return hiddenModules;
     }
 }

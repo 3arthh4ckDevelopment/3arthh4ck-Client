@@ -40,7 +40,7 @@ public class ModulesFrame extends Frame {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
         final float scrollMaxHeight = new ScaledResolution(
-            Minecraft.getMinecraft()).getScaledHeight();
+                Minecraft.getMinecraft()).getScaledHeight();
         final Color clr = CLICK_GUI.get().color.getValue();
         if (CLICK_GUI.get().catEars.getValue()) {
             Minecraft.getMinecraft().getTextureManager().bindTexture(LEFT_EAR);
@@ -135,7 +135,7 @@ public class ModulesFrame extends Frame {
                 if (component.isExtended()) {
                     for (Component component1 : ((ModuleComponent) component).getComponents()) {
                         if (component1 instanceof SettingComponent
-                            && Visibilities.VISIBILITY_MANAGER.isVisible(((SettingComponent<?, ?>) component1).getSetting())) {
+                                && Visibilities.VISIBILITY_MANAGER.isVisible(((SettingComponent<?, ?>) component1).getSetting())) {
                             cHeight += component1.getHeight();
                         }
                     }

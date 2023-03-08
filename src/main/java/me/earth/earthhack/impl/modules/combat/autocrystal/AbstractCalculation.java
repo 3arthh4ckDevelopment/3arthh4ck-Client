@@ -447,6 +447,7 @@ public abstract class AbstractCalculation<T extends CrystalData>
             || raw == null
             || entities == null
             || module.stopWhenEating.getValue() && module.isEating()
+            || module.stopWhenEatingOffhand.getValue() && module.isEatingOffhand()
             || module.stopWhenMining.getValue() && module.isMining())
         {
             return true;

@@ -35,6 +35,9 @@ final class AutoTrapData extends ObbyListenerData<AutoTrap>
                 "can move with to still be trapped.");
         register(module.freeCam, "If AutoTrap should be active" +
                 " while you are in Freecam.");
+        register(module.logOutSpot, "Will trap player log-out spots. Should only be" +
+                " used on anarchy servers, instead of servers like" +
+                " 2b2tpvp.net or CrystalPvP.cc.");
         register(module.helping, "If helping blocks should be placed " +
                 "if the main trap blocks can't be placed.");
         register(module.confirm, "Time to confirm that a block has been" +

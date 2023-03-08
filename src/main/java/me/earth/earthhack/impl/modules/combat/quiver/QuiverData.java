@@ -22,7 +22,8 @@ public class QuiverData extends DefaultData<Quiver> {
                 + "\nHits - Count how many arrows actually hit you.");
         register(module.quiverMode, "Select how quiver should do things"
                 + "\nAutomatic - Automatically shoot yourself with arrows."
-                + "\nManual - Manually shoot yourself with arrows.");
+                + "\nManual - Manually shoot yourself with arrows. When using mode" +
+                " \"Manual\", setting Rotation to Client is recommended.");
         register(module.blockedCheck, "Checks if you have anything above"
                 + " your head preventing a successful hit. In development!!!!");
         register(module.mineBlocked, "If BlockedCheck finds a block, this"

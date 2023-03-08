@@ -94,8 +94,8 @@ public class Render2DUtil implements Globals {
                 (int) x1 - (int) x,
                 (int) y1 - (int) y,
                 intensity, size, size);
-    }
 
+    }
 
     public static void drawRect(float startX, float startY, float endX, float endY, int color) {
         float alpha = (float) (color >> 24 & 255) / 255.0F;

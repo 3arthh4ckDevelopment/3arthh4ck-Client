@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 public class BedBomb extends Module
 {
     private final Setting<Boolean> place = register(new BooleanSetting("Place", false));
-    private final Setting<Integer> placeDelay = register(new NumberSetting<>("Placedelay", 50, 0, 500));
+    private final Setting<Integer> placeDelay = register(new NumberSetting<>("PlaceDelay", 50, 0, 500));
     private final Setting<Float> placeRange = register(new NumberSetting<>("PlaceRange", 6.0f, 1.0f, 10.0f));
     private final Setting<Boolean> extraPacket = register(new BooleanSetting("InsanePacket", false));
     private final Setting<Boolean> packet = register(new BooleanSetting("Packet", false));

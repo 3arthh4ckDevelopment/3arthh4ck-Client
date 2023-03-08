@@ -217,7 +217,7 @@ public class HelperPlace implements Globals
         if (data.isLiquid())
         {
             if (!data.isLiquidValid()
-                // we wont be able to raytrace the
+                // we won't be able to raytrace the
                 // 2 blocks on top if its above us
                 || module.liquidRayTrace.getValue()
                     && (module.newVer.getValue()

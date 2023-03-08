@@ -9,13 +9,15 @@ import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.api.setting.settings.StringSetting;
 import me.earth.earthhack.impl.gui.click.Click;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.util.client.SimpleData;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
 
 public class ClickGui extends Module
 {
+    public final Setting<Float> guiScale =
+            register(new NumberSetting<>("Scale", 1.0f, 0.1f, 2.0f)); //TODO : better way of doing this
     public final Setting<Color> color =
             register(new ColorSetting("Color", new Color(0, 80, 255)));
     public final Setting<Boolean> catEars =
@@ -23,6 +25,8 @@ public class ClickGui extends Module
     public final Setting<Integer> scrollSpeed =
             register(new NumberSetting<>("Scroll-speed", 5, 1, 200));
     public final Setting<Boolean> blur =
+            register(new BooleanSetting("OldBlur", false));
+    public final Setting<Boolean> newBlur =
             register(new BooleanSetting("Blur", false));
     public final Setting<Integer> blurAmount =
             register(new NumberSetting<>("Blur-Amount", 8, 1, 20));
@@ -47,18 +51,20 @@ public class ClickGui extends Module
 
     protected boolean fromEvent;
     protected GuiScreen screen;
+    private final ResourceLocation blurShader = new ResourceLocation("minecraft", "earthhack/shaders/blur" + ".json");
 
     public ClickGui()
     {
         super("ClickGui", Category.Client);
         this.listeners.add(new ListenerScreen(this));
-        this.setData(new SimpleData(this, "Beautiful ClickGui by oHare"));
+        this.setData(new ClickGuiData(this));
     }
 
-    public ClickGui(String name)
+    public ClickGui(String name) // duplicates?
     {
         super(name, Category.Client);
         this.listeners.add(new ListenerScreen(this));
+        this.setData(new ClickGuiData(this));
     }
 
     @Override
@@ -67,11 +73,17 @@ public class ClickGui extends Module
         disableOtherGuis();
         Click.CLICK_GUI.set(this);
         screen = mc.currentScreen instanceof Click ? ((Click) mc.currentScreen).screen : mc.currentScreen;
-        // dont save it since some modules add/del settings
+        // don't save it since some modules add/del settings
         Click gui = newClick();
         gui.init();
         gui.onGuiOpened();
         mc.displayGuiScreen(gui);
+
+        if(newBlur.getValue())
+        {
+            blur.setValue(false); // to prevent conflicting
+            mc.entityRenderer.loadShader(blurShader);
+        }
     }
 
     protected void disableOtherGuis() {
@@ -93,7 +105,11 @@ public class ClickGui extends Module
         {
             mc.displayGuiScreen(screen);
         }
-
+        if(newBlur.getValue())
+        {
+            if(mc.entityRenderer.getShaderGroup() != null) // this might conflict with enabled shaders?
+                mc.entityRenderer.getShaderGroup().deleteShaderGroup();
+        }
         fromEvent = false;
     }
 

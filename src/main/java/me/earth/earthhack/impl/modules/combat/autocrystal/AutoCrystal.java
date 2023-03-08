@@ -19,7 +19,7 @@ import me.earth.earthhack.impl.modules.combat.autocrystal.modes.*;
 import me.earth.earthhack.impl.modules.combat.autocrystal.util.CrystalTimeStamp;
 import me.earth.earthhack.impl.modules.combat.autocrystal.util.RotationFunction;
 import me.earth.earthhack.impl.modules.movement.packetfly.PacketFly;
-import me.earth.earthhack.impl.modules.player.suicide.SuicideAutoCrystal;
+import me.earth.earthhack.impl.modules.player.autokys.AutoKysAutoCrystal;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.PlaceSwing;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.RayTraceMode;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.Rotate;
@@ -32,16 +32,19 @@ import me.earth.earthhack.impl.util.minecraft.CooldownBypass;
 import me.earth.earthhack.impl.util.minecraft.blocks.BlockUtil;
 import me.earth.earthhack.impl.util.minecraft.entity.EntityUtil;
 import me.earth.earthhack.impl.util.misc.collections.CollectionUtil;
+import me.earth.earthhack.impl.util.network.ServerUtil;
 import me.earth.earthhack.impl.util.text.TextColor;
 import me.earth.earthhack.impl.util.thread.SafeRunnable;
 import me.earth.earthhack.impl.util.thread.ThreadUtil;
 import me.earth.earthhack.pingbypass.PingBypass;
 import me.earth.earthhack.pingbypass.input.Mouse;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
 import java.awt.*;
@@ -65,7 +68,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 //  so the last spawned crystal will have the highest id probably.
 //  Which would allow for a really good id prediction of the next tick.
 //  Only worth if we have really low ms and we can receive packets between
-//  the ticks and the world doesnt have many players.
+//  the ticks and the world doesn't have many players.
 // TODO: more mine stuff!
 // TODO: SmartRange for OBBY!!!
 public class AutoCrystal extends Module
@@ -211,7 +214,6 @@ public class AutoCrystal extends Module
     protected final Setting<Boolean> alwaysCalc =
             register(new BooleanSetting("Always-Calc", false))
                 .setComplexity(Complexity.Medium);
-
     protected final Setting<Boolean> ncpRange =
             register(new BooleanSetting("NCP-Range", false))
                 .setComplexity(Complexity.Medium);
@@ -378,6 +380,8 @@ public class AutoCrystal extends Module
                 .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> stopWhenEating =
             register(new BooleanSetting("StopWhenEating", false));
+    protected final Setting<Boolean> stopWhenEatingOffhand =
+            register(new BooleanSetting("StopEatingOffhand", false));
     protected final Setting<Boolean> stopWhenMining =
             register(new BooleanSetting("StopWhenMining", false));
     protected final Setting<Boolean> dangerFacePlace =
@@ -712,6 +716,26 @@ public class AutoCrystal extends Module
             register(new BooleanSetting("SurroundSync", true))
                 .setComplexity(Complexity.Expert);
 
+    /* ------------------ PingSync Settings ----------------- */
+    protected final Setting<Boolean> pingSync =
+            register(new BooleanSetting("Ping-Sync", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Float> pingSyncStrength =
+            register(new NumberSetting<>("PingSync-%", 70.0f, 0.0f, 100.0f))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> absolutePingSync =
+            register(new BooleanSetting("Absolute", true))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> ignorePingBypass =
+            register(new BooleanSetting("IgnorePingbypass", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> ignorePingspoof =
+            register(new BooleanSetting("IgnorePingSpoof", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Float> pingSyncRemoval =
+            register(new NumberSetting<>("BreakRemoval", 10.0f, 0.0f, 80.0f))
+                    .setComplexity(Complexity.Expert);
+
     /* ---------------- Extrapolation Settings -------------- */
     // TODO: make this not suck, keep in mind that
     //  we might not be able to place when target moves in a block!
@@ -949,11 +973,13 @@ public class AutoCrystal extends Module
             new AtomicInteger();
 
     /* ---------------- Timers -------------- */
+
     protected final DiscreteTimer placeTimer =
             new GuardTimer(1000, 5).reset(placeDelay.getValue());
     protected final DiscreteTimer breakTimer =
             new GuardTimer(1000, 5).reset(breakDelay.getValue());
     protected final StopWatch renderTimer = new StopWatch();
+    protected final StopWatch pingSyncTimer = new StopWatch();
     protected final StopWatch bypassTimer = new StopWatch();
     protected final StopWatch obbyTimer = new StopWatch();
     protected final StopWatch obbyCalcTimer = new StopWatch();
@@ -1109,11 +1135,56 @@ public class AutoCrystal extends Module
                 .addPage(p -> p == ACPages.Liquids, interact, sponges)
                 .addPage(p -> p == ACPages.AntiTotem, antiTotem, attempts)
                 .addPage(p -> p == ACPages.DamageSync, damageSync, surroundSync)
+                .addPage(p -> p == ACPages.PingSync, pingSync, pingSyncRemoval)
                 .addPage(p -> p == ACPages.Extrapolation, extrapol, selfExtrapolation)
                 .addPage(p -> p == ACPages.GodModule, idPredict, godSwing)
                 .addPage(p -> p == ACPages.MultiThread, preCalc, blockChangeThread)
                 .addPage(p -> p == ACPages.Development, priority, removeTime)
                 .register(Visibilities.VISIBILITY_MANAGER);
+
+
+        if(pingSync.getValue() && pingSyncTimer.passed(ServerUtil.getPing()))
+        {
+            pingSyncTimer.reset();
+            pingSyncTimer.setTime(0);
+
+            if(PINGBYPASS.isEnabled() && ignorePingBypass.getValue())
+                pingSync.setValue(false);
+
+            if(pingSyncStrength.getValue() > 0)
+            {
+                if(absolutePingSync.getValue())
+                {
+                    placeTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()));           // math teacher would be proud :^)
+                    breakTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()) - 10);      // -10 because generally we should break faster than we place :P
+                }else
+                {
+                    placeTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()));           // math teacher would be proud :^)
+                    breakTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()) - Math.round(pingSyncRemoval.getValue()));      // we now use PingSync-Break for the reduction :))
+                }
+
+                if(ignorePingspoof.getValue() && absolutePingSync.getValue())
+                {
+                    placeTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()));           // if that else this lmao
+                    breakTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()) - 10);
+                }
+                else if(ignorePingspoof.getValue() && !absolutePingSync.getValue())
+                {
+                    placeTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()));           // if that else this lmao
+                    breakTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()) - Math.round(pingSyncRemoval.getValue()));
+                }
+
+            }
+            else
+            {
+                pingSync.setValue(false); // honestly this should probably be rewritten, this just looks like it's not going to be efficient
+            }
+        }
+        else
+        {
+            breakTimer.reset(breakDelay.getValue());
+            placeTimer.reset(breakDelay.getValue());
+        }
 
         boolean start = false;
         for (Setting<?> setting : this.getSettings()) {
@@ -1153,15 +1224,18 @@ public class AutoCrystal extends Module
         Managers.SET_DEAD.removeObserver(this.soundObserver);
         reset();
     }
-
     @Override
     public String getDisplayInfo() {
+
+        EntityPlayer t = getTarget();
+
         if (switching) {
             return TextColor.GREEN + "Switching";
         }
-
-        EntityPlayer t = getTarget();
-        return t == null ? null : t.getName();
+        else
+        {
+            return t == null ? null : t.getName();
+        }
     }
 
     public void setRenderPos(BlockPos pos, float damage) {
@@ -1324,7 +1398,7 @@ public class AutoCrystal extends Module
      */
     protected void checkExecutor()
     {
-        // we use "started" here cause its faster than the atomic one
+        // we use "started" here because it's faster than the atomic one
         if (!started
             && asyncServerThread.getValue()
             && serverThread.getValue()
@@ -1400,7 +1474,7 @@ public class AutoCrystal extends Module
     }
 
     /**
-     * {@link SuicideAutoCrystal}
+     * {@link AutoKysAutoCrystal}
      */
     public boolean isSuicideModule() {
         return false;
@@ -1426,6 +1500,13 @@ public class AutoCrystal extends Module
         return mc.player.isHandActive()
             && !stack.isEmpty()
             && stack.getItem().getItemUseAction(stack) == EnumAction.EAT;
+    }
+
+    public boolean isEatingOffhand() {
+        ItemStack stack = mc.player.getActiveItemStack();
+        return mc.player.getActiveHand().equals(EnumHand.OFF_HAND)
+                && !stack.isEmpty()
+                && stack.getItem().getItemUseAction(stack) == EnumAction.EAT;
     }
 
     public boolean isMining() {

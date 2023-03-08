@@ -1,11 +1,11 @@
-package me.earth.earthhack.impl.modules.player.suicide;
+package me.earth.earthhack.impl.modules.player.autokys;
 
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.impl.modules.combat.autocrystal.AutoCrystal;
 import me.earth.earthhack.impl.modules.combat.autocrystal.modes.Target;
 
-public class SuicideAutoCrystal extends AutoCrystal {
-    public SuicideAutoCrystal() {
+public class AutoKysAutoCrystal extends AutoCrystal {
+    public AutoKysAutoCrystal() {
         super("SuicideAutoCrystal", Category.Combat);
         this.suicide.setValue(true);
         this.unregister(suicide);

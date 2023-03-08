@@ -16,7 +16,7 @@ import me.earth.earthhack.impl.modules.combat.autoarmor.util.SingleMendingSlot;
 import me.earth.earthhack.impl.modules.combat.autoarmor.util.WindowClick;
 import me.earth.earthhack.impl.modules.player.exptweaks.ExpTweaks;
 import me.earth.earthhack.impl.modules.player.noinventorydesync.MendingStage;
-import me.earth.earthhack.impl.modules.player.suicide.Suicide;
+import me.earth.earthhack.impl.modules.player.autokys.AutoKys;
 import me.earth.earthhack.impl.modules.player.xcarry.XCarry;
 import me.earth.earthhack.impl.util.math.DiscreteTimer;
 import me.earth.earthhack.impl.util.math.GuardTimer;
@@ -61,8 +61,8 @@ public class AutoArmor extends Module
             Caches.getModule(ExpTweaks.class);
     private static final ModuleCache<XCarry> XCARRY =
             Caches.getModule(XCarry.class);
-    private static final ModuleCache<Suicide> SUICIDE =
-            Caches.getModule(Suicide.class);
+    private static final ModuleCache<AutoKys> AUTOKYS =
+            Caches.getModule(AutoKys.class);
 
     protected final Setting<ArmorMode> mode =
             register(new EnumSetting<>("Mode", ArmorMode.Blast));
@@ -407,7 +407,7 @@ public class AutoArmor extends Module
     /**
      * Returns <tt>false</tt> if autoMend is off,
      * we are not holding Bottles of experience, we are
-     * not using them, or theres a dangerous
+     * not using them, or there's a dangerous
      * position/crystal that could kill or deal
      * big damage to us in proximity.
      *
@@ -415,7 +415,7 @@ public class AutoArmor extends Module
      */
     boolean canAutoMend()
     {
-        if (SUICIDE.returnIfPresent(Suicide::shouldTakeOffArmor, false))
+        if (AUTOKYS.returnIfPresent(AutoKys::shouldTakeOffArmor, false))
         {
             return takeOffLoot.getValue()
                     || mc.world

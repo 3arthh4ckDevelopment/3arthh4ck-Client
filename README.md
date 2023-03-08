@@ -1,12 +1,13 @@
-> :warning: This is a continuation of an archived 1.12.2 client. More and more servers are updating to newer versions. Any new PingBypass release will be found [here](https://github.com/3arthqu4ke/PingBypass).
+> :warning: This is a continuation of 3arthqu4ke's now discontinued 3arthh4ck. Any new PingBypass 3arthqu4ke releases will be found [here](https://github.com/3arthqu4ke/PingBypass).
 
 # 3arthh4ck
 
-[![CodeFactor](https://www.codefactor.io/repository/github/GentlemanMC/3arthh4ck/badge/main)](https://www.codefactor.io/repository/github/GentlemanMC/3arthh4ck/overview/main)
-[![GitHub All Releases](https://img.shields.io/github/downloads/GentlemanMC/3arthh4ck/total.svg)](https://github.com/GentlemanMC/3arthh4ck/releases)
-[![Lines of code](docs/loc.svg)](https://tokei.rs/b1/github/GentlemanMC/3arthh4ck?category=code)
-![Repo size](https://img.shields.io/github/repo-size/GentlemanMC/3arthh4ck.svg)
-[![Build](https://github.com/GentlemanMC/3arthh4ck/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/GentlemanMC/3arthh4ck/actions)
+[![CodeFactor](https://www.codefactor.io/repository/github/nukiz/3arthh4ck-continued/badge/main)](https://www.codefactor.io/repository/github/nukiz/3arthh4ck-continued/overview/main)
+[![GitHub All Releases](https://img.shields.io/github/downloads/nukiz/3arthh4ck-continued/total.svg)](https://github.com/3arthqu4ke/3arthh4ck/releases)
+[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/3arthqu4ke/pingbypass?logo=docker)](https://hub.docker.com/r/3arthqu4ke/pingbypass)
+[![Lines of code](docs/loc.svg)](https://tokei.rs/b1/github/nukiz/3arthh4ck-continued?category=code)
+![Repo size](https://img.shields.io/github/repo-size/3arthqu4ke/3arthh4ck.svg)
+[![Build](https://github.com/nukiz/3arthh4ck-continued/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/nukiz/3arthh4ck-continued/actions)
 
 3arthh4ck is Minecraft 1.12.2 utility mod for anarchy PvP. With the 1.7.0 release it also takes over the role
 of the now outdated PingBypass [Server](https://github.com/3arthqu4ke/PingBypass) and 
@@ -15,9 +16,7 @@ By default, any message prefixed with a `+` will be handled as command, e.g. `+t
 Because of bloat I decided to hide some of the more complicated Settings by default. You can find those by using the 
 Settings module.
 
-<details>
-<summary> Proxy/PingBypass </summary>
-    
+## Proxy/PingBypass
 ![Image of a PingBypass server](docs/pingbypass.png)  
 3arthh4ck can be used as a Proxy server. With ping being such an important factor in crystal PvP this allows you to play
 on servers far away from where you are without the disadvantage of high ping. This proxy can, opposed to the old
@@ -32,9 +31,9 @@ which account you use on your client, the Minecraft account on the server will a
 ### Setup with docker
 1.  Install [docker](https://docs.docker.com/engine/install/) on your server.
 
-2.  Run `docker pull GentlemanMC/pingbypass`.
+2.  Run `docker pull 3arthqu4ke/pingbypass`.
 
-3.  Run `docker run -i -t -p <ip>:<port>:25565 GentlemanMC/pingbypass`.
+3.  Run `docker run -i -t -p <ip>:<port>:25565 3arthqu4ke/pingbypass`.
 
 4.  You should now be in the shell of the docker container.
 
@@ -95,4 +94,46 @@ This is just what the docker container already automates.
     * Launch the game with `launch <id of the forge version> -id`.
 
 9.  You are now done with the server. Just follow the steps after 7. in the docker setup.
-</details>
+
+## Building, Issues & Pull Requests
+### Building
+The client is very simple to build with IntelliJ IDEA, which is the IDE I recommend for developing any sort of mods and this client in specific.
+1.  Open `build.gradle` with IntelliJ
+2.  This should prompt IntelliJ to ask if you wish to trust this project. Choose `Trust Project` and wait for ForgeGradle and Gradle tasks to be finished.
+3.  After this is done, there should be no more changes to the `Project` tab in IntelliJ. You can now run some Gradle tasks to be able to build and work with the project:
+*  Go to your top-right in IntelliJ, and click the `Gradle` button. This should open a tab with `Tasks`, `Dependencies`, and `Run Configurations`.
+*  Of these options, click `Tasks` and then under that, `forgegradle`. 
+*  From `forgegradle` you need to run task `setupDecompWorkspace`. This should take some time, and you should wait.
+*  After this is done, you can build the client, or optionally contribute/develop it.
+#### Building
+1.  Open page `build` from Gradle > Tasks. To build the client succesfully, you need to run Gradle task `build`.
+2.  This will build 2 .jar files. The correct one is `3arthh4ck-VERSION-release.jar`, and you can use it by double-clicking it and using the 3arthh4ck installer, or by simply dragging and dropping it to your `.minecraft\mods\` folder.
+#### Contributing
+1.  Write your additions, and test them. If you feel that they are ready and work fine, fork this repository with your changes, and submit a Pull Request.
+*  Preferrably, write 'clean' code - for example, in cases where you're returning something you could use ternary operators, instead of an if-else statement. If this messes with your head though, it's okay to write it as a if-else.
+*  Preferrably don't do unnecessary refactoring, like changing `AutoCrystal` to `CrystalAura`. This also includes changing up words in the README, or adding small bits of text. Most likely, these PR's won't be accepted.
+
+### Issues
+When writing an issue, please use the following format, or at minimum, use labels accordingly:
+
+
+#### Bug Report
+
+What is wrong:
+
+When does this happen:
+
+How to reproduce the bug:
+
+What you think the severity is:
+
+
+#### Feature Request
+
+What this benefits:
+
+Any cons?:
+
+Complexity/Difficulty (if known):
+
+(if possible) Video/example of already existing feature:

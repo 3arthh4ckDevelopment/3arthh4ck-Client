@@ -50,6 +50,8 @@ final class SurroundData extends ObbyData<Surround>
         register(module.centerY, "Prevents you from getting centered down.");
         register(module.burrow, "Automatically enable BlockLag.");
         register(module.teleport, "Do not disable on teleports.");
+        register(module.autoOnTeleport, "Automatically enables when teleporting." +
+                " May cause issues, when Center is on.");
         register(module.yTeleportRange, "Leave at 0 to disable." +
             " Movement - Y and YPlus will not disable when you teleport" +
             " to the same Y-Level. This can be fixed with this setting.");

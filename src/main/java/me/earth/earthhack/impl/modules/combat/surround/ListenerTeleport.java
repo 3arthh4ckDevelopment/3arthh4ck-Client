@@ -15,6 +15,15 @@ final class ListenerTeleport
     @Override
     public void invoke(PacketEvent.Post<CPacketConfirmTeleport> event) {
         EntityPlayerSP player = mc.player;
+
+        if(module.autoOnTeleport.getValue()
+                && player != null
+                && module.teleport.getValue()
+                && !module.isEnabled()){
+            module.startPos = module.getPlayerPos();
+            module.enable();
+        }
+
         if (player != null
             && module.teleport.getValue()
             && !module.blockTeleporting) {

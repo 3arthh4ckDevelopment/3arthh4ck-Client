@@ -18,7 +18,6 @@ import me.earth.earthhack.impl.modules.combat.legswitch.LegSwitch;
 import me.earth.earthhack.impl.util.math.rotation.RotationUtil;
 import me.earth.earthhack.impl.util.minecraft.entity.EntityUtil;
 import me.earth.earthhack.impl.util.misc.MutableWrapper;
-import me.earth.earthhack.impl.util.text.ChatUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
@@ -69,6 +68,7 @@ final class ListenerSpawnObject extends
             || mc.world == null
             || !module.spectator.getValue() && mc.player.isSpectator()
             || module.stopWhenEating.getValue() && module.isEating()
+            || module.stopWhenEatingOffhand.getValue() && module.isEatingOffhand()
             || module.stopWhenMining.getValue() && module.isMining()
             || ((ISPacketSpawnObject) event.getPacket()).isAttacked())
         {

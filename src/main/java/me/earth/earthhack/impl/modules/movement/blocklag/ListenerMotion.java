@@ -1,9 +1,13 @@
 package me.earth.earthhack.impl.modules.movement.blocklag;
 
+import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.event.events.Stage;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.modules.Caches;
+import me.earth.earthhack.impl.modules.movement.blocklag.mode.OffsetMode;
+import me.earth.earthhack.impl.modules.player.blink.Blink;
 import me.earth.earthhack.impl.util.client.ModuleUtil;
 import me.earth.earthhack.impl.util.math.RayTraceUtil;
 import me.earth.earthhack.impl.util.math.position.PositionUtil;
@@ -34,6 +38,8 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
         super(module, MotionUpdateEvent.class);
     }
 
+    static final ModuleCache<Blink> BLINK =
+            Caches.getModule(Blink.class);
     @Override
     public void invoke(MotionUpdateEvent event) {
         if (event.getStage() == Stage.PRE
@@ -143,6 +149,26 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
                     }
 
                     return;
+                }
+            }
+        }
+
+        if(module.offsetMode.getValue() == OffsetMode.Bypass
+                && mc.player != null
+                && mc.world != null) {
+
+            if (module.useTimer.getValue())
+                Managers.TIMER.setTimer(module.timerAmount.getValue());
+
+            mc.player.jump();
+            module.jumpTimer.setTime(0);
+
+            if (module.useBlink.getValue()) {
+                if (module.jumpTimer.passed(295)) {
+                    mc.player.jump(); // Makes this work? Lmao
+                        BLINK.enable();
+                        module.blinkTimer.reset();
+                        mc.player.motionY = module.motionAmount.getValue();
                 }
             }
         }
