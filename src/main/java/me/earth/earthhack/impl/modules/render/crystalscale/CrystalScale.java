@@ -18,12 +18,6 @@ public class CrystalScale extends Module
             register(new BooleanSetting("Animate", false));
     public final Setting<Integer> time    =
             register(new NumberSetting<>("AnimationTime", 200, 1, 500));
-    public final Setting<Boolean> modify  =
-            register(new BooleanSetting("Modify", false));
-    public final Setting<Float > spinSpeed  =
-            register(new NumberSetting<>("Spin-Speed", 0.0f, -8.0f, 8.0f));
-    public final Setting<Float> bounceSpeed =
-            register(new NumberSetting<>("Bounce-Speed", 0.0f, -8.0f, 8.0f));
     public final Map<Integer, TimeAnimation> scaleMap =
             new ConcurrentHashMap<>();
 

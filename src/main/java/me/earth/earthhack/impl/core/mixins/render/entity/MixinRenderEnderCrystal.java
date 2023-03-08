@@ -117,7 +117,7 @@ public abstract class MixinRenderEnderCrystal
         float f, float f1) {
 
         float limbSwingAmount = f * 3.0F;
-        float ageInTicks = f1 * 0.2F + SCALE.get().bounceSpeed.getValue();
+        float ageInTicks = f1 * 0.2F;
         ModelBase modelBase = entity.shouldShowBottom()
             ? modelEnderCrystal : modelEnderCrystalNoBase;
         RenderEnderCrystal renderLiving = RenderEnderCrystal.class.cast(this);
