@@ -129,12 +129,14 @@ public class BlockLag extends DisablingModule
             register(new NumberSetting<>("Motion-Amount", 10f, 0.1f, 1337.0f));
     protected final Setting<Boolean> useBlink =
             register(new BooleanSetting("UseBlink", true));
+    protected final Setting<Boolean> autoDisableBlink =
+            register(new BooleanSetting("AutoDisable", false));
     protected final Setting<Integer> blinkDuration =
-            register(new NumberSetting<>("Blink-Duration", 3200, 0, 5000));
+            register(new NumberSetting<>("Blink-Duration", 650, 0, 5000));
     protected final Setting<Boolean> useTimer =
             register(new BooleanSetting("UseTimer", false));
     protected final Setting<Float> timerAmount =
-            register(new NumberSetting<>("Timer-Speed", 0.7f, 0.1f, 5.0f));
+            register(new NumberSetting<>("Timer-Speed", 6.0f, 0.1f, 10.0f));
 
     protected final StopWatch scaleTimer = new StopWatch();
     protected final StopWatch timer = new StopWatch();
@@ -165,6 +167,13 @@ public class BlockLag extends DisablingModule
     protected void onEnable()
     {
         timer.setTime(0);
+        jumpTimer.reset();
+        if(jumpTimer.passed(295))
+            blinkTimer.reset();
+
+        if (useTimer.getValue())
+            Managers.TIMER.setTimer(timerAmount.getValue());
+
         super.onEnable();
         if (mc.world == null || mc.player == null)
             return;
@@ -328,7 +337,8 @@ public class BlockLag extends DisablingModule
         super.onDisable();
         Managers.TIMER.setTimer(1);
 
-        if(useBlink.getValue() && blinkTimer.passed(blinkDuration.getValue()))
+        if(blinkTimer.passed(blinkDuration.getValue()) && autoDisableBlink.getValue())
             BLINK.disable();
+
     }
 }

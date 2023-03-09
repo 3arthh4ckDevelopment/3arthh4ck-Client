@@ -19,10 +19,15 @@ final class BlockLagData extends DefaultData<BlockLag>
                 " Temporarily disables sending any CPacketPlayer packets, so" +
                 " you can burrow in this time. In development, but functional!");
         register(module.blinkDuration, "How long Blink should be used for. For cc," +
-                " this is pretty good and stable at around 1000ms." +
+                " this is pretty good and stable at around 300-700ms." +
                 " Not having this high enough can result in failure." +
                 " Having it too high can result in disconnecting, or" +
-                " failure.\nNot yet implemented!!!!");
+                " failure.");
+        register(module.autoDisableBlink, "Automatically disables blink" +
+                " after Blink-Duration has been passed." +
+                " While enabled, burrow is much more inconsistent, and you're" +
+                " better off turning blink off manually, until" +
+                " this is made better.");
     }
 
     @Override
