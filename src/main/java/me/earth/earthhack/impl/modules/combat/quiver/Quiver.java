@@ -9,6 +9,7 @@ import me.earth.earthhack.impl.modules.combat.quiver.modes.*;
 import me.earth.earthhack.impl.util.client.ModuleUtil;
 import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
+import me.earth.earthhack.impl.util.network.NetworkUtil;
 import me.earth.earthhack.impl.util.network.PacketUtil;
 import me.earth.earthhack.impl.util.text.TextColor;
 
@@ -74,6 +75,9 @@ public class Quiver extends Module {
     int oldSlot;
     public void onEnable()
     {
+        if(mc.world == null ||  mc.player == null)
+            return;
+
         shootTime.reset();
         super.onEnable();
         cycles = 0;
@@ -126,14 +130,14 @@ public class Quiver extends Module {
                     // ---------- DRAW BACK ---------- //
                     if(stage == 2)
                     {
-                        mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                        NetworkUtil.send(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
                         stage++;
                     }
                     // ---------- SHOOT W/ BOW ---------- //
                     if(stage == 3 && InventoryUtil.isHolding(Items.BOW) && shootTime.passed(100 + delay.getValue()))
                     {
 
-                        mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, mc.player.getHorizontalFacing()));
+                        NetworkUtil.send(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, mc.player.getHorizontalFacing()));
 
                         if(cycles < cyclesAmount.getValue())        // If cycles are smaller than CyclesAmount, stage is set back 1
                             stage--;
@@ -194,9 +198,9 @@ public class Quiver extends Module {
 
             case Packet: // Honestly idk if this looks like shit, or if it's actually good code lmao.
                 if(stage == 1)
-                    mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, -90.0f, mc.player.onGround));
+                    NetworkUtil.send(new CPacketPlayer.Rotation(yaw, -90.0f, mc.player.onGround));
                 else if(stage == 4)
-                    mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, mc.player.onGround));
+                    NetworkUtil.send(new CPacketPlayer.Rotation(yaw, pitch, mc.player.onGround));
                 else return;
             break;
 

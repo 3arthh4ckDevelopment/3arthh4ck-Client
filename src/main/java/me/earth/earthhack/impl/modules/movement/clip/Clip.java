@@ -8,6 +8,8 @@ import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.event.events.misc.UpdateEvent;
 import me.earth.earthhack.impl.event.listeners.LambdaListener;
+import me.earth.earthhack.impl.util.minecraft.MovementUtil;
+import me.earth.earthhack.impl.util.network.NetworkUtil;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -46,10 +48,7 @@ public class Clip extends Module {
         super("Clip", Category.Movement);
         this.setData(new ClipData(this));
         this.listeners.add(new LambdaListener<>(UpdateEvent.class, e -> {
-            if (mc.gameSettings.keyBindForward.isKeyDown()
-                    || mc.gameSettings.keyBindBack.isKeyDown()
-                    || mc.gameSettings.keyBindLeft.isKeyDown()
-                    || mc.gameSettings.keyBindRight.isKeyDown()) {
+            if (!MovementUtil.noMovementKeys()) {
                 disable();
                 return;
             }
@@ -62,7 +61,7 @@ public class Clip extends Module {
                     mc.player.motionX = 0;
                     mc.player.motionZ = 0;
 
-                    mc.player.connection.sendPacket(new CPacketPlayer.Position(setCenter.x, setCenter.y, setCenter.z, true));
+                    NetworkUtil.send(new CPacketPlayer.Position(setCenter.x, setCenter.y, setCenter.z, true));
                     mc.player.setPosition(setCenter.x, setCenter.y, setCenter.z);
 
                     if (disable.getValue())
@@ -79,8 +78,8 @@ public class Clip extends Module {
 
                     } else if (mc.player.ticksExisted % delay.getValue() == 0) {
                         mc.player.setPosition(mc.player.posX + MathHelper.clamp(roundToClosest(mc.player.posX, Math.floor(mc.player.posX) + 0.241, Math.floor(mc.player.posX) + 0.759) - mc.player.posX, -0.03, 0.03), mc.player.posY, mc.player.posZ + MathHelper.clamp(roundToClosest(mc.player.posZ, Math.floor(mc.player.posZ) + 0.241, Math.floor(mc.player.posZ) + 0.759) - mc.player.posZ, -0.03, 0.03));
-                        mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY, mc.player.posZ, true));
-                        mc.player.connection.sendPacket(new CPacketPlayer.Position(roundToClosest(mc.player.posX, Math.floor(mc.player.posX) + 0.23, Math.floor(mc.player.posX) + 0.77), mc.player.posY, roundToClosest(mc.player.posZ, Math.floor(mc.player.posZ) + 0.23, Math.floor(mc.player.posZ) + 0.77), true));
+                        NetworkUtil.send(new CPacketPlayer.Position(mc.player.posX, mc.player.posY, mc.player.posZ, true));
+                        NetworkUtil.send(new CPacketPlayer.Position(roundToClosest(mc.player.posX, Math.floor(mc.player.posX) + 0.23, Math.floor(mc.player.posX) + 0.77), mc.player.posY, roundToClosest(mc.player.posZ, Math.floor(mc.player.posZ) + 0.23, Math.floor(mc.player.posZ) + 0.77), true));
                     }
                     if (disable.getValue()) {
                         if (disabletime >= updates.getValue()) {

@@ -32,6 +32,10 @@ public class ChorusControl extends Module {
     }
 
     protected void onEnable(){
+
+        if(mc.world == null ||  mc.player == null)
+            return;
+
         startCancel = sendingPackets = false;
         x = (int) mc.player.posX;
         y = (int) mc.player.posY;
