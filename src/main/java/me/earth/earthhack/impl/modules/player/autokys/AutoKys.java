@@ -42,7 +42,7 @@ public class AutoKys extends DisablingModule {
     protected boolean displaying;
 
     public AutoKys() {
-        super("Suicide", Category.Player);
+        super("AutoKys", Category.Player);
         this.listeners.add(new ListenerMotion(this));
         boolean found = false;
         for (Setting<?> setting : autoCrystal.getSettings()) {
