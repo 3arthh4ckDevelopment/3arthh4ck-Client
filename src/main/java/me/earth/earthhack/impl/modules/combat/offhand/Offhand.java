@@ -17,7 +17,7 @@ import me.earth.earthhack.impl.modules.client.pingbypass.submodules.sautototem.S
 import me.earth.earthhack.impl.modules.combat.autoarmor.AutoArmor;
 import me.earth.earthhack.impl.modules.combat.offhand.modes.HUDMode;
 import me.earth.earthhack.impl.modules.combat.offhand.modes.OffhandMode;
-import me.earth.earthhack.impl.modules.player.autokys.AutoKys;
+import me.earth.earthhack.impl.modules.player.autokys.Suicide;
 import me.earth.earthhack.impl.modules.player.xcarry.XCarry;
 import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.minecraft.DamageUtil;
@@ -53,8 +53,8 @@ public class Offhand extends Module
             Caches.getModule(AutoArmor.class);
     private static final ModuleCache<XCarry> XCARRY =
             Caches.getModule(XCarry.class);
-    private static final ModuleCache<AutoKys> SUICIDE =
-            Caches.getModule(AutoKys.class);
+    private static final ModuleCache<Suicide> SUICIDE =
+            Caches.getModule(Suicide.class);
 
     protected final Setting<Float> health        =
             register(new NumberSetting<>("Health", 14.5f, 0.0f, 36.0f));
@@ -198,7 +198,7 @@ public class Offhand extends Module
 
     public void doOffhand()
     {
-        boolean suicide = SUICIDE.returnIfPresent(AutoKys::deactivateOffhand, false);
+        boolean suicide = SUICIDE.returnIfPresent(Suicide::deactivateOffhand, false);
         if (mc.player != null
             && timer.passed(delay.getValue())
             && InventoryUtil.validScreen())

@@ -16,7 +16,7 @@ import me.earth.earthhack.impl.modules.combat.autoarmor.util.SingleMendingSlot;
 import me.earth.earthhack.impl.modules.combat.autoarmor.util.WindowClick;
 import me.earth.earthhack.impl.modules.player.exptweaks.ExpTweaks;
 import me.earth.earthhack.impl.modules.player.noinventorydesync.MendingStage;
-import me.earth.earthhack.impl.modules.player.autokys.AutoKys;
+import me.earth.earthhack.impl.modules.player.autokys.Suicide;
 import me.earth.earthhack.impl.modules.player.xcarry.XCarry;
 import me.earth.earthhack.impl.util.math.DiscreteTimer;
 import me.earth.earthhack.impl.util.math.GuardTimer;
@@ -61,8 +61,8 @@ public class AutoArmor extends Module
             Caches.getModule(ExpTweaks.class);
     private static final ModuleCache<XCarry> XCARRY =
             Caches.getModule(XCarry.class);
-    private static final ModuleCache<AutoKys> AUTOKYS =
-            Caches.getModule(AutoKys.class);
+    private static final ModuleCache<Suicide> AUTOKYS =
+            Caches.getModule(Suicide.class);
 
     protected final Setting<ArmorMode> mode =
             register(new EnumSetting<>("Mode", ArmorMode.Blast));
@@ -415,7 +415,7 @@ public class AutoArmor extends Module
      */
     boolean canAutoMend()
     {
-        if (AUTOKYS.returnIfPresent(AutoKys::shouldTakeOffArmor, false))
+        if (AUTOKYS.returnIfPresent(Suicide::shouldTakeOffArmor, false))
         {
             return takeOffLoot.getValue()
                     || mc.world

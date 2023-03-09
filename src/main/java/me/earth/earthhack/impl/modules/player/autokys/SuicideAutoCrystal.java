@@ -4,8 +4,8 @@ import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.impl.modules.combat.autocrystal.AutoCrystal;
 import me.earth.earthhack.impl.modules.combat.autocrystal.modes.Target;
 
-public class AutoKysAutoCrystal extends AutoCrystal {
-    public AutoKysAutoCrystal() {
+public class SuicideAutoCrystal extends AutoCrystal {
+    public SuicideAutoCrystal() {
         super("SuicideAutoCrystal", Category.Combat);
         this.suicide.setValue(true);
         this.unregister(suicide);

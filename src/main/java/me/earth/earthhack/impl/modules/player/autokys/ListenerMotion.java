@@ -9,9 +9,9 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.network.play.client.CPacketChatMessage;
 
-final class ListenerMotion extends ModuleListener<AutoKys, MotionUpdateEvent>
+final class ListenerMotion extends ModuleListener<Suicide, MotionUpdateEvent>
 {
-    public ListenerMotion(AutoKys module)
+    public ListenerMotion(Suicide module)
     {
         super(module, MotionUpdateEvent.class, 10_000);
     }
@@ -30,7 +30,7 @@ final class ListenerMotion extends ModuleListener<AutoKys, MotionUpdateEvent>
             return;
         }
 
-        if (module.mode.getValue() == AutoKysMode.Command)
+        if (module.mode.getValue() == SuicideMode.Command)
         {
             NetworkUtil.sendPacketNoEvent(new CPacketChatMessage("/kill"));
             module.disable();
