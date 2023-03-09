@@ -19,7 +19,7 @@ public class Swing extends Module {
             register(new BooleanSetting("ClientSide", false));
 
     protected final EnumSetting<SwingModes> hand =
-            register(new EnumSetting<>("Hand", SwingModes.MAINHAND));
+            register(new EnumSetting<>("Hand", SwingModes.Mainhand));
 
     public Swing() {
         super("Swing", Category.Player);
@@ -27,31 +27,40 @@ public class Swing extends Module {
         this.listeners.add(new LambdaListener<>(UpdateEvent.class, e -> {
             if(mc.player == null && mc.world == null) return;
 
-            if(hand.getValue() == SwingModes.MAINHAND) {
-                mc.player.swingingHand = EnumHand.MAIN_HAND;
-            } else if(hand.getValue() == SwingModes.OFFHAND) {
-                mc.player.swingingHand = EnumHand.OFF_HAND;
-            }
+            switch(hand.getValue()){
+                case Mainhand:
+                    mc.player.swingingHand = EnumHand.MAIN_HAND;
+                break;
+
+                case Offhand:
+                    mc.player.swingingHand = EnumHand.OFF_HAND;
+                break;
+            } // Using a switch rn for the future, since I plan on implementing Shuffle for this
         }));
         this.listeners.add(new LambdaListener<>(PacketEvent.Send.class,e -> {
             if (!clientside.getValue()) {
                 if (e.getPacket() instanceof CPacketAnimation) {
-                    if (hand.getValue() == SwingModes.MAINHAND) {
-                        if (((CPacketAnimation) e.getPacket()).getHand() != EnumHand.MAIN_HAND) {
-                            e.setCancelled(true);
-                            mc.player.swingArm(EnumHand.MAIN_HAND);
-                        }
-                    } else if (hand.getValue() == SwingModes.OFFHAND) {
-                        if (((CPacketAnimation) e.getPacket()).getHand() != EnumHand.OFF_HAND) {
-                            e.setCancelled(true);
-                            mc.player.swingArm(EnumHand.OFF_HAND);
-                        }
-                    } else {
-                        e.setCancelled(true);
-                    }
 
+                    switch (hand.getValue())
+                    {
+                        case Mainhand:
+                           if (((CPacketAnimation) e.getPacket()).getHand() != EnumHand.MAIN_HAND)
+                           {
+                               e.setCancelled(true);
+                               mc.player.swingArm(EnumHand.MAIN_HAND);
+                           }
+                        break; // Using a switch rn for the future, since I plan on implementing Shuffle for this
+
+                        case Offhand:
+                           if (((CPacketAnimation) e.getPacket()).getHand() != EnumHand.OFF_HAND)
+                           {
+                                e.setCancelled(true);
+                                mc.player.swingArm(EnumHand.OFF_HAND);
+                           }
+                        break;
+                    }
                 }
-            }
+            } // shouldn't there be a client-sided implementation?
         }));
     }
 
