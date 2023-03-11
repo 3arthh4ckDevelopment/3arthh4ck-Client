@@ -14,7 +14,7 @@ import me.earth.earthhack.impl.modules.combat.autocrystal.util.RotationFunction;
 import me.earth.earthhack.impl.modules.combat.autocrystal.util.WeaknessSwitch;
 import me.earth.earthhack.impl.modules.combat.offhand.Offhand;
 import me.earth.earthhack.impl.modules.combat.offhand.modes.OffhandMode;
-import me.earth.earthhack.impl.modules.player.autokys.Suicide;
+import me.earth.earthhack.impl.modules.player.suicide.Suicide;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.PlaceSwing;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.Rotate;
 import me.earth.earthhack.impl.util.math.RayTraceUtil;

@@ -143,7 +143,7 @@ import me.earth.earthhack.impl.modules.player.scaffold.Scaffold;
 import me.earth.earthhack.impl.modules.player.sorter.Sorter;
 import me.earth.earthhack.impl.modules.player.spectate.Spectate;
 import me.earth.earthhack.impl.modules.player.speedmine.Speedmine;
-import me.earth.earthhack.impl.modules.player.autokys.Suicide;
+import me.earth.earthhack.impl.modules.player.suicide.Suicide;
 import me.earth.earthhack.impl.modules.player.timer.Timer;
 import me.earth.earthhack.impl.modules.player.xcarry.XCarry;
 import me.earth.earthhack.impl.modules.render.ambience.Ambience;

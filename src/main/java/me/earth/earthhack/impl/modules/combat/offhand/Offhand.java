@@ -17,7 +17,7 @@ import me.earth.earthhack.impl.modules.client.pingbypass.submodules.sautototem.S
 import me.earth.earthhack.impl.modules.combat.autoarmor.AutoArmor;
 import me.earth.earthhack.impl.modules.combat.offhand.modes.HUDMode;
 import me.earth.earthhack.impl.modules.combat.offhand.modes.OffhandMode;
-import me.earth.earthhack.impl.modules.player.autokys.Suicide;
+import me.earth.earthhack.impl.modules.player.suicide.Suicide;
 import me.earth.earthhack.impl.modules.player.xcarry.XCarry;
 import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.minecraft.DamageUtil;

@@ -16,7 +16,7 @@ import me.earth.earthhack.impl.modules.combat.autoarmor.util.SingleMendingSlot;
 import me.earth.earthhack.impl.modules.combat.autoarmor.util.WindowClick;
 import me.earth.earthhack.impl.modules.player.exptweaks.ExpTweaks;
 import me.earth.earthhack.impl.modules.player.noinventorydesync.MendingStage;
-import me.earth.earthhack.impl.modules.player.autokys.Suicide;
+import me.earth.earthhack.impl.modules.player.suicide.Suicide;
 import me.earth.earthhack.impl.modules.player.xcarry.XCarry;
 import me.earth.earthhack.impl.util.math.DiscreteTimer;
 import me.earth.earthhack.impl.util.math.GuardTimer;

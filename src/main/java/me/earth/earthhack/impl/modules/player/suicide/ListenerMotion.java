@@ -1,4 +1,4 @@
-package me.earth.earthhack.impl.modules.player.autokys;
+package me.earth.earthhack.impl.modules.player.suicide;
 
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;

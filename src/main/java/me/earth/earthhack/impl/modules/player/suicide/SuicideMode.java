@@ -1,4 +1,4 @@
-package me.earth.earthhack.impl.modules.player.autokys;
+package me.earth.earthhack.impl.modules.player.suicide;
 
 public enum SuicideMode
 {
