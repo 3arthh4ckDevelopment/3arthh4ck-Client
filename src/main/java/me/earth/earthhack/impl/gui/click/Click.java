@@ -28,7 +28,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -100,9 +102,12 @@ public class Click extends GuiScreen {
 
         getFrames().forEach(Frame::init);
         oldVal = CLICK_GUI.get().catEars.getValue();
+        GL11.glScalef(x * CLICK_GUI.get().guiScale.getValue(), y * CLICK_GUI.get().guiScale.getValue(), 0 * CLICK_GUI.get().guiScale.getValue());
+        GL11.glPushMatrix();
     }
 
     @Override
+    @ParametersAreNonnullByDefault
     public void onResize(Minecraft mcIn, int w, int h) {
         super.onResize(mcIn, w, h);
         init();
@@ -131,7 +136,8 @@ public class Click extends GuiScreen {
                 bufferbuilder.pos(this.width, this.height, 0.0D).tex((float)this.width / 32.0F, (float)this.height / 32.0F + (float)0).color(64, 64, 64, 255).endVertex();
                 bufferbuilder.pos(this.width, 0.0D, 0.0D).tex((float)this.width / 32.0F, 0).color(64, 64, 64, 255).endVertex();
                 bufferbuilder.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0).color(64, 64, 64, 255).endVertex();
-                // GlStateManager.scale(0.0D * CLICK_GUI.get().guiScale.getValue(), this.height * CLICK_GUI.get().guiScale.getValue(), 0.0D * CLICK_GUI.get().guiScale.getValue());
+                GL11.glScalef(this.width * CLICK_GUI.get().guiScale.getValue(), this.height * CLICK_GUI.get().guiScale.getValue(), 0.0f * CLICK_GUI.get().guiScale.getValue());
+                GL11.glPushMatrix();
                 tessellator.draw();
             }
         }

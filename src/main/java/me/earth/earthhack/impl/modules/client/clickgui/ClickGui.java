@@ -51,7 +51,6 @@ public class ClickGui extends Module
 
     protected boolean fromEvent;
     protected GuiScreen screen;
-    private final ResourceLocation blurShader = new ResourceLocation("minecraft", "earthhack/shaders/blur" + ".json");
 
     public ClickGui()
     {
@@ -82,7 +81,7 @@ public class ClickGui extends Module
         if(newBlur.getValue())
         {
             blur.setValue(false); // to prevent conflicting
-            mc.entityRenderer.loadShader(blurShader);
+            mc.entityRenderer.loadShader(new ResourceLocation("shaders/post/blur.json")); // wip
         }
     }
 
@@ -107,8 +106,8 @@ public class ClickGui extends Module
         }
         if(newBlur.getValue())
         {
-            if(mc.entityRenderer.getShaderGroup() != null) // this might conflict with enabled shaders?
-                mc.entityRenderer.getShaderGroup().deleteShaderGroup();
+            if (this.mc.entityRenderer.getShaderGroup() != null)
+                this.mc.entityRenderer.getShaderGroup().deleteShaderGroup();
         }
         fromEvent = false;
     }
