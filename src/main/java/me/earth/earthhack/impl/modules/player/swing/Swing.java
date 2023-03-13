@@ -14,12 +14,11 @@ import net.minecraft.util.EnumHand;
 public class Swing extends Module {
     public final NumberSetting<Integer> swingSpeed =
             register(new NumberSetting<>("Swing-Delay", 6, 0, 20));
-
     public final BooleanSetting clientside =
             register(new BooleanSetting("ClientSide", false));
-
-    protected final EnumSetting<SwingModes> hand =
+    protected final EnumSetting<SwingModes> mode =
             register(new EnumSetting<>("Hand", SwingModes.Mainhand));
+
 
     public Swing() {
         super("Swing", Category.Player);
@@ -27,7 +26,7 @@ public class Swing extends Module {
         this.listeners.add(new LambdaListener<>(UpdateEvent.class, e -> {
             if(mc.player == null && mc.world == null) return;
 
-            switch(hand.getValue()){
+            switch(mode.getValue()){
                 case Mainhand:
                     mc.player.swingingHand = EnumHand.MAIN_HAND;
                 break;
@@ -35,13 +34,13 @@ public class Swing extends Module {
                 case Offhand:
                     mc.player.swingingHand = EnumHand.OFF_HAND;
                 break;
-            } // Using a switch rn for the future, since I plan on implementing Shuffle for this
+
+            } // Using a switch rn for the future, since I plan on implementing Shuffle/switch for this
         }));
         this.listeners.add(new LambdaListener<>(PacketEvent.Send.class,e -> {
             if (!clientside.getValue()) {
                 if (e.getPacket() instanceof CPacketAnimation) {
-
-                    switch (hand.getValue())
+                    switch (mode.getValue())
                     {
                         case Mainhand:
                            if (((CPacketAnimation) e.getPacket()).getHand() != EnumHand.MAIN_HAND)
@@ -49,7 +48,7 @@ public class Swing extends Module {
                                e.setCancelled(true);
                                mc.player.swingArm(EnumHand.MAIN_HAND);
                            }
-                        break; // Using a switch rn for the future, since I plan on implementing Shuffle for this
+                        break; // Using a switch rn for the future, since I plan on implementing Shuffle/Switch for this
 
                         case Offhand:
                            if (((CPacketAnimation) e.getPacket()).getHand() != EnumHand.OFF_HAND)
@@ -60,7 +59,7 @@ public class Swing extends Module {
                         break;
                     }
                 }
-            } // shouldn't there be a client-sided implementation?
+            }
         }));
     }
 
