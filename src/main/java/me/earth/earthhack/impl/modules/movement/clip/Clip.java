@@ -54,8 +54,7 @@ public class Clip extends Module {
             }
             switch (mode.getValue()) {
 
-                case Center:
-                    BlockPos pos = new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ);
+                case AutoCenter:
                     Vec3d setCenter = new Vec3d(pos.getX() + 0.5, mc.player.posY, pos.getZ() + 0.5);
 
                     mc.player.motionX = 0;

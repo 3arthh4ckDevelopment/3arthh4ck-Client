@@ -19,7 +19,7 @@ import me.earth.earthhack.impl.modules.combat.autocrystal.modes.*;
 import me.earth.earthhack.impl.modules.combat.autocrystal.util.CrystalTimeStamp;
 import me.earth.earthhack.impl.modules.combat.autocrystal.util.RotationFunction;
 import me.earth.earthhack.impl.modules.movement.packetfly.PacketFly;
-import me.earth.earthhack.impl.modules.player.autokys.AutoKysAutoCrystal;
+import me.earth.earthhack.impl.modules.player.suicide.SuicideAutoCrystal;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.PlaceSwing;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.RayTraceMode;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.Rotate;
@@ -1474,7 +1474,7 @@ public class AutoCrystal extends Module
     }
 
     /**
-     * {@link AutoKysAutoCrystal}
+     * {@link SuicideAutoCrystal}
      */
     public boolean isSuicideModule() {
         return false;

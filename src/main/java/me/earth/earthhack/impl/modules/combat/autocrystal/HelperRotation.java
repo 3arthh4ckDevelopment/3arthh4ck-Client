@@ -14,7 +14,7 @@ import me.earth.earthhack.impl.modules.combat.autocrystal.util.RotationFunction;
 import me.earth.earthhack.impl.modules.combat.autocrystal.util.WeaknessSwitch;
 import me.earth.earthhack.impl.modules.combat.offhand.Offhand;
 import me.earth.earthhack.impl.modules.combat.offhand.modes.OffhandMode;
-import me.earth.earthhack.impl.modules.player.autokys.AutoKys;
+import me.earth.earthhack.impl.modules.player.suicide.Suicide;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.PlaceSwing;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.Rotate;
 import me.earth.earthhack.impl.util.math.RayTraceUtil;
@@ -51,8 +51,8 @@ public class HelperRotation implements Globals
     private static final AtomicInteger ID = new AtomicInteger();
     private static final ModuleCache<Offhand> OFFHAND =
             Caches.getModule(Offhand.class);
-    private static final ModuleCache<AutoKys> SUICIDE =
-        Caches.getModule(AutoKys.class);
+    private static final ModuleCache<Suicide> SUICIDE =
+        Caches.getModule(Suicide.class);
 
     private final RotationSmoother smoother;
     private final AutoCrystal module;
@@ -246,7 +246,7 @@ public class HelperRotation implements Globals
                         if (module.instantOffhand.getValue())
                         {
                             if (OFFHAND.get().isSafe()
-                                || SUICIDE.returnIfPresent(AutoKys::deactivateOffhand, false))
+                                || SUICIDE.returnIfPresent(Suicide::deactivateOffhand, false))
                             {
                                 OFFHAND.get().setMode(OffhandMode.CRYSTAL);
 
