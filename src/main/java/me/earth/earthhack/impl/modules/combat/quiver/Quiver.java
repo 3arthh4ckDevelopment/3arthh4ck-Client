@@ -20,13 +20,11 @@ import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
-import static me.earth.earthhack.impl.modules.combat.quiver.modes.HUDMode.Arrows;
-
 public class Quiver extends Module {
     // TODO: Filter tipped arrows like strength and speed separately, so we can shoot both
     // As of now, getArrows is limited to all Tipped Arrows. This should be different.
     protected final Setting<HUDMode> hudMode     =
-            register(new EnumSetting<>("HUDMode", Arrows));
+            register(new EnumSetting<>("HUDMode", HUDMode.Arrows));
     protected final Setting<SwitchMode> switchMode     =
             register(new EnumSetting<>("Switch", SwitchMode.Normal));
     protected final Setting<QuiverMode> quiverMode     =
