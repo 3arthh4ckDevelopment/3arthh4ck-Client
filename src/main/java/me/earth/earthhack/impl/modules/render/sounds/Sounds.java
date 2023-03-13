@@ -50,7 +50,6 @@ public class Sounds extends RegisteringModule<Boolean, SimpleRemovingSetting>
         register(new NumberSetting<>("Scale", 0.003f, 0.001f, 0.01f));
     protected final Setting<Boolean> cancelled =
         register(new BooleanSetting("Cancelled", true));
-
     protected final Setting<CoordLogger> coordLogger =
         register(new EnumSetting<>("Coord-Logger", CoordLogger.Vanilla));
     protected final Setting<Boolean> chat =
