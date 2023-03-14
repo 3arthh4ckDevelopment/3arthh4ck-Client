@@ -188,9 +188,16 @@ public class Quiver extends Module {
         switch(rotateMode.getValue()){
             case Normal:
                 if(stage == 1)
-                    PacketUtil.doRotation(yaw, -90.0f, mc.player.onGround); // Basically packet? Just different, I guess
-                else if(stage == 4)
-                    PacketUtil.doRotation(yaw, pitch, mc.player.onGround); // RotationUtil didn't seem to want to work w this, so just use packets! :)
+                {
+                    mc.player.rotationPitch = -90f;
+                    mc.player.rotationYaw = yaw;
+                }
+                else if(stage == 4) // TODO: This, essentially should be a rotation where you don't see you're rotated but you still are, like in AutoCrystal or AntiAim
+                {
+                    mc.player.rotationPitch = pitch;
+                    mc.player.rotationYaw = yaw;
+                }
+
                 else return;
             break;
 
@@ -204,9 +211,9 @@ public class Quiver extends Module {
 
             case Client:
                 if(stage == 1)
-                    mc.player.setPositionAndRotation(x, y, z, yaw, -90f);
+                    mc.player.rotationPitch = -90f; // hmm?
                 else if(stage == 4)
-                    mc.player.setPositionAndRotation(x, y, z, yaw, pitch);
+                    mc.player.rotationPitch = pitch;
                 else return;
             break;
         }

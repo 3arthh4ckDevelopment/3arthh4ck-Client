@@ -197,7 +197,7 @@ public class MotionUpdateEvent extends StageEvent implements Globals
 
     /**
      * Fired in {@link EntityPlayerSP#onUpdate()}, when the player
-     * is riding. X, Y, and Z can be set but it won't have any effect.
+     * is riding. X, Y, and Z can be set, but it won't have any effect.
      * You can however retrieve the ridden Entity with
      * {@link Riding#getEntity()} and set its x, y, and z.
      */

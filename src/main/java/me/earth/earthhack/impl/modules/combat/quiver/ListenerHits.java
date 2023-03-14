@@ -23,10 +23,7 @@ public class ListenerHits extends ModuleListener<Quiver, LivingHurtEvent>
                 module.hits++;
                 module.cycles++;
             }
-
-
         }
-
         // Maybe something else here?
     }
 }
