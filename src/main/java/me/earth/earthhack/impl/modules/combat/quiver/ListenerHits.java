@@ -1,7 +1,7 @@
 package me.earth.earthhack.impl.modules.combat.quiver;
 
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 
@@ -18,7 +18,7 @@ public class ListenerHits extends ModuleListener<Quiver, LivingHurtEvent>
      */
     public void invoke(LivingHurtEvent event)
     {
-        if(event.getEntity() instanceof EntityPlayer){
+        if(event.getEntity() instanceof EntityPlayerSP){
             if(event.getSource() == DamageSource.MAGIC){
                 module.hits++;
                 module.cycles++;
