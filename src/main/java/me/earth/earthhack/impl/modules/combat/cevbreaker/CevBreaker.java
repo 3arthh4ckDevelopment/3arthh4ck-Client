@@ -24,6 +24,7 @@ import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
 import me.earth.earthhack.impl.util.minecraft.blocks.BlockUtil;
 import me.earth.earthhack.impl.util.minecraft.blocks.SpecialBlocks;
 import me.earth.earthhack.impl.util.minecraft.blocks.mine.MineUtil;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
@@ -84,6 +85,7 @@ public class CevBreaker extends Module {
     private int rotationPacketsSpoofed = 0;
     private boolean offhand;
 
+    // ^^ so much unused shit... maybe implement this?
     private final StopWatch timer = new StopWatch();
     private final StopWatch delayTimer = new StopWatch();
     private final StopWatch cooldownTimer = new StopWatch();
@@ -425,7 +427,8 @@ public class CevBreaker extends Module {
         }
     }
 
-    private void rotateToPos(BlockPos pos, MotionUpdateEvent event) {
+    private void rotateToPos(BlockPos pos, MotionUpdateEvent event)
+    {
         if (rotate.getValue()) {
             final float[] angle = RotationUtil.getRotationsToTopMiddle(pos);
             event.setYaw(angle[0]);
