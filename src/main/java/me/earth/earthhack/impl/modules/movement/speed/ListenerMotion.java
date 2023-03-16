@@ -38,7 +38,7 @@ final class ListenerMotion extends ModuleListener<Speed, MotionUpdateEvent>
 
         if(module.mode.getValue() == SpeedMode.Instant)
         {
-            if(mc.player.isSneaking() || KeyBoardUtil.isKeyDown(mc.gameSettings.keyBindSneak))
+            if(mc.player.isSneaking() || KeyBoardUtil.isKeyDown(mc.gameSettings.keyBindSneak) && module.sneakCheck.getValue())
                 return;
         }
 
