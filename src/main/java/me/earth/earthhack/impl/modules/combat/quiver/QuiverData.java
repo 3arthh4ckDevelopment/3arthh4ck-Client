@@ -11,12 +11,19 @@ public class QuiverData extends DefaultData<Quiver> {
                 " Quiver, by default, draws back for 100ms, and then adds" +
                 " this settings value to the delay. This can be a sort-of" +
                 " failsafe and keep Quiver from failing.");
-        register(module.fast,"Ignore delay completely and shoot arrows" +
-                " as fast as possible.");
-        register(module.rotateMode, "Select mode to use when rotating."
-                + "\nNormal - Normal rotations."
-                + "\nPacket - Rotate with packets, may seem faster, but can cause"
-                + " lagging back.");
+        register(module.switchMode, "Mode to use when swapping items.\n" +
+                "- Normal : Regular swapping.\n" +
+                "- Silent : Swap silently, I guess for some servers" +
+                " which don't allow Normal.\n" +
+                "- Alternative : Alternative mode for Silent," +
+                " for servers that don't allow Normal or Silent.");
+        register(module.fast,"Ignores delay, and tries to shoot" +
+                "arrows at minimal delay.");
+        register(module.rotateMode, "How rotations should be handled.\n" +
+                "- Normal : Rotates silently.\n" +
+                "- Packet : Sends a rotation packet to rotate," +
+                " may be inconsistent.\n" +
+                "- Client : Rotates client-sidedly. Recommended for Manual.");
         register(module.hudMode, "What kind of information the HUD should show"
                 + "\nArrows - Show how many arrows you can shoot."
                 + "\nHits - Count how many arrows actually hit you.");
@@ -26,13 +33,15 @@ public class QuiverData extends DefaultData<Quiver> {
                 " \"Manual\", setting Rotation to Client is recommended.");
         register(module.blockedCheck, "Checks if you have anything above"
                 + " your head preventing a successful hit. In development!!!!");
+        register(module.switchPickaxe, "Whether or not to swap to a pickaxe" +
+                " when mining. Uses SwitchMode to determine how to switch.");
         register(module.mineBlocked, "If BlockedCheck finds a block, this"
-                + " will automatically mine the block, to force a"
-                + " successful hit. In development!!!!");
+                + " will automatically mine the block, to try and force a"
+                + " successful hit. Requires BlockedCheck.");
     }
     @Override
     public String getDescription()
     {
-        return "Shoots yourself with arrows that have positive effects. In development!!!!";
+        return "Shoots yourself with arrows.";
     }
 }

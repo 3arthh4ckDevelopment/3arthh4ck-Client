@@ -1,16 +1,20 @@
 package me.earth.earthhack.impl.modules.combat.quiver;
 
+import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.*;
+import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.combat.quiver.modes.*;
+import me.earth.earthhack.impl.modules.player.speedmine.Speedmine;
 import me.earth.earthhack.impl.util.client.ModuleUtil;
 import me.earth.earthhack.impl.util.math.StopWatch;
+import me.earth.earthhack.impl.util.math.rotation.RotationUtil;
 import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
 import me.earth.earthhack.impl.util.network.NetworkUtil;
-import me.earth.earthhack.impl.util.network.PacketUtil;
 import me.earth.earthhack.impl.util.text.TextColor;
 
 import net.minecraft.init.Items;
@@ -19,6 +23,8 @@ import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+
+import static net.minecraft.network.play.client.CPacketPlayerDigging.Action.RELEASE_USE_ITEM;
 
 public class Quiver extends Module {
     // TODO: Filter tipped arrows like strength and speed separately, so we can shoot both
@@ -41,15 +47,22 @@ public class Quiver extends Module {
             register(new BooleanSetting("BlockedCheck", false));
     protected final Setting<Boolean> mineBlocked =
             register(new BooleanSetting("MineBlocked", false));
+    protected final Setting<Boolean> switchPickaxe     =
+            register(new BooleanSetting("Switch", true));
     protected final Setting<Boolean> fast =
             register(new BooleanSetting("Fast", false));
     public Quiver(){
         super("Quiver", Category.Combat);
         this.setData(new QuiverData(this));
         this.listeners.add(new ListenerHits(this));
+        this.listeners.add(new ListenerMotion(this));
     }
 
+    private static final ModuleCache<Speedmine> SPEEDMINE =
+            Caches.getModule(Speedmine.class);
+
     int swapSlot;
+    int pickaxeSlot;
     float yaw;
     float pitch;
     double x, y, z;
@@ -57,23 +70,28 @@ public class Quiver extends Module {
     int hits;
     int cycles = 0;
     int stage = 0;
+    boolean isBlocked;
 
     /* Stage: Because using an enum is kinda annoying to write out when it changes, we should just use an integer.
      * Meaning:
-     * 0 - Switch
-     * 1 - Rotate
-     * 2 - Pulling it back
-     * 3 - Shoot
-     * 4 - Disable
+     * 0 - Break
+     * 1 - Switch
+     * 2 - Rotate
+     * 3 - Pulling it back
+     * 4 - Shoot
+     * 5 - Disable
      *  Lmao I don't think 4 is actually even necessary, but just added it so maybe in the future stage 3 can be made better.
      */
 
     StopWatch shootTime = new StopWatch();
     String hudmode;
     int oldSlot;
-    public void onEnable()
+    BlockPos playerPos;
+    BlockPos blockedPosition;
+
+    public void onEnable(MotionUpdateEvent e) // this event is not used!!!!
     {
-        if(mc.world == null ||  mc.player == null)
+        if(mc.world == null || mc.player == null)
             return;
 
         shootTime.reset();
@@ -94,65 +112,120 @@ public class Quiver extends Module {
             ModuleUtil.disable(this, TextColor.RED + "Disabled, no bow.");
         }
         else
-            doQuiver();
+            doQuiver(e);
 
         if(mc.player == null)
         {
             ModuleUtil.disable(this, TextColor.RED + "Disabled, not in a world.");
         }
-        else
-            doQuiver();
+        else{
+            playerPos = new BlockPos(mc.player.posX, mc.player.posY + 3, mc.player.posZ);
+            blockedPosition = new BlockPos(mc.player.posX, mc.player.posY + 2, mc.player.posZ);
+            doQuiver(e);
+        }
 
     }
 
-    public void doQuiver()
+    public void doQuiver(MotionUpdateEvent e)
     {
         switch(quiverMode.getValue())
         {
             case Automatic:
-                    // ---------- SWITCH ---------- //
-                    if (switchMode.getValue() == SwitchMode.Normal && stage == 0)
+                    // ---------- MINE BLOCK ---------- //
+                if(stage == 0)
+                {
+                    if(isBlocked)
                     {
-                        InventoryUtil.switchTo(getSwapSlot());
-                        stage++;
+                        if(mineBlocked.getValue())
+                        {
+                            if(switchPickaxe.getValue())
+                            {
+                                if(switchMode.getValue() == SwitchMode.Normal)
+                                    InventoryUtil.switchTo(getPickaxeSlot());
+                                else if(switchMode.getValue() == SwitchMode.Silent) // a bit messy as of now
+                                    InventoryUtil.bypassSwitch(getPickaxeSlot());
+                                else if(switchMode.getValue() == SwitchMode.Alternative)
+                                    InventoryUtil.switchToBypassAlt(getPickaxeSlot());
+                            }
+
+                            rotateToPos(blockedPosition, e);
+                            SPEEDMINE.get().tryBreak(); // Using this, since get().forceSend(); is kinda sketchy
+                        }
                     }
-                    else if(switchMode.getValue() == SwitchMode.FakeSilent)
+                    else
+                        stage++;
+                }
+                // ---------- SWAP ---------- //
+                if(stage == 1)
+                {
+                    switch(switchMode.getValue())
                     {
-                        InventoryUtil.switchToBypass(getSwapSlot());
-                        stage++;
+                        case Normal:
+                            InventoryUtil.switchTo(getSwapSlot());
+                            stage++;
+                        break;
+
+                        case Silent:
+                            InventoryUtil.bypassSwitch(getSwapSlot());
+                            stage++;
+                        break;
+
+                        case Alternative:
+                            InventoryUtil.switchToBypassAlt(getSwapSlot());
+                            stage++;
+                        break;
+
+                        default:
+                            ModuleUtil.disableRed(this, "Something went wrong!");
+                        break;
                     }
+                }
 
                     // ---------- ROTATIONS ---------- //
-                    if(stage == 1)
-                        setRotations();
-                    // ---------- DRAW BACK ---------- //
                     if(stage == 2)
+                        setRotations(e);
+                    // ---------- DRAW BACK ---------- //
+                    if(stage == 3)
                     {
                         NetworkUtil.send(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
                         stage++;
                     }
                     // ---------- SHOOT W/ BOW ---------- //
-                    if(stage == 3 && InventoryUtil.isHolding(Items.BOW) && shootTime.passed(100 + delay.getValue()))
+                    if(stage == 4 && InventoryUtil.isHolding(Items.BOW))
                     {
+                        if(fast.getValue() && shootTime.passed(100))
+                        {
+                            NetworkUtil.send(new CPacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, mc.player.getHorizontalFacing()));
 
-                        NetworkUtil.send(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, mc.player.getHorizontalFacing()));
+                            if(cycles < cyclesAmount.getValue())        // If cycles are smaller than CyclesAmount, stage is set back by 1
+                                stage--;
+                            else if(cycles > cyclesAmount.getValue())   // If cycles are somehow bigger than CyclesAmount, it is set back to CyclesAmount
+                                cycles = cyclesAmount.getValue();
+                            else                                        // If cycles aren't bigger or under than CyclesAmount, it must be equal, so we continue
+                                stage++;
+                        }
+                        else if(shootTime.passed(100 + delay.getValue()) && !fast.getValue())
+                        {
+                            NetworkUtil.send(new CPacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, mc.player.getHorizontalFacing()));
 
-                        if(cycles < cyclesAmount.getValue())        // If cycles are smaller than CyclesAmount, stage is set back 1
-                            stage--;
-                        else if(cycles > cyclesAmount.getValue())   // If cycles are somehow bigger than CyclesAmount, it is set back to CyclesAmount
-                            cycles = cyclesAmount.getValue();
-                        else                                        // If cycles aren't bigger or under than CyclesAmount, it must be equal, so we continue
-                            stage++;
+                            if(cycles < cyclesAmount.getValue())
+                                stage--;
+                            else if(cycles > cyclesAmount.getValue())
+                                cycles = cyclesAmount.getValue();
+                            else
+                                stage++;
+                        }
+
                     }
                     else
                     {
                         ModuleUtil.disableRed(this, "Something went wrong!");
                     }
                     // ---------- DISABLE & SWITCHING BACK ---------- //
-                    if(stage == 4)
+                    if(stage == 5)
                     {
                         // ROTATION
-                            setRotations();
+                            setRotations(e);
                         // SWITCHING BACK
                         if(switchBack.getValue())
                             InventoryUtil.switchTo(getOldSlot());
@@ -176,28 +249,27 @@ public class Quiver extends Module {
                 // ROTATE
                 if(stage == 1)
                 {
-                    setRotations();
+                    setRotations(e);
                     // The rest is for the user!
                 }
                 break;
         }
     }
 
-    public void setRotations()
+    public void setRotations(MotionUpdateEvent e)
     {
         switch(rotateMode.getValue()){
             case Normal:
                 if(stage == 1)
                 {
-                    mc.player.rotationPitch = -90f;
+                    rotateToPos(playerPos, e);
                     mc.player.rotationYaw = yaw;
                 }
-                else if(stage == 4) // TODO: This, essentially should be a rotation where you don't see you're rotated but you still are, like in AutoCrystal or AntiAim
+                else if(stage == 4)
                 {
-                    mc.player.rotationPitch = pitch;
+                    mc.player.rotationPitch = pitch; // this might look a little weird?
                     mc.player.rotationYaw = yaw;
                 }
-
                 else return;
             break;
 
@@ -225,8 +297,27 @@ public class Quiver extends Module {
         return swapSlot;
     }
 
+    public int getPickaxeSlot()
+    {
+        oldSlot = mc.player.inventory.currentItem;
+        pickaxeSlot = InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE);
+        return pickaxeSlot;
+    }
+
     public int getOldSlot(){
         return oldSlot;
+    }
+
+    public boolean getBlocked()
+    {
+        return isBlocked;
+    }
+
+    public void rotateToPos(BlockPos pos, MotionUpdateEvent event)
+    {
+            final float[] angle = RotationUtil.getRotationsToTopMiddle(pos);
+            event.setYaw(angle[0]);
+            event.setPitch(angle[1]);
     }
 
     /**
