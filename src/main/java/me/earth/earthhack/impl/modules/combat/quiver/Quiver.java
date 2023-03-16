@@ -48,7 +48,7 @@ public class Quiver extends Module {
     protected final Setting<Boolean> mineBlocked =
             register(new BooleanSetting("MineBlocked", false));
     protected final Setting<Boolean> switchPickaxe     =
-            register(new BooleanSetting("Switch", true));
+            register(new BooleanSetting("Mine-Switch", true));
     protected final Setting<Boolean> fast =
             register(new BooleanSetting("Fast", false));
     public Quiver(){
