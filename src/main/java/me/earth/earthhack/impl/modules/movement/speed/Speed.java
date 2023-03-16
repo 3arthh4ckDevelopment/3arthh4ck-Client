@@ -43,6 +43,8 @@ public class Speed extends Module
             register(new NumberSetting<>("ConstFactor", 2.149, 1.0, 5.0));
     protected final Setting<Boolean> useTimer    =
             register(new BooleanSetting("UseTimer", false));
+    protected final Setting<Boolean> sneakCheck =
+            register(new BooleanSetting("SneakCheck", false));
     protected final Setting<Boolean> explosions  =
             register(new BooleanSetting("Explosions", false));
     protected final Setting<Boolean> velocity  =
@@ -67,7 +69,6 @@ public class Speed extends Module
             register(new BooleanSetting("Slowness", false));
     protected final Setting<Boolean> noWaterInstant =
             register(new BooleanSetting("NoLiquidInstant", false));
-
     protected final Setting<Boolean> modify =
         register(new BooleanSetting("Modify", false));
     protected final Setting<Double> xzFactor    =
