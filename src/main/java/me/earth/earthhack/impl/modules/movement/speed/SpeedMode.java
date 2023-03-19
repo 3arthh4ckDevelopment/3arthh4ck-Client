@@ -5,6 +5,7 @@ import me.earth.earthhack.impl.event.events.movement.MoveEvent;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.util.math.MathUtil;
 import me.earth.earthhack.impl.util.math.position.PositionUtil;
+import me.earth.earthhack.impl.util.minecraft.KeyBoardUtil;
 import me.earth.earthhack.impl.util.minecraft.MovementUtil;
 
 public enum SpeedMode implements Globals
