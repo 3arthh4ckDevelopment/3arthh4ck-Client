@@ -7,7 +7,6 @@ import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.movement.packetfly.PacketFly;
 import me.earth.earthhack.impl.modules.player.freecam.Freecam;
 import me.earth.earthhack.impl.util.math.position.PositionUtil;
-import me.earth.earthhack.impl.util.minecraft.KeyBoardUtil;
 import me.earth.earthhack.impl.util.minecraft.MovementUtil;
 
 final class ListenerMotion extends ModuleListener<Speed, MotionUpdateEvent>
