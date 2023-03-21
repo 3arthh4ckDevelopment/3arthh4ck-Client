@@ -48,7 +48,7 @@ public class AntiPackets extends Module
 
         for (Class<? extends Packet<?>> clazz : PacketUtil.getAllPackets())
         {
-            // we skip inner classes, we get them anyways with outer name
+            // we skip inner classes, we get them anyway with outer name
             if (clazz.getName().contains("$"))
             {
                 continue;
@@ -160,7 +160,7 @@ public class AntiPackets extends Module
     }
 
     /**
-     * Cancels the event if theres an active setting for the events
+     * Cancels the event if there's an active setting for the event's
      * packet.
      *
      * @param event the event to cancel.
