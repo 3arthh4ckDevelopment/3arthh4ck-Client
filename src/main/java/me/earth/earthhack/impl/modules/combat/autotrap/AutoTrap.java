@@ -194,7 +194,6 @@ protected final Setting<Boolean> top               =
                 newTrapping = getPositions(spot.getModel().getPlayer());
             }
         }
-
         return result.setTargets(newTrapping);
     }
 
