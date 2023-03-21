@@ -11,4 +11,8 @@ public class ChorusControlData extends DefaultData<ChorusControl> {
                 " the chorus fruit");
         register(module.espColor, "What color the ESP should be drawn with");
     }
+
+    public String getDescription(){
+        return "Shouldn't be used, very bad and needs rewrite.";
+    }
 }

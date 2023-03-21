@@ -10,7 +10,7 @@ import me.earth.earthhack.api.setting.settings.EnumSetting;
 import java.awt.*;
 
 public class ChorusControl extends Module {
-
+    //TODO rewrite... Should be happening soon.
     protected final Setting<Boolean> esp =
             register(new BooleanSetting("ESP", true));
     protected final Setting<EspMode> espMode =
