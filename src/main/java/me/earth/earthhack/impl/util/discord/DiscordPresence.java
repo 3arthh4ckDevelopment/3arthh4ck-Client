@@ -10,6 +10,7 @@ import me.earth.earthhack.impl.util.math.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class DiscordPresence implements Globals
@@ -92,14 +93,15 @@ public class DiscordPresence implements Globals
         if(module.customDetails.getValue()) {
             return module.details.getValue();
         }
-        if (module.showIP.getValue() && mc.player != null && !mc.isIntegratedServerRunning())
-            return "Playing on " + "server ip here"; // TODO this
-        if(mc.player == null){
-             return "Not in-game";
-        }else if(mc.isIntegratedServerRunning())
-             return "Playing Singleplayer";
-        else
-             return "Playing Multiplayer";
-
+        // thank you once again xyzbtw <3
+        return module.customDetails.getValue()
+                ? module.showIP.getValue()
+                    ? "Playing on " + Objects.requireNonNull(mc.getCurrentServerData().serverIP) + "."
+                    : module.details.getValue()
+                : mc.player == null
+                    ? "Not in-game."
+                    : mc.isIntegratedServerRunning()
+                        ? "Playing Singleplayer."
+                        : "Playing Multiplayer.";
     }
 }
