@@ -99,8 +99,7 @@ protected final Setting<Boolean> top               =
     protected EntityPlayer target;
 
     private static final ModuleCache<LogoutSpots> LOGOUTSPOTS =
-            Caches.getModule(LogoutSpots.class);                                // for setting TrapLogouts
-    protected final Map<UUID, LogoutSpot> loggedOutPlayer = new ConcurrentHashMap<>();
+            Caches.getModule(LogoutSpots.class);
     public AutoTrap()
     {
         super("AutoTrap", Category.Combat);
@@ -190,8 +189,10 @@ protected final Setting<Boolean> top               =
         }
 
         if(logOutSpot.getValue() && LOGOUTSPOTS.isEnabled()) {
-            newTrapping = getPositions(loggedOutPlayer.get(LOGOUTSPOTS).getModel().getPlayer());
-            // I wonder if this works, a mystery quite unsolved
+            for(LogoutSpot spot : LOGOUTSPOTS.get().getSpots().values())
+            {
+                newTrapping = getPositions(spot.getModel().getPlayer());
+            }
         }
 
         return result.setTargets(newTrapping);
