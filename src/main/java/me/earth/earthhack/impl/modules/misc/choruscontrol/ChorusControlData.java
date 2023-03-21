@@ -7,8 +7,6 @@ public class ChorusControlData extends DefaultData<ChorusControl> {
         super(module);
         register(module.esp, "Draws an ESP to where you're going to teleport.");
         register(module.espMode, "How the ESP should be drawn");
-        register(module.onlySneak, "Only applies control when you are sneaking while eating" +
-                " the chorus fruit");
         register(module.espColor, "What color the ESP should be drawn with");
     }
 

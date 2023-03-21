@@ -10,40 +10,45 @@ import me.earth.earthhack.api.setting.settings.EnumSetting;
 import java.awt.*;
 
 public class ChorusControl extends Module {
-    //TODO rewrite... Should be happening soon.
+
+    // When rewrite is finished, this would close #229 from origin.
+
     protected final Setting<Boolean> esp =
             register(new BooleanSetting("ESP", true));
-    protected final Setting<EspMode> espMode =
-            register(new EnumSetting<>("ESPMode", EspMode.Box));
-    protected final Setting<Boolean> onlySneak =
-            register(new BooleanSetting("OnlySneak", false));
     public final ColorSetting espColor =
             register(new ColorSetting("Color", new Color(255, 255, 255, 240)));
+    public final Setting<Boolean> onlySneak =
+            register(new BooleanSetting("OnlySneak", false));
+    protected final Setting<EspMode> espMode =
+            register(new EnumSetting<>("ESP-Mode", EspMode.Box));
 
-    int x, y, z;
-    boolean startCancel;
-    boolean sendingPackets;
-    boolean eatingChorus;
+    boolean valid;
+
+    double x, y, z;
     public ChorusControl() {
         super("ChorusControl", Category.Misc);
         this.setData(new ChorusControlData(this));
-        this.listeners.add(new ListenerEatChorus(this));
-        this.listeners.add(new ListenerPacket(this));
+        this.listeners.add(new ListenerSPacket(this));
+        this.listeners.add(new ListenerChorus(this));
     }
 
     protected void onEnable(){
+        super.onEnable();
 
-        if(mc.world == null ||  mc.player == null)
-            return;
-
-        startCancel = sendingPackets = false;
-        x = (int) mc.player.posX;
-        y = (int) mc.player.posY;
-        z = (int) mc.player.posZ;
+        x = mc.player.posX;
+        y = mc.player.posY;
+        z = mc.player.posZ;
     }
 
-    public enum EspMode { // this should have more settings imo
+    protected void onDisable(){
+        super.onDisable();
+
+        valid = false;
+    }
+
+    public enum EspMode {
         Box,
-        Pillar
+        Tracer,
+        Both
     }
 }
