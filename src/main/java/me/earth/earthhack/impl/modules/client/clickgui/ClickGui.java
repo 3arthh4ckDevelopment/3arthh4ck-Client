@@ -10,6 +10,7 @@ import me.earth.earthhack.api.setting.settings.StringSetting;
 import me.earth.earthhack.impl.gui.click.Click;
 import me.earth.earthhack.impl.managers.Managers;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
@@ -81,7 +82,9 @@ public class ClickGui extends Module
         if(newBlur.getValue())
         {
             blur.setValue(false); // to prevent conflicting
-            mc.entityRenderer.loadShader(new ResourceLocation("shaders/post/blur.json")); // wip
+            if (OpenGlHelper.shadersSupported) {
+                mc.entityRenderer.loadShader(new ResourceLocation("minecraft", "shaders/post/blur.json"));
+            }
         }
     }
 
@@ -106,8 +109,9 @@ public class ClickGui extends Module
         }
         if(newBlur.getValue())
         {
-            if (this.mc.entityRenderer.getShaderGroup() != null)
-                this.mc.entityRenderer.getShaderGroup().deleteShaderGroup();
+            if (OpenGlHelper.shadersSupported) {
+                mc.entityRenderer.stopUseShader();
+            }
         }
         fromEvent = false;
     }
