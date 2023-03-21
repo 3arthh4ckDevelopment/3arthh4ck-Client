@@ -65,4 +65,8 @@ public class LogoutSpots extends BlockESPModule
         spots.clear();
     }
 
+    public Map<UUID, LogoutSpot> getSpots()
+    {
+        return spots;
+    }
 }
