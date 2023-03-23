@@ -79,13 +79,8 @@ public class ClickGui extends Module
         gui.onGuiOpened();
         mc.displayGuiScreen(gui);
 
-        if(newBlur.getValue())
-        {
-            blur.setValue(false); // to prevent conflicting
-            if (OpenGlHelper.shadersSupported) {
+        if(newBlur.getValue() && OpenGlHelper.shadersSupported)
                 mc.entityRenderer.loadShader(new ResourceLocation("minecraft", "shaders/post/blur.json"));
-            }
-        }
     }
 
     protected void disableOtherGuis() {
@@ -107,12 +102,10 @@ public class ClickGui extends Module
         {
             mc.displayGuiScreen(screen);
         }
-        if(newBlur.getValue())
-        {
-            if (OpenGlHelper.shadersSupported) {
-                mc.entityRenderer.stopUseShader();
-            }
-        }
+
+        if (OpenGlHelper.shadersSupported)
+            mc.entityRenderer.stopUseShader();
+
         fromEvent = false;
     }
 
