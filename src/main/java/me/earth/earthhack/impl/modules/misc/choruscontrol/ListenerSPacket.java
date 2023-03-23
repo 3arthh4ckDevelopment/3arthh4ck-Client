@@ -15,7 +15,7 @@ public class ListenerSPacket extends ModuleListener<ChorusControl, PacketEvent.R
         if(e.getPacket() instanceof SPacketPlayerPosLook){
             if(module.valid){
                 e.setCancelled(true);
-            } // this is NOT a good way of handling this
+            } // WIP!!!
         }
     }
 }
