@@ -20,11 +20,16 @@ public class RPC extends Module
     public final Setting<Boolean> showIP =
             register(new BooleanSetting("ShowIP", false));
 
-    private final DiscordPresence presence = new DiscordPresence(this);
+    // private final DiscordPresence presence = new DiscordPresence(this); // this causes issues for pojav? weird
 
     public RPC()
     {
         super("RPC", Category.Misc);
+
+        if(System.getProperty("os.version").toLowerCase().contains("android"))      // for Pojav Launcher
+            return;
+
+        DiscordPresence presence = new DiscordPresence(this);
         this.listeners.add(new LambdaListener<>(ShutDownEvent.class,
                                                 e -> presence.stop()));
     }
@@ -32,12 +37,17 @@ public class RPC extends Module
     @Override
     protected void onEnable()
     {
-        presence.start();
+        if(!System.getProperty("os.version").toLowerCase().contains("android"))
+        {
+            DiscordPresence presence = new DiscordPresence(this);
+            presence.start();
+        }
     }
 
     @Override
     protected void onDisable()
     {
+        DiscordPresence presence = new DiscordPresence(this);
         presence.stop();
     }
 
