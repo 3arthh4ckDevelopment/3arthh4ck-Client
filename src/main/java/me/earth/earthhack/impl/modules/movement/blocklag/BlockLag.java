@@ -124,9 +124,14 @@ public class BlockLag extends DisablingModule
             register(new NumberSetting<>("Scale-Delay", 250, 0, 1000));
     protected final Setting<Double> scaleFactor =
             register(new NumberSetting<>("Scale-Factor", 1.0, 0.1, 10.0));
+
     // --------------- BYPASS --------------- //
     protected final Setting<Float> motionAmount =
-            register(new NumberSetting<>("Motion-Amount", 10f, 0.1f, 1337.0f));
+            register(new NumberSetting<>("Motion-Amount", 60f, 0.1f, 1337.0f));
+    protected final Setting<Boolean> motionNegate =
+            register(new BooleanSetting("Motion-Negate", false));
+    protected final Setting<Float> negateAmount =
+            register(new NumberSetting<>("Negate-Amount", -120f, 0.1f, -1337.0f));
     protected final Setting<Boolean> useBlink =
             register(new BooleanSetting("UseBlink", true));
     protected final Setting<Boolean> autoDisableBlink =
@@ -136,7 +141,7 @@ public class BlockLag extends DisablingModule
     protected final Setting<Boolean> useTimer =
             register(new BooleanSetting("UseTimer", false));
     protected final Setting<Float> timerAmount =
-            register(new NumberSetting<>("Timer-Speed", 6.0f, 0.1f, 10.0f));
+            register(new NumberSetting<>("Timer-Speed", 6.0f, 0.1f, 30.0f));
 
     protected final StopWatch scaleTimer = new StopWatch();
     protected final StopWatch timer = new StopWatch();
@@ -168,6 +173,8 @@ public class BlockLag extends DisablingModule
     {
         timer.setTime(0);
         jumpTimer.reset();
+        blinkTimer.reset();
+
         if(jumpTimer.passed(295))
             blinkTimer.reset();
 
@@ -336,7 +343,8 @@ public class BlockLag extends DisablingModule
     protected void onDisable(){
         super.onDisable();
         Managers.TIMER.setTimer(1);
-
+        blinkTimer.reset();
+        jumpTimer.reset();
         if(blinkTimer.passed(blinkDuration.getValue()) && autoDisableBlink.getValue())
             BLINK.disable();
 
