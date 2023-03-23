@@ -136,7 +136,7 @@ public class Quiver extends Module {
                 {
                     if(isBlocked)
                     {
-                        if(mineBlocked.getValue())
+                        if(mineBlocked.getValue()) // if stairs :D
                         {
                             if(switchPickaxe.getValue())
                             {
