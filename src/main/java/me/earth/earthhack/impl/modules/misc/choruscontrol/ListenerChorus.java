@@ -16,6 +16,6 @@ public class ListenerChorus extends ModuleListener<ChorusControl, EatEvent> {
             module.valid = true;
 
         if(module.onlySneak.getValue())
-                module.valid = mc.player.isSneaking();
+                module.valid = mc.gameSettings.keyBindSneak.isPressed();
     }
 }

@@ -250,7 +250,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new AutoRespawn());
         this.forceRegister(new BuildHeight());
         this.forceRegister(new Chat());
-        // this.forceRegister(new ChorusControl()); // TODO Rewrite
+        this.forceRegister(new ChorusControl()); // TODO Rewrite
         this.forceRegister(new ExtraTab());
         this.forceRegister(new Logger());
         this.forceRegister(new MCF());
@@ -374,7 +374,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new PopChams());
         this.forceRegister(new ItemChams());
         this.forceRegister(new Ambience());
-        // this.forceRegister(new HitEffects()); // TODO Rewrite
+        this.forceRegister(new HitEffects()); // TODO Rewrite
 
         this.forceRegister(new PingBypassModule());
 

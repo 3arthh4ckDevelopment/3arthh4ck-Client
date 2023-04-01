@@ -2,20 +2,27 @@ package me.earth.earthhack.impl.modules.misc.choruscontrol;
 
 import me.earth.earthhack.impl.event.events.network.PacketEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
+
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
 
-public class ListenerSPacket extends ModuleListener<ChorusControl, PacketEvent.Receive<?>> { // idk how to really use all of 3arthh4ck events, not really familiar with the system :D
+public class ListenerSPacket extends ModuleListener<ChorusControl, PacketEvent.Receive<SPacketPlayerPosLook>> {
     public ListenerSPacket(ChorusControl module){
-        super(module, PacketEvent.Receive.class);
+        super(module, PacketEvent.Receive.class, SPacketPlayerPosLook.class);
     }
 
-    public void invoke(PacketEvent.Receive<?> e)
+    public void invoke(PacketEvent.Receive<SPacketPlayerPosLook> e)
     {
-        if(e.getPacket() instanceof SPacketPlayerPosLook){
-            if(module.valid){
-                e.setCancelled(true);
-            } // WIP!!!
+        // Thanks for the clarification to 3arthqu4ke, couldn't have figured this out by myself atleast that fast :D
+        SPacketPlayerPosLook poslook = new SPacketPlayerPosLook();
+
+        if(module.valid
+                && poslook.getX() != module.x
+                && poslook.getY() != module.y
+                && poslook.getZ() != module.z)
+        {
+            e.setCancelled(true); // This is such packet-tinkery magic I don't understand it - this will be done soon though.
+            module.cancelled = true;
         }
     }
 }

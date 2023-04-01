@@ -20,16 +20,17 @@ public class ChorusControl extends Module {
     public final Setting<Boolean> onlySneak =
             register(new BooleanSetting("OnlySneak", false));
     protected final Setting<EspMode> espMode =
-            register(new EnumSetting<>("ESP-Mode", EspMode.Box));
+            register(new EnumSetting<>("ESPMode", EspMode.Box));
 
     boolean valid;
-
+    boolean cancelled;
     double x, y, z;
     public ChorusControl() {
         super("ChorusControl", Category.Misc);
         this.setData(new ChorusControlData(this));
         this.listeners.add(new ListenerSPacket(this));
         this.listeners.add(new ListenerChorus(this));
+        this.listeners.add(new ListenerRender(this));
     }
 
     protected void onEnable(){
@@ -43,12 +44,14 @@ public class ChorusControl extends Module {
     protected void onDisable(){
         super.onDisable();
 
+
+
         valid = false;
+        cancelled = false;
     }
 
     public enum EspMode {
-        Box,
-        Tracer,
-        Both
+        Box
+        // More of these?
     }
 }
