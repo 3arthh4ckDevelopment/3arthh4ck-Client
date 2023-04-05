@@ -1,12 +1,12 @@
-package me.earth.earthhack.impl.modules.player.arrows;
+package me.earth.earthhack.impl.modules.combat.quiver;
 
 import me.earth.earthhack.impl.event.events.misc.RightClickItemEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import net.minecraft.item.ItemBow;
 
-final class ListenerUseItem extends ModuleListener<Arrows, RightClickItemEvent>
+final class ListenerUseItem extends ModuleListener<Quiver, RightClickItemEvent>
 {
-    public ListenerUseItem(Arrows module)
+    public ListenerUseItem(Quiver module)
     {
         super(module, RightClickItemEvent.class);
     }

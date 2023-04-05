@@ -1,11 +1,11 @@
-package me.earth.earthhack.impl.modules.player.arrows;
+package me.earth.earthhack.impl.modules.combat.quiver;
 
 import me.earth.earthhack.impl.event.events.keyboard.KeyboardEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 
-final class ListenerKeyboard extends ModuleListener<Arrows, KeyboardEvent>
+final class ListenerKeyboard extends ModuleListener<Quiver, KeyboardEvent>
 {
-    public ListenerKeyboard(Arrows module)
+    public ListenerKeyboard(Quiver module)
     {
         super(module, KeyboardEvent.class);
     }

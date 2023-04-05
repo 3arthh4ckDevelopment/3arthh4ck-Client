@@ -1,25 +1,133 @@
 package me.earth.earthhack.impl.modules.combat.quiver;
 
+import me.earth.earthhack.api.event.events.Stage;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
-import me.earth.earthhack.impl.util.minecraft.blocks.mine.MineUtil;
-import net.minecraft.init.Blocks;
+import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.util.math.position.PositionUtil;
+import me.earth.earthhack.impl.util.math.rotation.RotationUtil;
+import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
+import me.earth.earthhack.impl.util.thread.Locks;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemSpectralArrow;
+import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionType;
+import net.minecraft.potion.PotionUtils;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
-public class ListenerMotion extends ModuleListener<Quiver, MotionUpdateEvent> {
-    // Used for checking for CheckBlocked and MineBlocked.
+final class ListenerMotion extends ModuleListener<Quiver, MotionUpdateEvent>
+{
+    private PotionType lastType;
+    private long lastDown;
+
     public ListenerMotion(Quiver module)
     {
         super(module, MotionUpdateEvent.class);
     }
-    public void invoke(MotionUpdateEvent e)
+
+    @Override
+    public void invoke(MotionUpdateEvent event)
     {
-        if(mc.player != null && mc.world != null)
+        ItemStack arrow;
+        EnumHand hand = InventoryUtil.getHand(Items.BOW);
+        if (!module.shoot.getValue()
+            || mc.player.isCreative()
+            || mc.currentScreen != null
+            || hand == null
+            || (arrow = module.findArrow()).isEmpty()
+            || blocked())
         {
-            if(module.blockedCheck.getValue())
+            return;
+        }
+
+        boolean cycle = module.cycle.getValue();
+        if (module.badStack(arrow) || module.fast && cycle)
+        {
+            if (!cycle)
             {
-                module.isBlocked = mc.world.getBlockState(module.blockedPosition).getBlock() != Blocks.AIR
-                        && MineUtil.canBreak(module.blockedPosition);
+                return;
+            }
+
+            module.cycle(false, true);
+            module.fast = false;
+            arrow = module.findArrow();
+            if (module.badStack(arrow))
+            {
+                return;
+            }
+        }
+
+        if (event.getStage() == Stage.PRE)
+        {
+            if (mc.gameSettings.keyBindUseItem.isKeyDown())
+            {
+                lastDown = System.currentTimeMillis();
+            }
+            else if (System.currentTimeMillis() - lastDown > 100)
+            {
+                return;
+            }
+
+            EntityPlayer player = RotationUtil.getRotationPlayer();
+            if (player.motionX != 0 || player.motionZ != 0)
+            {
+                //event.setPitch(-10.0f);
+                Vec3d vec3d = player.getPositionVector().add(
+                    player.motionX,
+                    player.motionY + player.getEyeHeight(),
+                    player.motionZ);
+                float[] rotations = RotationUtil.getRotations(vec3d);
+                event.setYaw(rotations[0]);
+                event.setPitch(rotations[1]);
+            }
+            else
+            {
+                event.setPitch(-90.0f);
+            }
+        }
+        else if (module.autoRelease.getValue()
+                && !mc.player.getActiveItemStack().isEmpty())
+        {
+            PotionType type = PotionUtils.getPotionFromItem(arrow);
+            if (arrow.getItem() instanceof ItemSpectralArrow)
+            {
+                type = Quiver.SPECTRAL;
+            }
+
+            if (lastType == type
+                && !module.timer.passed(module.shootDelay.getValue()))
+            {
+                return;
+            }
+
+            lastType = type;
+            float ticks = mc.player.getHeldItem(hand).getMaxItemUseDuration()
+                    - mc.player.getItemInUseCount()
+                    - (module.tpsSync.getValue() ? 20.0f - Managers.TPS.getTps()
+                                                 : 0.0f);
+            if (ticks >= module.releaseTicks.getValue()
+                    && ticks <= module.maxTicks.getValue())
+            {
+                Locks.acquire(Locks.PLACE_SWITCH_LOCK, () ->
+                    mc.playerController.onStoppedUsingItem(mc.player));
+                module.fast = module.preCycle.getValue() && cycle;
+                module.timer.reset();
             }
         }
     }
+
+    private boolean blocked()
+    {
+        BlockPos pos = PositionUtil.getPosition();
+        return mc.world.getBlockState(pos.up())
+                       .getMaterial()
+                       .blocksMovement()
+                || mc.world.getBlockState(pos.up(2))
+                           .getMaterial()
+                           .blocksMovement();
+    }
+
 }

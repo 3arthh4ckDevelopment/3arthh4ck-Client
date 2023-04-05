@@ -1,354 +1,403 @@
 package me.earth.earthhack.impl.modules.combat.quiver;
 
-import me.earth.earthhack.api.cache.ModuleCache;
-import me.earth.earthhack.api.module.Module;
+import com.google.common.collect.Sets;
+import me.earth.earthhack.api.module.data.ModuleData;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
-import me.earth.earthhack.api.setting.settings.*;
-import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
-import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.modules.Caches;
-import me.earth.earthhack.impl.modules.combat.quiver.modes.*;
-import me.earth.earthhack.impl.modules.player.speedmine.Speedmine;
-import me.earth.earthhack.impl.util.client.ModuleUtil;
+import me.earth.earthhack.api.setting.settings.BindSetting;
+import me.earth.earthhack.api.setting.settings.BooleanSetting;
+import me.earth.earthhack.api.setting.settings.NumberSetting;
+import me.earth.earthhack.api.util.TextUtil;
+import me.earth.earthhack.api.util.bind.Bind;
+import me.earth.earthhack.impl.util.client.SimpleData;
+import me.earth.earthhack.impl.util.helpers.addable.ListType;
+import me.earth.earthhack.impl.util.helpers.addable.RegisteringModule;
+import me.earth.earthhack.impl.util.helpers.addable.setting.SimpleRemovingSetting;
 import me.earth.earthhack.impl.util.math.StopWatch;
-import me.earth.earthhack.impl.util.math.rotation.RotationUtil;
 import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
-import me.earth.earthhack.impl.util.network.NetworkUtil;
-import me.earth.earthhack.impl.util.text.TextColor;
-
-import net.minecraft.init.Items;
-import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraft.network.play.client.CPacketPlayerDigging;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
+import me.earth.earthhack.impl.util.thread.Locks;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.init.PotionTypes;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemArrow;
+import net.minecraft.item.ItemSpectralArrow;
+import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.potion.PotionType;
+import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
 
-import static net.minecraft.network.play.client.CPacketPlayerDigging.Action.RELEASE_USE_ITEM;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-public class Quiver extends Module {
-    // TODO: Filter tipped arrows like strength and speed separately, so we can shoot both
-    // As of now, getArrows is limited to all Tipped Arrows. This should be different.
-    protected final Setting<HUDMode> hudMode     =
-            register(new EnumSetting<>("HUDMode", HUDMode.Arrows));
-    protected final Setting<SwitchMode> switchMode     =
-            register(new EnumSetting<>("Switch", SwitchMode.Normal));
-    protected final Setting<QuiverMode> quiverMode     =
-            register(new EnumSetting<>("Mode", QuiverMode.Automatic));
-    protected final Setting<RotationMode> rotateMode     =
-            register(new EnumSetting<>("Rotation", RotationMode.Client));
-    protected final Setting<Boolean> switchBack =
-            register(new BooleanSetting("SwitchBack", true));
-    protected final Setting<Integer> delay   =
-            register(new NumberSetting<>("Delay", 5, 0, 100));
-    protected final Setting<Integer> cyclesAmount   =
-            register(new NumberSetting<>("Cycles", 2, 1, 3));
-    protected final Setting<Boolean> blockedCheck =
-            register(new BooleanSetting("BlockedCheck", false));
-    protected final Setting<Boolean> mineBlocked =
-            register(new BooleanSetting("MineBlocked", false));
-    protected final Setting<Boolean> switchPickaxe     =
-            register(new BooleanSetting("Mine-Switch", true));
-    protected final Setting<Boolean> fast =
-            register(new BooleanSetting("Fast", false));
-    public Quiver(){
-        super("Quiver", Category.Combat);
-        this.setData(new QuiverData(this));
-        this.listeners.add(new ListenerHits(this));
+public class Quiver extends RegisteringModule<Boolean, SimpleRemovingSetting>
+{
+    protected static final PotionType SPECTRAL = new PotionType();
+    /** PotionTypes that don't give lasting Effects */
+    protected static final Set<PotionType> BAD_TYPES = Sets.newHashSet(
+        PotionTypes.EMPTY,
+        PotionTypes.WATER,
+        PotionTypes.MUNDANE,
+        PotionTypes.THICK,
+        PotionTypes.AWKWARD,
+        PotionTypes.HEALING,
+        PotionTypes.STRONG_HEALING,
+        PotionTypes.STRONG_HARMING,
+        PotionTypes.HARMING
+    );
+
+    protected final Setting<Boolean> shoot =
+        register(new BooleanSetting("Shoot", false));
+    protected final Setting<Boolean> cycle =
+        register(new BooleanSetting("Cycle-Shoot", true));
+    protected final Setting<Boolean> autoRelease =
+        register(new BooleanSetting("Auto-Release", false));
+    protected final Setting<Integer> releaseTicks =
+        register(new NumberSetting<>("Release-Ticks", 3, 0, 20));
+    protected final Setting<Integer> maxTicks =
+        register(new NumberSetting<>("Max-Ticks", 10, 0, 20));
+    protected final Setting<Boolean> tpsSync =
+        register(new BooleanSetting("Tps-Sync", true));
+    protected final Setting<Integer> cancelTime =
+        register(new NumberSetting<>("Cancel-Time", 0, 0, 500));
+    protected final Setting<Integer> delay =
+        register(new NumberSetting<>("Cycle-Delay", 250, 0, 500));
+    protected final Setting<Integer> shootDelay =
+        register(new NumberSetting<>("Shoot-Delay", 500, 0, 500));
+    protected final Setting<Integer> minDura =
+        register(new NumberSetting<>("Min-Potion", 0, 0, 1000));
+    protected final Setting<Bind> cycleButton =
+        register(new BindSetting("Cycle-Bind", Bind.none()));
+    protected final Setting<Boolean> keyCycle =
+        register(new BooleanSetting("Bind-Cycle-BlackListed", true));
+    protected final Setting<Boolean> preCycle =
+        register(new BooleanSetting("Fast-Cycle", false));
+    protected final Setting<Boolean> fastCancel =
+        register(new BooleanSetting("Fast-Cancel", false));
+
+    protected final Set<PotionType> cycled = new HashSet<>();
+    protected final StopWatch cycleTimer = new StopWatch();
+    protected final StopWatch timer = new StopWatch();
+    protected boolean fast;
+
+    public Quiver()
+    {
+        super("Arrows",
+                Category.Player,
+                "Add_Potion", "potion",
+                SimpleRemovingSetting::new,
+                s -> "Black/Whitelist " + s.getName() + " potion arrows.");
+        super.listType.setValue(ListType.BlackList);
         this.listeners.add(new ListenerMotion(this));
+        this.listeners.add(new ListenerUseItem(this));
+        this.listeners.add(new ListenerKeyboard(this));
+        ModuleData<?> data = new SimpleData(this,
+                "Cycles through your arrows. Not compatible with AntiPotion.");
+        this.setData(data);
     }
 
-    private static final ModuleCache<Speedmine> SPEEDMINE =
-            Caches.getModule(Speedmine.class);
-
-    int swapSlot;
-    int pickaxeSlot;
-    float yaw;
-    float pitch;
-    double x, y, z;
-    int arrowCount;
-    int hits;
-    int cycles = 0;
-    int stage = 0;
-    boolean isBlocked;
-
-    /* Stage: Because using an enum is kinda annoying to write out when it changes, we should just use an integer.
-     * Meaning:
-     * 0 - Break
-     * 1 - Switch
-     * 2 - Rotate
-     * 3 - Pulling it back
-     * 4 - Shoot
-     * 5 - Disable
-     *  Lmao I don't think 4 is actually even necessary, but just added it so maybe in the future stage 3 can be made better.
-     */
-
-    StopWatch shootTime = new StopWatch();
-    String hudmode;
-    int oldSlot;
-    BlockPos playerPos;
-    BlockPos blockedPosition;
-
-    public void onEnable(MotionUpdateEvent e) // this event is not used!!!!
+    @Override
+    protected void onEnable()
     {
-        if(mc.world == null || mc.player == null)
-            return;
+        fast = false;
+    }
 
-        shootTime.reset();
-        super.onEnable();
-        cycles = 0;
-        stage = 0;
-        hits = 0;
-        x = mc.player.posX;
-        y = mc.player.posY;
-        z = mc.player.posZ;
-        arrowCount = InventoryUtil.getCount(Items.TIPPED_ARROW);
-
-        yaw   = Managers.ROTATION.getServerYaw();
-        pitch = Managers.ROTATION.getServerPitch();
-
-        if(getSwapSlot() < 0)
+    @Override
+    public String getInput(String input, boolean add)
+    {
+        if (add)
         {
-            ModuleUtil.disable(this, TextColor.RED + "Disabled, no bow.");
-        }
-        else
-            doQuiver(e);
+            String potionName = getPotionNameStartingWith(input);
+            if (potionName != null)
+            {
+                return TextUtil.substring(potionName, input.length());
+            }
 
-        if(mc.player == null)
+            return "";
+        }
+
+        return super.getInput(input, false);
+    }
+
+    @Override
+    public String getDisplayInfo()
+    {
+        ItemStack stack = findArrow();
+        if (!stack.isEmpty())
         {
-            ModuleUtil.disable(this, TextColor.RED + "Disabled, not in a world.");
-        }
-        else{
-            playerPos = new BlockPos(mc.player.posX, mc.player.posY + 3, mc.player.posZ);
-            blockedPosition = new BlockPos(mc.player.posX, mc.player.posY + 2, mc.player.posZ);
-            doQuiver(e);
+            return stack
+                    .getItem()
+                    .getItemStackDisplayName(stack)
+                    .replace("Arrow of ", "")
+                    .replace(" Arrow", "");
         }
 
+        return null;
     }
 
-    public void doQuiver(MotionUpdateEvent e)
+    protected boolean badStack(ItemStack stack)
     {
-        switch(quiverMode.getValue())
+        return badStack(stack, true, Collections.emptySet());
+    }
+
+    protected boolean badStack(ItemStack stack,
+                               boolean checkType,
+                               Set<PotionType> cycled)
+    {
+        PotionType type = PotionUtils.getPotionFromItem(stack);
+        if (stack.getItem() instanceof ItemSpectralArrow)
         {
-            case Automatic:
-                    // ---------- MINE BLOCK ---------- //
-                if(stage == 0)
-                {
-                    if(isBlocked)
-                    {
-                        if(mineBlocked.getValue()) // if stairs :D
-                        {
-                            if(switchPickaxe.getValue())
-                            {
-                                if(switchMode.getValue() == SwitchMode.Normal)
-                                    InventoryUtil.switchTo(getPickaxeSlot());
-                                else if(switchMode.getValue() == SwitchMode.Silent) // a bit messy as of now
-                                    InventoryUtil.bypassSwitch(getPickaxeSlot());
-                                else if(switchMode.getValue() == SwitchMode.Alternative)
-                                    InventoryUtil.switchToBypassAlt(getPickaxeSlot());
-                            }
-
-                            rotateToPos(blockedPosition, e);
-                            SPEEDMINE.get().tryBreak(); // Using this, since get().forceSend(); is kinda sketchy
-                        }
-                    }
-                    else
-                        stage++;
-                }
-                // ---------- SWAP ---------- //
-                if(stage == 1)
-                {
-                    switch(switchMode.getValue())
-                    {
-                        case Normal:
-                            InventoryUtil.switchTo(getSwapSlot());
-                            stage++;
-                        break;
-
-                        case Silent:
-                            InventoryUtil.bypassSwitch(getSwapSlot());
-                            stage++;
-                        break;
-
-                        case Alternative:
-                            InventoryUtil.switchToBypassAlt(getSwapSlot());
-                            stage++;
-                        break;
-
-                        default:
-                            ModuleUtil.disableRed(this, "Something went wrong!");
-                        break;
-                    }
-                }
-
-                    // ---------- ROTATIONS ---------- //
-                    if(stage == 2)
-                        setRotations(e);
-                    // ---------- DRAW BACK ---------- //
-                    if(stage == 3)
-                    {
-                        NetworkUtil.send(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
-                        stage++;
-                    }
-                    // ---------- SHOOT W/ BOW ---------- //
-                    if(stage == 4 && InventoryUtil.isHolding(Items.BOW))
-                    {
-                        if(fast.getValue() && shootTime.passed(100))
-                        {
-                            NetworkUtil.send(new CPacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, mc.player.getHorizontalFacing()));
-
-                            if(cycles < cyclesAmount.getValue())        // If cycles are smaller than CyclesAmount, stage is set back by 1
-                                stage--;
-                            else if(cycles > cyclesAmount.getValue())   // If cycles are somehow bigger than CyclesAmount, it is set back to CyclesAmount
-                                cycles = cyclesAmount.getValue();
-                            else                                        // If cycles aren't bigger or under than CyclesAmount, it must be equal, so we continue
-                                stage++;
-                        }
-                        else if(shootTime.passed(100 + delay.getValue()) && !fast.getValue())
-                        {
-                            NetworkUtil.send(new CPacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, mc.player.getHorizontalFacing()));
-
-                            if(cycles < cyclesAmount.getValue())
-                                stage--;
-                            else if(cycles > cyclesAmount.getValue())
-                                cycles = cyclesAmount.getValue();
-                            else
-                                stage++;
-                        }
-
-                    }
-                    else
-                    {
-                        ModuleUtil.disableRed(this, "Something went wrong!");
-                    }
-                    // ---------- DISABLE & SWITCHING BACK ---------- //
-                    if(stage == 5)
-                    {
-                        // ROTATION
-                            setRotations(e);
-                        // SWITCHING BACK
-                        if(switchBack.getValue())
-                            InventoryUtil.switchTo(getOldSlot());
-                        // CYCLES
-                        cycles++;
-                        if(cycles > cyclesAmount.getValue())
-                            cycles = 0;
-                        if(cycles < cyclesAmount.getValue()) // spaghetti?
-                            stage = 1;
-                        if(cycles == cyclesAmount.getValue())
-                            this.disable();
-                    }
-                    break;
-            case Manual:
-                // SWITCH
-                if(stage == 0)
-                {
-                    InventoryUtil.switchTo(getSwapSlot());
-                    stage++;
-                }
-                // ROTATE
-                if(stage == 1)
-                {
-                    setRotations(e);
-                    // The rest is for the user!
-                }
-                break;
+            type = SPECTRAL;
         }
-    }
 
-    public void setRotations(MotionUpdateEvent e)
-    {
-        switch(rotateMode.getValue()){
-            case Normal:
-                if(stage == 1)
-                {
-                    rotateToPos(playerPos, e);
-                    mc.player.rotationYaw = yaw;
-                }
-                else if(stage == 4)
-                {
-                    mc.player.rotationPitch = pitch; // this might look a little weird?
-                    mc.player.rotationYaw = yaw;
-                }
-                else return;
-            break;
-
-            case Packet: // Honestly idk if this looks like shit, or if it's actually good code lmao.
-                if(stage == 1)
-                    NetworkUtil.send(new CPacketPlayer.Rotation(yaw, -90.0f, mc.player.onGround));
-                else if(stage == 4)
-                    NetworkUtil.send(new CPacketPlayer.Rotation(yaw, pitch, mc.player.onGround));
-                else return;
-            break;
-
-            case Client:
-                if(stage == 1)
-                    mc.player.rotationPitch = -90f; // hmm?
-                else if(stage == 4)
-                    mc.player.rotationPitch = pitch;
-                else return;
-            break;
+        if (cycled.contains(type))
+        {
+            return true;
         }
-    }
-    public int getSwapSlot()
-    {
-        oldSlot = mc.player.inventory.currentItem;
-        swapSlot = InventoryUtil.findHotbarItem(Items.BOW);
-        return swapSlot;
-    }
 
-    public int getPickaxeSlot()
-    {
-        oldSlot = mc.player.inventory.currentItem;
-        pickaxeSlot = InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE);
-        return pickaxeSlot;
-    }
+        if (checkType)
+        {
+            if (BAD_TYPES.contains(type))
+            {
+                return true;
+            }
+        }
+        else if (keyCycle.getValue()
+                || type.getEffects().isEmpty() && isValid("none"))
+        {
+            return false;
+        }
 
-    public int getOldSlot(){
-        return oldSlot;
-    }
+        if (stack.getItem() instanceof ItemSpectralArrow)
+        {
+            return !isValid("Spectral") || mc.player.isGlowing();
+        }
 
-    public boolean getBlocked()
-    {
-        return isBlocked;
-    }
+        boolean inValid = true;
+        for (PotionEffect e : type.getEffects())
+        {
+            if (!isValid(I18n.format(e.getPotion().getName())))
+            {
+                return true;
+            }
 
-    public void rotateToPos(BlockPos pos, MotionUpdateEvent event)
-    {
-            final float[] angle = RotationUtil.getRotationsToTopMiddle(pos);
-            event.setYaw(angle[0]);
-            event.setPitch(angle[1]);
+            PotionEffect eff = mc.player.getActivePotionEffect(e.getPotion());
+            if (eff == null || eff.getDuration() < minDura.getValue())
+            {
+                inValid = false;
+            }
+        }
+
+        if (!checkType && !keyCycle.getValue())
+        {
+            return false;
+        }
+
+        return inValid;
     }
 
     /**
-     * Hits, Arrows and None. These are the modes, we will give to the player to list in the Arraylist.
-     * @return information we should list in the Arraylist.
+     *
+     * @param recursive should be false when u call this.
+     * @param key should be false if u cycle from the keyboard
      */
-    public String getDisplayInfo()
+    public void cycle(boolean recursive, boolean key)
     {
-        switch(hudMode.getValue())
+        if (!InventoryUtil.validScreen()
+            || key && !cycleTimer.passed(delay.getValue()))
         {
-            case Arrows:
-                hudmode = String.valueOf(arrowCount);
-            break;
-
-            case Hits:
-                hudmode = String.valueOf(hits);
-            break;
-
-            case None:
-                hudmode = null;
-            break;
+            return;
         }
-        return hudmode;
+
+        int firstSlot = -1;
+        int secondSlot = -1;
+        ItemStack arrow = null;
+        if (isArrow(mc.player.getHeldItem(EnumHand.OFF_HAND)))
+        {
+            firstSlot = 45;
+        }
+
+        if (isArrow(mc.player.getHeldItem(EnumHand.MAIN_HAND)))
+        {
+            if (firstSlot == -1)
+            {
+                firstSlot = InventoryUtil.hotbarToInventory(
+                        mc.player.inventory.currentItem);
+            }
+            else if (!badStack(
+                    mc.player.getHeldItem(EnumHand.MAIN_HAND), key, cycled))
+            {
+                secondSlot = InventoryUtil.hotbarToInventory(
+                        mc.player.inventory.currentItem);
+                arrow = mc.player.getHeldItem(EnumHand.MAIN_HAND);
+            }
+        }
+
+        if (!badStack(mc.player.inventory.getItemStack(), key, cycled))
+        {
+            secondSlot = -2;
+            arrow = mc.player.inventory.getItemStack();
+        }
+
+        if (firstSlot == -1 || secondSlot == -1)
+        {
+            for (int i = 0; i < mc.player.inventory.getSizeInventory(); i++)
+            {
+                ItemStack stack = mc.player.inventory.getStackInSlot(i);
+                if (!isArrow(stack))
+                {
+                    continue;
+                }
+
+                if (firstSlot == -1)
+                {
+                    firstSlot = InventoryUtil.hotbarToInventory(i);
+                }
+                else if (!badStack(stack, key, cycled))
+                {
+                    secondSlot = InventoryUtil.hotbarToInventory(i);
+                    arrow = stack;
+                    break;
+                }
+            }
+        }
+
+        if (firstSlot == -1)
+        {
+            return;
+        }
+
+        if (secondSlot == -1)
+        {
+            if (!recursive && !cycled.isEmpty())
+            {
+                cycled.clear();
+                cycle(true, key);
+            }
+
+            return;
+        }
+
+        PotionType type = PotionUtils.getPotionFromItem(arrow);
+        if (arrow.getItem() instanceof ItemSpectralArrow)
+        {
+            type = SPECTRAL;
+        }
+
+        cycled.add(type);
+        int finalFirstSlot  = firstSlot;
+        int finalSecondSlot = secondSlot;
+        Item inFirst  = InventoryUtil.get(finalFirstSlot).getItem();
+        Item inSecond = InventoryUtil.get(finalSecondSlot).getItem();
+        Locks.acquire(Locks.WINDOW_CLICK_LOCK, () ->
+        {
+            if (InventoryUtil.get(finalFirstSlot).getItem() == inFirst
+                && InventoryUtil.get(finalSecondSlot).getItem() == inSecond)
+            {
+                if (finalSecondSlot == -2)
+                {
+                    InventoryUtil.click(finalFirstSlot);
+                }
+                else
+                {
+                    InventoryUtil.click(finalSecondSlot);
+                    InventoryUtil.click(finalFirstSlot);
+                    InventoryUtil.click(finalSecondSlot);
+                }
+            }
+        });
+
+        cycleTimer.reset();
     }
 
-    public void onDisable()
+    protected ItemStack findArrow()
     {
-        super.onDisable();
-        stage = 0;
-        hits = 0;
-        shootTime.reset();
-        cycles = 0;
+        if (isArrow(mc.player.getHeldItem(EnumHand.OFF_HAND)))
+        {
+            return mc.player.getHeldItem(EnumHand.OFF_HAND);
+        }
+        else if (isArrow(mc.player.getHeldItem(EnumHand.MAIN_HAND)))
+        {
+            return mc.player.getHeldItem(EnumHand.MAIN_HAND);
+        }
+
+        for (int i = 0; i < mc.player.inventory.getSizeInventory(); i++)
+        {
+            ItemStack stack = mc.player.inventory.getStackInSlot(i);
+            if (isArrow(stack))
+            {
+                return stack;
+            }
+        }
+
+        return ItemStack.EMPTY;
     }
+
+    protected boolean isArrow(ItemStack stack)
+    {
+        return stack.getItem() instanceof ItemArrow;
+    }
+
+    public static String getPotionNameStartingWith(String name)
+    {
+        Potion potion = getPotionStartingWith(name);
+        if (potion == SpecialPot.SPECTRAL)
+        {
+            return "Spectral";
+        }
+        else if (potion == SpecialPot.NONE)
+        {
+            return "None";
+        }
+
+        if (potion != null)
+        {
+            return I18n.format(potion.getName());
+        }
+
+        return null;
+    }
+
+    public static Potion getPotionStartingWith(String name)
+    {
+        if (name == null)
+        {
+            return null;
+        }
+
+        name = name.toLowerCase();
+        for (Potion potion : Potion.REGISTRY)
+        {
+            if (I18n.format(potion.getName()).toLowerCase().startsWith(name))
+            {
+                return potion;
+            }
+        }
+
+        if ("spectral".startsWith(name))
+        {
+            return SpecialPot.SPECTRAL;
+        }
+
+        if ("none".startsWith(name))
+        {
+            return SpecialPot.NONE;
+        }
+
+        return null;
+    }
+
+    private static final class SpecialPot extends Potion
+    {
+        public static final SpecialPot SPECTRAL = new SpecialPot();
+        public static final SpecialPot NONE     = new SpecialPot();
+
+        private SpecialPot()
+        {
+            super(false, 0);
+        }
+    }
+
 }
