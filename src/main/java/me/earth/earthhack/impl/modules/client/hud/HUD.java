@@ -190,6 +190,7 @@ public class HUD extends Module {
     protected void renderLogo() {
         if (logo.getValue()) {
             renderText(logoText.getValue() + " - " + Earthhack.VERSION, 2, 2);
+            // Not sure if this is possible, but maybe a check to see if the HUD Plugin is enabled could be smart. This might conflict with it.
         }
     }
 
