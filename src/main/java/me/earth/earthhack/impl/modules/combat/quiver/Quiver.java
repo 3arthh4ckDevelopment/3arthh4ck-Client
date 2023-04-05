@@ -34,6 +34,8 @@ import java.util.Set;
 
 public class Quiver extends RegisteringModule<Boolean, SimpleRemovingSetting>
 {
+    // This code is not made my 'nukiz' but instead someone else. They deserve all the credit for this code.
+
     protected static final PotionType SPECTRAL = new PotionType();
     /** PotionTypes that don't give lasting Effects */
     protected static final Set<PotionType> BAD_TYPES = Sets.newHashSet(
@@ -84,8 +86,8 @@ public class Quiver extends RegisteringModule<Boolean, SimpleRemovingSetting>
 
     public Quiver()
     {
-        super("Arrows",
-                Category.Player,
+        super("Quiver",
+                Category.Combat,
                 "Add_Potion", "potion",
                 SimpleRemovingSetting::new,
                 s -> "Black/Whitelist " + s.getName() + " potion arrows.");
