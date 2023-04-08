@@ -50,6 +50,8 @@ public class Surround extends ObbyModule
         register(new NumberSetting<>("Speed", 19.5f, 0.0f, 35.0f));
     protected final Setting<Boolean> noTrap    =
         register(new BooleanSetting("NoTrap", false));
+    protected final Setting<Boolean> antiCev     =
+            register(new BooleanSetting("Anti-Cev", false));
     protected final Setting<Boolean> floor     =
         register(new BooleanSetting("Floor", false));
     protected final Setting<Integer> extend    =
