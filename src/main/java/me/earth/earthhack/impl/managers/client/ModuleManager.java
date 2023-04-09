@@ -327,7 +327,6 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new NoHunger());
         this.forceRegister(new InventorySync());
         this.forceRegister(new NoRotate());
-        this.forceRegister(new Quiver());
         this.forceRegister(new RayTrace());
         this.forceRegister(new Reach());
         this.forceRegister(new Replenish());

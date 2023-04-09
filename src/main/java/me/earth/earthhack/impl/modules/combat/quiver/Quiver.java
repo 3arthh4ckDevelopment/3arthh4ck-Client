@@ -34,7 +34,7 @@ import java.util.Set;
 
 public class Quiver extends RegisteringModule<Boolean, SimpleRemovingSetting>
 {
-    // This code is not made my 'nukiz' but instead someone else. They deserve all the credit for this code.
+    // This code is not made by 'nukiz' but instead someone else. They deserve all the credit for this code.
 
     protected static final PotionType SPECTRAL = new PotionType();
     /** PotionTypes that don't give lasting Effects */
