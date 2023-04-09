@@ -101,6 +101,14 @@ final class ListenerAntiTrap extends ObbyListener<AntiTrap>
             }
 
             result.getTargets().add(pos);
+
+            if(module.smart.getValue())
+            {
+                for(BlockPos position : module.positions)
+                {
+                    result.getTargets().add(position);
+                }
+            }
         }
 
         return result;

@@ -36,6 +36,8 @@ public class AntiTrap extends ObbyListenerModule<ListenerAntiTrap>
     protected final Setting<Boolean> offhand =
         register(new BooleanSetting("Offhand", false))
             .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> smart  =
+            register(new BooleanSetting("WaitBreak", true));
     protected final Setting<Integer> timeOut =
         register(new NumberSetting<>("TimeOut", 400, 0, 1000))
             .setComplexity(Complexity.Expert);
@@ -56,7 +58,7 @@ public class AntiTrap extends ObbyListenerModule<ListenerAntiTrap>
     protected final Setting<Boolean> requireOffhand =
         register(new BooleanSetting("RequireOffhand", false));
 
-    /** Blocks that have been placed an await a SPacketBlockChange */
+    /** Blocks that have been placed and await a SPacketBlockChange */
     protected final Map<BlockPos, Long> placed = new HashMap<>();
     /** Positions that have been confirmed by a SPacketBlockChange */
     protected final Set<BlockPos> confirmed = new HashSet<>();
@@ -67,10 +69,13 @@ public class AntiTrap extends ObbyListenerModule<ListenerAntiTrap>
     protected BlockPos startPos;
     protected BlockPos pos;
 
+    List<BlockPos> positions;
+
     public AntiTrap()
     {
         super("AntiTrap", Category.Combat);
         this.setData(new AntiTrapData(this));
+        this.listeners.add(new ListenerBreak(this));
     }
 
     @Override
