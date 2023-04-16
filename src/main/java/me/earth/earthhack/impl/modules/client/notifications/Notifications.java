@@ -32,7 +32,7 @@ public class Notifications extends Module
     protected final Setting<Boolean> entered =
             register(new BooleanSetting("Entered", true));
     protected final Setting<TextColor> visualRangePlayerColor =
-            register(new EnumSetting<>("Visualrange Player-Color", TextColor.None));
+            register(new EnumSetting<>("VisualRange Player-Color", TextColor.None));
     protected final Setting<TextColor> leftColor =
             register(new EnumSetting<>("Left-Color", TextColor.None));
     protected final Setting<TextColor> enteredColor =
@@ -174,7 +174,7 @@ public class Notifications extends Module
 
 
     public void onPlayerLeave(Entity player) {
-        if (this.isEnabled() && leave.getValue()) {
+        if (this.isEnabled() && leave.getValue() && !player.getName().equals(mc.player.getName())) {
             String message =
                     visualRangePlayerColor.getValue().getColor()
                             + player.getName()
@@ -182,12 +182,12 @@ public class Notifications extends Module
                             + " has just left your visual range";
 
             Managers.CHAT.sendDeleteMessage(message,
-                    player.getName(), ChatIDs.VISUALRANGE_LEAVE);
+                    player.getName(), ChatIDs.VISUALRANGE);
         }
     }
     public void onPlayerEnter(Entity player)
     {
-        if (this.isEnabled() && entered.getValue())
+        if (this.isEnabled() && entered.getValue() && !player.getName().equals(mc.player.getName()))
         {
             String message =
                     visualRangePlayerColor.getValue().getColor()
@@ -196,7 +196,7 @@ public class Notifications extends Module
                     + " has just entered your visual range";
 
             Managers.CHAT.sendDeleteMessage(message,
-                    player.getName(), ChatIDs.VISUALRANGE_ENTER);
+                    player.getName(), ChatIDs.VISUALRANGE);
         }
     }
 
