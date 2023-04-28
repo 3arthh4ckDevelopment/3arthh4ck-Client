@@ -35,7 +35,7 @@ public class ListenerBreak extends ModuleListener<AntiTrap, PacketEvent.Receive<
             return;
         if(mc.player == null || mc.world == null)
             return;
-        if(!module.smart.getValue())
+        if(!module.waitBreak.getValue())
             return;
 
 

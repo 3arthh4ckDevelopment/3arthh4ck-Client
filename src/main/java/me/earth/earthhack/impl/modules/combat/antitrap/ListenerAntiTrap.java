@@ -102,7 +102,7 @@ final class ListenerAntiTrap extends ObbyListener<AntiTrap>
 
             result.getTargets().add(pos);
 
-            if(module.smart.getValue())
+            if(module.waitBreak.getValue())
             {
                 for(BlockPos position : module.positions)
                 {
