@@ -1,4 +1,4 @@
-> :warning: This is a continuation of 3arthqu4ke's now discontinued 3arthh4ck. Any new PingBypass 3arthqu4ke releases will be found [here](https://github.com/3arthqu4ke/PingBypass).
+> :warning: This is a continuation of 3arthqu4ke's now discontinued 3arthh4ck. Any new PingBypass 3arthqu4ke releases will be found [here](https://github.com/3arthqu4ke/PingBypass). This project has been merged with Ai_2473's continuation of 3arthh4ck, so expect this repository to have very little activity.
 
 # 3arthh4ck
 
@@ -9,7 +9,7 @@
 ![Repo size](https://img.shields.io/github/repo-size/3arthqu4ke/3arthh4ck.svg)
 [![Build](https://github.com/nukiz/3arthh4ck-continued/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/nukiz/3arthh4ck-continued/actions)
 
-3arthh4ck is Minecraft 1.12.2 utility mod for anarchy PvP. With the 1.7.0 release it also takes over the role
+3arthh4ck is a Minecraft 1.12.2 utility mod for anarchy PvP. With the 1.7.0 release it also takes over the role
 of the now outdated PingBypass [Server](https://github.com/3arthqu4ke/PingBypass) and 
 [Client](https://github.com/3arthqu4ke/PingBypass-Client). To install it just drop the jar into your forge mods folder.
 By default, any message prefixed with a `+` will be handled as command, e.g. `+toggle clickgui`, to open the gui. 
