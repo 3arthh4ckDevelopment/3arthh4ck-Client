@@ -36,7 +36,7 @@ public class AntiTrap extends ObbyListenerModule<ListenerAntiTrap>
     protected final Setting<Boolean> offhand =
         register(new BooleanSetting("Offhand", false))
             .setComplexity(Complexity.Medium);
-    protected final Setting<Boolean> smart  =
+    protected final Setting<Boolean> waitBreak =
             register(new BooleanSetting("WaitBreak", true));
     protected final Setting<Integer> timeOut =
         register(new NumberSetting<>("TimeOut", 400, 0, 1000))

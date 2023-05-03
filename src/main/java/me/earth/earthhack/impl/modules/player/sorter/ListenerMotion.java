@@ -34,6 +34,8 @@ final class ListenerMotion extends ModuleListener<Sorter, MotionUpdateEvent>
         super(module, MotionUpdateEvent.class, 999999);
     }
 
+    int previousSlot;
+
     @Override
     public void invoke(MotionUpdateEvent event)
     {
@@ -68,6 +70,7 @@ final class ListenerMotion extends ModuleListener<Sorter, MotionUpdateEvent>
 
         Item fallbackItem = null;
         Item otherFallbackItem = null;
+        previousSlot = mc.player.inventory.currentItem;
         int fallback = -1;
         int otherFallback = -1;
         boolean emptyFallback = false;
@@ -88,6 +91,8 @@ final class ListenerMotion extends ModuleListener<Sorter, MotionUpdateEvent>
                 int finalSlot = i;
                 Locks.acquire(Locks.WINDOW_CLICK_LOCK, () ->
                     InventoryUtil.click(finalSlot));
+
+                mc.player.inventory.currentItem = previousSlot;
 
                 return;
             }

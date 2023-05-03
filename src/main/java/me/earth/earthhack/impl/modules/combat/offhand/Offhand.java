@@ -436,7 +436,7 @@ public class Offhand extends Module
                 /*&& Math.abs(mc.player.motionY) < 0.1*/)
         {
             /*
-             * trick server into thinking that ur not moving when there is almost no leniency on the invmove checks (aka when on ground)
+             * trick server into thinking that ur not moving when there is almost no leniency on the InvMove checks (aka when on ground)
              */
             PacketUtil.doPosition(Managers.POSITION.getX(), Managers.POSITION.getY(), Managers.POSITION.getZ(), Managers.POSITION.isOnGround());
         }

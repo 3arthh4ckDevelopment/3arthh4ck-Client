@@ -49,6 +49,8 @@ public class Sorter extends LoadableModule
         register(new NumberSetting<>("Global-Delay", 500, 0, 5000));
     protected final Setting<Boolean> sortInLoot =
         register(new BooleanSetting("SortInLoot", false));
+    protected final Setting<Boolean> switchBack =
+            register(new BooleanSetting("Previous", false));
     protected final Setting<Boolean> sortInInv =
         register(new BooleanSetting("SortInInventory", false));
     protected final Setting<Boolean> ensureHotbar =
