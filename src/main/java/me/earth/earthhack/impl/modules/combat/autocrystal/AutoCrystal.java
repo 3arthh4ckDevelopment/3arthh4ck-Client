@@ -471,6 +471,10 @@ public class AutoCrystal extends Module
     protected final Setting<Boolean> box =
             register(new BooleanSetting("Draw-Box", true))
                 .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> targetRender =
+            register(new BooleanSetting("Target-Render", true));
+    protected final Setting<Color> jelloColor =
+            register(new ColorSetting("Jello", new Color(255, 255, 255, 255)));
     protected final Setting<Color> boxColor =
             register(new ColorSetting("Box", new Color(255, 255, 255, 120)));
     protected final Setting<Color> outLine =
