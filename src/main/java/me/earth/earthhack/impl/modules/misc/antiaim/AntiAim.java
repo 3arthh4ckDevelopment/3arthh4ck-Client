@@ -35,6 +35,18 @@ public class AntiAim extends Module
     protected final Setting<Boolean> flipPitch =
             register(new BooleanSetting("FlipPitch", true));
 
+    protected final Setting<Integer> yawSlices =
+            register(new NumberSetting<>("YawSlices", 4, 1, 4));
+
+    protected final Setting<Integer> pitchSlices =
+            register(new NumberSetting<>("PitchSlices", 3, 1, 4));
+
+    protected final Setting<Boolean> sliceYaw =
+            register(new BooleanSetting("SliceYaw", true));
+
+    protected final Setting<Boolean> slicePitch =
+            register(new BooleanSetting("SlicePitch", true));
+
     protected final StopWatch timer = new StopWatch();
     protected float lastYaw;
     protected float lastPitch;
@@ -61,11 +73,10 @@ public class AntiAim extends Module
     {
         return strict.getValue()
                 && (((!(mc.player.getActiveItemStack().getItem()
-                                instanceof ItemFood)
-                            || mc.gameSettings.keyBindAttack.isKeyDown())
-                        && (mc.gameSettings.keyBindAttack.isKeyDown()
-                            || mc.gameSettings.keyBindUseItem.isKeyDown()))
-                    || Mouse.isButtonDown(2));
+                instanceof ItemFood)
+                || mc.gameSettings.keyBindAttack.isKeyDown())
+                && (mc.gameSettings.keyBindAttack.isKeyDown()
+                || mc.gameSettings.keyBindUseItem.isKeyDown()))
+                || Mouse.isButtonDown(2));
     }
-
 }

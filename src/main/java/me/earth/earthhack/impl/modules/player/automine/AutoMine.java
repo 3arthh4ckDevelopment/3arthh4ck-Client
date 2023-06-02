@@ -12,7 +12,6 @@ import me.earth.earthhack.impl.modules.player.automine.util.BigConstellation;
 import me.earth.earthhack.impl.modules.player.automine.util.IAutomine;
 import me.earth.earthhack.impl.modules.player.automine.util.IConstellation;
 import me.earth.earthhack.impl.modules.player.speedmine.Speedmine;
-import me.earth.earthhack.impl.util.client.SimpleData;
 import me.earth.earthhack.impl.util.helpers.addable.BlockAddingModule;
 import me.earth.earthhack.impl.util.helpers.addable.ListType;
 import me.earth.earthhack.impl.util.math.RayTraceUtil;
@@ -169,39 +168,7 @@ public class AutoMine extends BlockAddingModule implements IAutomine
         this.listeners.add(new ListenerWorldClient(this));
         this.listeners.add(new ListenerPlace(this));
         this.listType.setValue(ListType.BlackList);
-
-        SimpleData data = new SimpleData(this, "Automatically mines Blocks.");
-        data.register(mode, "-Combat will strategically mine enemies out." +
-            " Uses Speedmine - Smart." +
-            "\n-AntiTrap will mine you out of traps.");
-        data.register(range, "Range in which blocks will be mined.");
-        data.register(head, "Mines the Block above the Target.");
-        data.register(rotate, "Rotates to mine the block.");
-        data.register(self, "Touches Blocks in your own Surround so it can" +
-            " be mined quickly if an enemy jumps in.");
-        data.register(prioSelf, "Prioritizes untrapping yourself.");
-        data.register(constellationCheck, "Dev Setting, should be on.");
-        data.register(delay, "Delay between touching blocks.");
-        data.register(newV, "Takes 1.13+ crystal mechanics into account.");
-        data.register(checkCurrent, "Dev Setting, should be on.");
-        data.register(improve, "Will actively search for a better position.");
-        data.register(mineL, "For Combat: Mines out L-Shaped Holes");
-        data.register(offset, "Time to wait after a block has been destroyed.");
-        data.register(shouldBlackList,
-                      "Blacklists blocks that you reset by touching them again.");
-        data.register(blackListFor, "Time in seconds a block should be " +
-            "blacklisted for. A value of 0 means it will never be" +
-            " blacklisted.");
-        data.register(checkTrace, "Checks PlaceRange, PlaceTrace and" +
-            " BreakTrace for the crystal position.");
-        data.register(placeRange, "PlaceRange of your CA.");
-        data.register(placeTrace, "PlaceTrace of your CA.");
-        data.register(breakTrace, "BreakTrace of your CA.");
-        data.register(selfEchestMine, "Will mine an Echest you burrowed with.");
-        data.register(resetIfNotValid, "Doesn't keep invalid positions mined.");
-        data.register(mineBurrow, "Will mine players burrow blocks.");
-        data.register(checkPlayerState, "Checks if a player burrowed in the meantime.");
-        this.setData(data);
+        this.setData(new AutoMineData(this));
     }
 
     @Override

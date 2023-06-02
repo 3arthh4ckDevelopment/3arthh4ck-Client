@@ -22,6 +22,8 @@ import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
 import me.earth.earthhack.impl.util.network.ServerUtil;
 import me.earth.earthhack.impl.util.render.ColorHelper;
 import me.earth.earthhack.impl.util.render.ColorUtil;
+import me.earth.earthhack.impl.util.render.Render2DUtil;
+import me.earth.earthhack.impl.util.render.image.NameableImage;
 import me.earth.earthhack.impl.util.text.ChatUtil;
 import me.earth.earthhack.impl.util.text.TextColor;
 import me.earth.earthhack.pingbypass.modules.PbModule;
@@ -53,24 +55,28 @@ import java.util.stream.Collectors;
 public class HUD extends Module {
     public static final TextRenderer RENDERER = Managers.TEXT;
 
-    protected final Setting<HudRainbow> colorMode =
+    public final Setting<HudRainbow> colorMode =
             register(new EnumSetting<>("Rainbow", HudRainbow.None));
-    protected final Setting<Color> color =
+    public final Setting<Color> color =
             register(new ColorSetting("Color", Color.WHITE));
     protected final Setting<Boolean> logo =
             register(new BooleanSetting("Logo", true));
     protected final Setting<String> logoText =
             register(new StringSetting("LogoText", "3arthh4ck"));
+    protected final Setting<Boolean> version =
+            register(new BooleanSetting("Version", true));
     protected final Setting<Boolean> coordinates =
             register(new BooleanSetting("Coordinates", true));
     protected final Setting<Boolean> armor =
             register(new BooleanSetting("Armor", true));
+    protected final Setting<Boolean> durability =
+            register(new BooleanSetting("Durability", false));
     protected final Setting<Boolean> totems =
             register(new BooleanSetting("Totems", false));
-    protected final Setting<Integer> totemsYOffset =
-            register(new NumberSetting<>("Totems-Y-Offset", 0, -10, 10));
     protected final Setting<Integer> totemsXOffset =
             register(new NumberSetting<>("Totems-X-Offset", 0, -10, 10));
+    protected final Setting<Integer> totemsYOffset =
+            register(new NumberSetting<>("Totems-Y-Offset", 0, -10, 10));
     protected final Setting<Modules> renderModules =
             register(new EnumSetting<>("Modules", Modules.Length));
     protected final Setting<Potions> potions =
@@ -93,6 +99,25 @@ public class HUD extends Module {
             register(new BooleanSetting("Animations", true));
     protected final Setting<Boolean> serverBrand =
             register(new BooleanSetting("ServerBrand", false));
+    protected final Setting<Boolean> skeetLine =
+            register(new BooleanSetting("SkeetLine", false));
+    protected final Setting<Boolean> skeetLineGradient =
+            register(new BooleanSetting("SkeetGradient", false));
+    protected final Setting<Color> skeetLineColor =
+            register(new ColorSetting("SkeetColor", new Color(0x7817ff)));
+    protected final Setting<Color> skeetLineColorGradient =
+            register(new ColorSetting("SkeetColorGradient", new Color(0x7817ff)));
+    protected final Setting<Float> skeetLineWidth =
+            register(new NumberSetting<>("SkeetLineWidth", 1.3f, 0.5f, 3.0f));
+    //TODO: make an offset from the top
+    protected final Setting<Boolean> model =
+            register(new BooleanSetting("Model3D", false));
+    protected final Setting<Integer> modelX =
+            register(new NumberSetting<>("Model-X", 100, 0, Render2DUtil.CSWidth()));
+    protected final Setting<Integer> modelY =
+            register(new NumberSetting<>("Model-Y", 100, 0, Render2DUtil.CSHeight()));
+    protected final Setting<Float> modelScale =
+            register(new NumberSetting<>("ModelScale", 0.8f, 0.4f, 2.0f));
 
     protected final Setting<Boolean> time =
         register(new BooleanSetting("Time", false));
@@ -102,6 +127,18 @@ public class HUD extends Module {
     protected final Setting<Integer> textOffset =
             register(new NumberSetting<>("Offset", 2, 0, 10))
                 .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> image =
+            register(new BooleanSetting("Image", false));
+    protected final Setting<NameableImage> imageName   =
+            register(new ListSetting<>("ImgName", Managers.FILES.getInitialImage(), Managers.FILES.getImages()));
+    protected final Setting<Float> imageScale =
+            register(new NumberSetting<>("ImgScale", 1.0f, 0.0f, 30.0f));
+    protected final Setting<Float> imageX =
+            register(new NumberSetting<>("ImgX", 0.5f,0.0f,1.0f));
+    protected final Setting<Float> imageY =
+            register(new NumberSetting<>("ImgY", 0.5f,0.0f,1.0f));
+    protected final Setting<Boolean> reloadImages =
+            register(new BooleanSetting("RealoadImages", false));
 
     protected final List<Map.Entry<String, Module>> modules = new ArrayList<>();
 
@@ -157,6 +194,7 @@ public class HUD extends Module {
                 }
             }
         });
+
     }
 
     public int getArmorY() {
@@ -189,8 +227,32 @@ public class HUD extends Module {
 
     protected void renderLogo() {
         if (logo.getValue()) {
-            renderText(logoText.getValue() + " - " + Earthhack.VERSION, 2, 2);
-            // Not sure if this is possible, but maybe a check to see if the HUD Plugin is enabled could be smart. This might conflict with it.
+            if (version.getValue()) {
+                renderText(logoText.getValue() + " - " + Earthhack.VERSION, 2, 2);
+            } else {
+                renderText(logoText.getValue(), 2, 2);
+            }
+        }
+    }
+
+    protected void skeetLine() {
+        if (skeetLine.getValue()) {
+            if (skeetLineGradient.getValue()) {
+                Render2DUtil.drawGradientRect(0, 0, Render2DUtil.CSWidth(), skeetLineWidth.getValue(), true, skeetLineColor.getValue().getRGB(), skeetLineColorGradient.getValue().getRGB());
+            } else {
+                Render2DUtil.drawRect(0, 0, Render2DUtil.CSWidth(), skeetLineWidth.getValue(), skeetLineColor.getValue().getRGB());
+            }
+        }
+    }
+
+    protected void renderImage() {
+        if (image.getValue() && imageName.getValue().getTexture() != null) {
+            float x = imageX.getValue() * Render2DUtil.CSWidth();
+            float y = imageY.getValue() * Render2DUtil.CSHeight();
+            GL11.glPushMatrix();
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, imageName.getValue().getTexture().getGlTextureId());
+            Render2DUtil.drawCompleteImage(x, y, -100.0f, -100.0f);
+            GL11.glPopMatrix();
         }
     }
 
@@ -299,6 +361,10 @@ public class HUD extends Module {
                 renderText(text, x + 17 - RENDERER.getStringWidth(text), y + 9);
                 GlStateManager.enableDepth();
             }
+        }
+
+        if (model.getValue()) {
+            Render2DUtil.drawPlayer(mc.player, modelScale.getValue(), modelX.getValue(), modelY.getValue());
         }
         renderArmor();
 

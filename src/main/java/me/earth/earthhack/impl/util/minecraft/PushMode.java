@@ -23,9 +23,9 @@ public enum PushMode implements Globals {
         public void pushOutOfBlocks(
             Entity entity, double x, double y, double z) {
             BlockPos blockpos = new BlockPos(x, y, z);
-            double d0 = x - (double)blockpos.getX();
-            double d1 = y - (double)blockpos.getY();
-            double d2 = z - (double)blockpos.getZ();
+            double d0 = x - blockpos.getX();
+            double d1 = y - blockpos.getY();
+            double d2 = z - blockpos.getZ();
             if (mc.world.collidesWithAnyBlock(entity.getEntityBoundingBox()))
             {
                 EnumFacing enumfacing = EnumFacing.UP;

@@ -10,6 +10,8 @@ public class ChatIDs
     public static final int PLAYER_COMMAND = 5000;
     public static final int PINGBYPASS = 6000;
     public static final int CHAT_GUI = 7000;
-    public static final int VISUALRANGE = 8000;
+    public static final int VISUALRANGE_ENTER = 8000;
+    public static final int VISUALRANGE_LEAVE = 9000;
+    public static final int ELEMENT = 8000;
 
 }

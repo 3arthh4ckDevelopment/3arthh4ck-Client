@@ -1,6 +1,7 @@
 package me.earth.earthhack.impl.gui.click.frame.impl;
 
 import me.earth.earthhack.api.cache.ModuleCache;
+import me.earth.earthhack.impl.gui.click.Click;
 import me.earth.earthhack.impl.gui.click.component.Component;
 import me.earth.earthhack.impl.gui.click.component.SettingComponent;
 import me.earth.earthhack.impl.gui.click.component.impl.*;
@@ -9,6 +10,7 @@ import me.earth.earthhack.impl.gui.visibility.Visibilities;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.client.clickgui.ClickGui;
+import me.earth.earthhack.impl.modules.client.colors.Colors;
 import me.earth.earthhack.impl.util.render.Render2DUtil;
 import me.earth.earthhack.impl.util.render.RenderUtil;
 import me.earth.earthhack.pingbypass.input.Mouse;
@@ -23,6 +25,7 @@ import java.awt.*;
 
 public class ModulesFrame extends Frame {
     private static final ModuleCache<ClickGui> CLICK_GUI = Caches.getModule(ClickGui.class);
+    public static final ModuleCache<Colors> COLOR_MODULE = Caches.getModule(Colors.class);
     private static final ResourceLocation LEFT_EAR = new ResourceLocation("earthhack:textures/gui/left_ear.png");
     private static final ResourceLocation RIGHT_EAR = new ResourceLocation("earthhack:textures/gui/right_ear.png");
 
@@ -40,19 +43,19 @@ public class ModulesFrame extends Frame {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
         final float scrollMaxHeight = new ScaledResolution(
-                Minecraft.getMinecraft()).getScaledHeight();
-        final Color clr = CLICK_GUI.get().color.getValue();
+            Minecraft.getMinecraft()).getScaledHeight();
+        final Color clr = COLOR_MODULE.get().getCatEars();
         if (CLICK_GUI.get().catEars.getValue()) {
             Minecraft.getMinecraft().getTextureManager().bindTexture(LEFT_EAR);
             GlStateManager.color(clr.getRed() / 255.f, clr.getGreen() / 255.f, clr.getBlue() / 255.f, 1.0F);
-            Gui.drawScaledCustomSizeModalRect((int) getPosX() - 8, (int) getPosY() - 8, 0, 0, 20, 20, 20, 20, 20, 20);
+            Gui.drawScaledCustomSizeModalRect((int) getPosX() - 7, (int) getPosY() - 9, 0, 0, 20, 20, 20, 20, 20, 20);
             Minecraft.getMinecraft().getTextureManager().bindTexture(RIGHT_EAR);
             GlStateManager.color(clr.getRed() / 255.f, clr.getGreen() / 255.f, clr.getBlue() / 255.f, 1.0F);
-            Gui.drawScaledCustomSizeModalRect((int) (getPosX() + getWidth()) - 12, (int) getPosY() - 8, 0, 0, 20, 20, 20, 20, 20, 20);
+            Gui.drawScaledCustomSizeModalRect((int) (getPosX() + getWidth()) - 14, (int) getPosY() - 9, 0, 0, 20, 20, 20, 20, 20, 20);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         }
-        Render2DUtil.drawRect(getPosX(), getPosY(), getPosX() + getWidth(), getPosY() + getHeight(), CLICK_GUI.get().color.getValue().getRGB());
-        Render2DUtil.drawBorderedRect(getPosX(), getPosY(), getPosX() + getWidth(), getPosY() + getHeight(), 0.5f, 0, 0xff000000);
+        Render2DUtil.drawRect(getPosX(), getPosY(), getPosX() + getWidth(), getPosY() + getHeight(), COLOR_MODULE.get().getTopBgColor().getRGB());
+        Render2DUtil.drawBorderedRect(getPosX(), getPosY(), getPosX() + getWidth(), getPosY() + getHeight(), 0.5f, 0, Click.COLOR_MODULE.get().getTopColor().getRGB());
         Managers.TEXT.drawStringWithShadow(getLabel(), getPosX() + 3, getPosY() + getHeight() / 2 - (Managers.TEXT.getStringHeightI() >> 1), 0xFFFFFFFF);
         if (CLICK_GUI.get().size.getValue()) {
             String disString = "[" + getComponents().size() + "]";
@@ -135,7 +138,7 @@ public class ModulesFrame extends Frame {
                 if (component.isExtended()) {
                     for (Component component1 : ((ModuleComponent) component).getComponents()) {
                         if (component1 instanceof SettingComponent
-                                && Visibilities.VISIBILITY_MANAGER.isVisible(((SettingComponent<?, ?>) component1).getSetting())) {
+                            && Visibilities.VISIBILITY_MANAGER.isVisible(((SettingComponent<?, ?>) component1).getSetting())) {
                             cHeight += component1.getHeight();
                         }
                     }

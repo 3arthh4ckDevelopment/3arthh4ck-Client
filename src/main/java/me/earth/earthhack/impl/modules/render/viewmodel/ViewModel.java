@@ -18,7 +18,7 @@ public class ViewModel extends Module
     public static final float[] DEFAULT_TRANSLATION =
             new float[]{0.0f, 0.0f, 0.0f, 0.0f};
 
-    public final BooleanSetting noSway =
+    public final Setting<Boolean> noSway =
             register(new BooleanSetting("No-Sway", false));
     protected final Setting<Float> offX  =
             register(new NumberSetting<>("OffHand-X", 0.0f, -10.0f, 10.0f));
@@ -90,5 +90,4 @@ public class ViewModel extends Module
         return new float[]
             {angleTranslate.getValue(), xTranslate.getValue(), yTranslate.getValue(), zTranslate.getValue()};
     }
-
 }

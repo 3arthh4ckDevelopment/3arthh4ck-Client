@@ -7,12 +7,21 @@ import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Complexity;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
+import me.earth.earthhack.api.setting.settings.ColorSetting;
 import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
+import me.earth.earthhack.impl.event.events.render.Render2DEvent;
+import me.earth.earthhack.impl.event.listeners.LambdaListener;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.util.minecraft.CooldownBypass;
 import me.earth.earthhack.impl.util.text.ChatUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import org.lwjgl.opengl.Display;
+
+import java.awt.*;
+
+import static me.earth.earthhack.impl.Earthhack.STARTING_FPS;
 
 /**
  * {@link me.earth.earthhack.impl.core.mixins.util.MixinScreenShotHelper}
@@ -42,21 +51,27 @@ public class Management extends Module {
     protected final Setting<Boolean> pauseOnLeftFocus =
             register(new BooleanSetting("PauseOnLeftFocus",
                     mc.gameSettings.pauseOnLostFocus));
+    protected final Setting<Boolean> customFogColor =
+            register(new BooleanSetting("CustomFogColor", false));
+    protected final Setting<Color> fogColor =
+            register(new ColorSetting("FogColor", new Color(255, 255, 255, 255)));
     protected final Setting<Boolean> resourceDebug =
             register(new BooleanSetting("ResourceDebug", false)); // TODO:
     protected final Setting<Integer> unfocusedFps =
-            register(new NumberSetting<>("UnfocusedFps", 30, 1, 1000));
+            register(new NumberSetting<>("UnfocusedFps", 30, 0, 300));
     protected final Setting<CooldownBypass> globalCooldownBypass =
-            register(new EnumSetting<>("Global-CD-Bypass",
-                    CooldownBypass.None));
+            register(new EnumSetting<>("Global-CD-Bypass", CooldownBypass.None));
     protected final Setting<CooldownBypass> manualCooldownBypass =
-            register(new EnumSetting<>("Manual-CD-Bypass",
-                    CooldownBypass.None));
+            register(new EnumSetting<>("Manual-CD-Bypass", CooldownBypass.None));
+    public final Setting<Boolean> icon =
+            register(new BooleanSetting("GameIcon", true));
 
     protected GameProfile lastProfile;
     protected EntityPlayerSP player;
 
-    public Management() {
+
+    public Management()
+    {
         super("Management", Category.Client);
         Bus.EVENT_BUS.register(new ListenerLogout(this));
         Bus.EVENT_BUS.register(new ListenerGameLoop(this));
@@ -65,15 +80,15 @@ public class Management extends Module {
         Bus.EVENT_BUS.register(new ListenerSwitch(this));
         register(new NumberSetting<>("PB-Position-Range", 5.0, 0.0, 10_000.0));
         register(new BooleanSetting("MotionService", true))
-                .setComplexity(Complexity.Expert);
+            .setComplexity(Complexity.Expert);
         register(new NumberSetting<>("EntityTracker-Updates", 2.0, 0.01, 1000.0))
-                .setComplexity(Complexity.Expert);
+            .setComplexity(Complexity.Expert);
         // TODO: kinda ugly that this is here
         register(new BooleanSetting("PB-SetPos", true))
-                .setComplexity(Complexity.Expert);
+            .setComplexity(Complexity.Expert);
         register(new BooleanSetting("PB-FixChunks", false))
-                .setComplexity(Complexity.Expert);
-        register(new BooleanSetting("1.19-Place", false));
+            .setComplexity(Complexity.Expert);
+        register(new BooleanSetting("IgnoreForgeRegistries", false));
 
         this.setData(new ManagementData(this));
         this.clear.addObserver(event ->
@@ -83,15 +98,36 @@ public class Management extends Module {
             Managers.COMBAT.reset();
         });
         this.pauseOnLeftFocus.addObserver(e ->
-                mc.gameSettings.pauseOnLostFocus = e.getValue());
-        register(new BooleanSetting("IgnoreForgeRegistries", false));
+            mc.gameSettings.pauseOnLostFocus = e.getValue());
+
+        if (unfocusedFps.getValue() != 0) {
+            this.listeners.add(new LambdaListener<>(Render2DEvent.class, e -> {
+                if (!Display.isActive())
+                    Minecraft.getMinecraft().gameSettings.limitFramerate = unfocusedFps.getValue();
+                else
+                    Minecraft.getMinecraft().gameSettings.limitFramerate = STARTING_FPS;
+            }));
+        }
     }
 
     @Override
-    protected void onLoad() {
-        if (friend.getValue()) {
+    protected void onLoad()
+    {
+        if (friend.getValue())
+        {
             lastProfile = mc.getSession().getProfile();
             Managers.FRIENDS.add(lastProfile.getName(), lastProfile.getId());
         }
     }
+
+    public boolean isUsingCustomFogColor()
+    {
+        return customFogColor.getValue();
+    }
+
+    public Color getCustomFogColor()
+    {
+        return fogColor.getValue();
+    }
+
 }

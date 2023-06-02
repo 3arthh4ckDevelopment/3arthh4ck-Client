@@ -3,15 +3,18 @@ package me.earth.earthhack.impl.modules.combat.killaura;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
+import me.earth.earthhack.api.setting.settings.ColorSetting;
 import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.modules.combat.killaura.util.AuraRender;
 import me.earth.earthhack.impl.modules.combat.killaura.util.AuraSwitch;
 import me.earth.earthhack.impl.modules.combat.killaura.util.AuraTarget;
 import me.earth.earthhack.impl.modules.combat.killaura.util.AuraTeleport;
 import me.earth.earthhack.impl.util.math.DiscreteTimer;
 import me.earth.earthhack.impl.util.math.GuardTimer;
 import me.earth.earthhack.impl.util.math.MathUtil;
+import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.math.rotation.RotationSmoother;
 import me.earth.earthhack.impl.util.math.rotation.RotationUtil;
 import me.earth.earthhack.impl.util.minecraft.DamageUtil;
@@ -36,6 +39,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+
+import java.awt.*;
 
 public class KillAura extends EntityTypeModule
 {
@@ -65,6 +70,12 @@ public class KillAura extends EntityTypeModule
         register(new BooleanSetting("AutoBlock", true));
     protected final Setting<Boolean> whileEating =
         register(new BooleanSetting("While-Eating", true));
+    protected final Setting<Boolean> render =
+            register(new BooleanSetting("Render", false));
+    protected final Setting<AuraRender> renderMode =
+            register(new EnumSetting<>("Render-Mode", AuraRender.None));
+    protected final Setting<Color> renderColor =
+            register(new ColorSetting("Color", new Color(255, 255, 255, 255)));
     protected final Setting<Boolean> stay =
         register(new BooleanSetting("Stay", false));
     protected final Setting<Float> soft =
@@ -118,6 +129,8 @@ public class KillAura extends EntityTypeModule
             new RotationSmoother(Managers.ROTATION);
     protected final DiscreteTimer timer =
             new GuardTimer();
+
+    protected final StopWatch targetTimer = new StopWatch();
 
     protected boolean isTeleporting;
     protected boolean isAttacking;
@@ -188,15 +201,14 @@ public class KillAura extends EntityTypeModule
     public boolean isValid(Entity entity)
     {
         if (entity == null
-                || mc.player.getDistanceSq(entity)
-                    > MathUtil.square(targetRange.getValue())
+                || mc.player.getDistanceSq(entity) > MathUtil.square(targetRange.getValue())
                 || EntityUtil.isDead(entity)
                 || entity.equals(mc.player)
                 || entity.equals(mc.player.getRidingEntity())
                 || entity instanceof EntityPlayer
-                    && Managers.FRIENDS.contains((EntityPlayer) entity)
+                && Managers.FRIENDS.contains((EntityPlayer) entity)
                 || !passengers.getValue()
-                    && mc.player.getPassengers().contains(entity)
+                && mc.player.getPassengers().contains(entity)
                 || entity instanceof EntityExpBottle
                 || entity instanceof EntityItem
                 || entity instanceof EntityArrow
@@ -205,14 +217,29 @@ public class KillAura extends EntityTypeModule
             return false;
         }
 
+        this.targetTimer.reset();
         return super.isValid(entity);
     }
 
     public Entity getTarget()
     {
+        if (targetTimer.passed(1000))
+        {
+            target = null;
+        }
         return target;
     }
 
+    public EntityPlayer getPlayerTarget()
+    {
+        if (targetTimer.passed(1000))
+            target = null;
+
+        if(target instanceof EntityPlayer)
+            return (EntityPlayer) target;
+
+        return null;
+    }
     protected Entity findTarget()
     {
         // TODO: make this better!

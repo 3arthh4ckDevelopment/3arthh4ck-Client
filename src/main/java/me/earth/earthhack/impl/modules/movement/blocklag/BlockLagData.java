@@ -11,6 +11,14 @@ final class BlockLagData extends DefaultData<BlockLag>
                 "V-clips the specified amount down to cause a lagback." +
                         " Don't touch, 9 should be perfect.\n" +
                         "For modes Constant and Smart.");
+        register(module.offsetMode, "Mode for offsets BlockLag should use.\n" +
+                "- Constant : \n" +
+                "- Smart : \n" +
+                "- Bypass : Made for use in primarily Crystalpvp.cc, uses regular BlockLag offsets" +
+                " but pairs it with Blink and Timer to allow for a functional BlockLag.\n" +
+                "- SmartNew : Made by xyzbtw, especially useful for 9b9t and 0b0t. Configurable " +
+                "from page Smart.");
+
 
 
         register(module.timerAmount, "What the timer should be set to.");

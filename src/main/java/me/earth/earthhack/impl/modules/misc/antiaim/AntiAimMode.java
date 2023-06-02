@@ -6,7 +6,8 @@ public enum AntiAimMode
     Spin,
     Down,
     Horizontal,
-    Headbang,
+    HeadBang,
     Constant,
-    Flip
+    Flip,
+    ViewLock
 }

@@ -3,11 +3,14 @@ package me.earth.earthhack.impl.modules.misc.chat;
 import io.netty.util.internal.ConcurrentSet;
 import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Category;
+import me.earth.earthhack.api.setting.Complexity;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.*;
+import me.earth.earthhack.impl.Earthhack;
 import me.earth.earthhack.impl.event.events.render.ChatEvent;
 import me.earth.earthhack.impl.managers.thread.scheduler.Scheduler;
 import me.earth.earthhack.impl.modules.misc.chat.util.LoggerMode;
+import me.earth.earthhack.impl.modules.misc.chat.util.SuffixMode;
 import me.earth.earthhack.impl.util.animation.TimeAnimation;
 import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.misc.collections.CollectionUtil;
@@ -26,10 +29,10 @@ public class Chat extends Module
     // TODO: theres actually many more possible Lag messages???
     // TODO: Could we just preload the ResourceLocations in the FontRenderer?
     protected static final String LAG_MESSAGE =
-        "\u0101\u0201\u0301\u0401\u0601\u0701\u0801\u0901\u0A01" +
+            "\u0101\u0201\u0301\u0401\u0601\u0701\u0801\u0901\u0A01" +
             "\u0B01\u0E01\u0F01\u1001\u1101\u1201\u1301\u1401\u1501" +
             "\u1601\u1701\u1801\u1901\u1A01\u1B01\u1C01\u1D01\u1E01" +
-            "\u1F01 \u2101\u2201\u2301\u2401\u2501\u2701\u2801\u2901" +
+            "\u1F01\u2101\u2201\u2301\u2401\u2501\u2701\u2801\u2901" +
             "\u2A01\u2B01\u2C01\u2D01\u2E01\u2F01\u3001\u3101\u3201" +
             "\u3301\u3401\u3501\u3601\u3701\u3801\u3901\u3A01\u3B01" +
             "\u3C01\u3D01\u3E01\u3F01\u4001\u4101\u4201\u4301\u4401" +
@@ -48,6 +51,15 @@ public class Chat extends Module
             "\uB101\uB201\uB301\uB401\uB501\uB601\uB701\uB801\uB901" +
             "\uBA01\uBB01\uBC01\uBD01";
 
+    public static final String EARTH = "\u00B3\u1D00\u0280\u1D1B\u029C\u029C\u2074\u1D04\u1D0B";
+    public static final String CUTEEARTH = "(\u3063\u25D4\u25E1\u25D4)\u3063 \u2665 3arthh4ck " + Earthhack.VERSION + " \u2665";
+    public static final String PHOBOS = "\u1D18\u029C\u1D0F\u0299\u1D0F\uA731";
+    public static final String RUSHER = "\u02B3\u1D58\u02E2\u02B0\u1D49\u02B3\u02B0\u1D43\u1D9C\u1D4F";
+    public static final String FUTURE = "\uA730\u1D1C\u1D1B\u1D1C\u0280\u1D07";
+    public static final String KONAS = "Konas owns me and all \u2022\u1D17\u2022";
+    public static final String GAMESENSE = "\u0262\u1D00\u1D0D\u1D07\uA731\u1D07\u0274\uA731\u1D07";
+    public static final String KAMIBLUE = "\u1D0B\u1D00\u1D0D\u026A \u0299\u029F\u1D1C\u1D07";
+
     protected final Setting<Boolean> noScroll =
             register(new BooleanSetting("AntiScroll", true));
     protected final Setting<Boolean> timeStamps =
@@ -58,6 +70,18 @@ public class Chat extends Module
             register(new NumberSetting<>("AnimationTime", 200, 1, 500));
     protected final Setting<Boolean> autoQMain =
             register(new BooleanSetting("AutoQMain", false));
+    protected final Setting<Boolean> kit =
+            register(new BooleanSetting("AutoKit", false));
+    protected final Setting<String> kitName =
+            register(new StringSetting("KitName", "1"));
+    public final Setting<Boolean> suffix =
+            register(new BooleanSetting("Suffix", false));
+    public final Setting<Boolean> suffixWhispers =
+            register(new BooleanSetting("SuffixWhispers", false));
+    protected final EnumSetting<SuffixMode> mode =
+            register(new EnumSetting<>("Mode", SuffixMode.Earth));
+    protected final StringSetting customSuffix =
+            register(new StringSetting("CustomSuffix", "3arthh4ck"));
     protected final Setting<Integer> qDelay =
             register(new NumberSetting<>("Q-Delay", 5000, 1, 10000));
     protected final Setting<String> message =
@@ -75,7 +99,9 @@ public class Chat extends Module
     protected final Queue<ChatEvent.Send> events = new ConcurrentLinkedQueue<>();
     public final Map<ChatLine, TimeAnimation> animationMap = new HashMap<>();
     protected final StopWatch popLagTimer = new StopWatch();
+    protected final StopWatch kitTimer = new StopWatch();
     protected final StopWatch timer = new StopWatch();
+    protected boolean needsKit = false;
     protected boolean cleared;
 
     public Chat()
@@ -86,6 +112,7 @@ public class Chat extends Module
         register(new ColorSetting("TimeStampsColor", Color.WHITE));
         register(new EnumSetting<>("Rainbow", Rainbow.Horizontal));
         this.listeners.add(new ListenerPacket(this));
+        this.listeners.add(new ListenerScreens(this));
         this.listeners.add(new ListenerGameLoop(this));
         this.listeners.add(new ListenerDisconnect(this));
         this.listeners.add(new ListenerChat(this));
@@ -93,6 +120,7 @@ public class Chat extends Module
         this.listeners.add(new ListenerChatLog(this));
         this.listeners.add(new ListenerPop(this));
         this.listeners.add(new ListenerLogout(this));
+        this.listeners.add(new ListenerChatMessage(this));
         this.noScroll.addObserver(event ->
         {
             if (!event.getValue())
@@ -101,13 +129,10 @@ public class Chat extends Module
             }
         });
 
-        register(new BooleanSetting("Clear", false)).addObserver(e ->
-        {
+        register(new BooleanSetting("Clear", false)).addObserver(e -> {
             e.setCancelled(true);
             if (mc.ingameGUI != null)
-            {
                 mc.ingameGUI.getChatGUI().clearChatMessages(true);
-            }
         });
 
         this.load.addObserver(e -> {
@@ -134,12 +159,10 @@ public class Chat extends Module
 
     public void clearNoScroll()
     {
-        if (mc.ingameGUI != null)
-        {
+        if (mc.ingameGUI != null) {
             CollectionUtil.emptyQueue(events, ChatEvent.Send::invoke);
         }
-        else
-        {
+        else {
             events.clear();
         }
 
@@ -147,3 +170,34 @@ public class Chat extends Module
     }
 
 }
+
+
+/*
+TESTING STUFF
+
+public String lagStrBuilder(int messageDim) {
+        Random r = new Random();
+        int random4 = r.nextInt(15);
+        int random3 = r.nextInt(15);
+
+        int num1 = 0, num2 = 1;
+        StringBuilder lagMessage = new StringBuilder();
+        for (int i = 0; i < messageDim; i++) {
+            lagMessage.append("\\u")
+                    .append(Integer.toHexString(num1))
+                    .append(Integer.toHexString(num2))
+                    .append(Integer.toHexString(random3))
+                    .append(Integer.toHexString(random4));
+
+            if (num2 >= 15) {
+                num2 = 0;
+                num1++;
+                if (num1 > 15)
+                    break;
+            } else {
+                num2++;
+            }
+        }
+        return String.valueOf(lagMessage);
+    }
+*/

@@ -24,7 +24,7 @@ public class XRay extends BlockAddingModule
             Caches.getModule(Fullbright.class);
 
     protected final Setting<XrayMode> mode =
-            register(new EnumSetting<>("Mode", XrayMode.Simple));
+            register(new EnumSetting<>("Mode", XrayMode.Opacity));
     protected final Setting<Boolean> soft =
             register(new BooleanSetting("Soft-Reload", false));
     protected final Setting<Integer> opacity =

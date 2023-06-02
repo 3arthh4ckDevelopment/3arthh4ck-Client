@@ -92,6 +92,32 @@ public abstract class MixinWorld implements IWorld
             method = "spawnParticle(Lnet/minecraft/util/EnumParticleTypes;DDDDDD[I)V",
             at = @At("HEAD"),
             cancellable = true)
+    public void spawnPotionParticleHook(EnumParticleTypes particleType,
+                                  double xCoord,
+                                  double yCoord,
+                                  double zCoord,
+                                  double xSpeed,
+                                  double ySpeed,
+                                  double zSpeed,
+                                  int[] parameters,
+                                  CallbackInfo ci)
+    {
+        if (NO_RENDER.isEnabled() && NO_RENDER.get().potion.getValue())
+        {
+            switch (particleType)
+            {
+                case SPELL_MOB:
+                case SPELL_MOB_AMBIENT:
+                    ci.cancel();
+                default:
+            }
+        }
+    }
+
+    @Inject(
+            method = "spawnParticle(Lnet/minecraft/util/EnumParticleTypes;DDDDDD[I)V",
+            at = @At("HEAD"),
+            cancellable = true)
     public void spawnParticleHook(EnumParticleTypes particleType,
                                    double xCoord,
                                    double yCoord,
@@ -112,6 +138,7 @@ public abstract class MixinWorld implements IWorld
                 case EXPLOSION_LARGE:
                 case EXPLOSION_HUGE:
                 case FIREWORKS_SPARK:
+                case SMOKE_NORMAL:
                     ci.cancel();
                 default:
             }

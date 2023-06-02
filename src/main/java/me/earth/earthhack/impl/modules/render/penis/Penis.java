@@ -20,9 +20,9 @@ import java.awt.*;
 
 public class Penis extends Module {
     protected final Setting<Float> selfLength =
-            register(new NumberSetting<>("SelfLength", 0.8f, 0.1f, 2.0f));
+            register(new NumberSetting<>("SelfLength", 0.8f, 0.1f, 50.0f));
     protected final Setting<Float> friendLength =
-            register(new NumberSetting<>("FriendLength", 0.8f, 0.1f, 2.0f));
+            register(new NumberSetting<>("FriendLength", 0.8f, 0.1f, 50.0f));
     protected final Setting<Float> enemyLength =
             register(new NumberSetting<>("EnemyLength", 0.4f, 0.1f, 2.0f));
     protected final Setting<Boolean> uncircumcised =

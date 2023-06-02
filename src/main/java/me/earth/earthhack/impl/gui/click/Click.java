@@ -17,6 +17,7 @@ import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.managers.client.ModuleManager;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.client.clickgui.ClickGui;
+import me.earth.earthhack.impl.modules.client.colors.Colors;
 import me.earth.earthhack.impl.modules.client.commands.Commands;
 import me.earth.earthhack.impl.util.render.Render2DUtil;
 import me.earth.earthhack.pingbypass.modules.SyncModule;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 
 public class Click extends GuiScreen {
     public static final ModuleCache<ClickGui> CLICK_GUI = Caches.getModule(ClickGui.class);
+    public static final ModuleCache<Colors> COLOR_MODULE = Caches.getModule(Colors.class);
 
     private static final SettingCache<Boolean, BooleanSetting, Commands> BACK =
             Caches.getSetting(Commands.class, BooleanSetting.class, "BackgroundGui", false);
@@ -66,8 +68,7 @@ public class Click extends GuiScreen {
     }
 
     public void init() {
-        if (!attached)
-        {
+        if (!attached) {
             CLICK_GUI.get().descriptionWidth.addObserver(e -> descriptionFrame.setWidth(e.getValue()));
             attached = true;
         }

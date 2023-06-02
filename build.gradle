@@ -163,7 +163,8 @@ jar {
             'TweakOrder': -999,
             'FMLCorePluginContainsFMLMod': 'true',
             'ForceLoadAsMod': 'true',
-            'Main-Class': mainClassName
+            'Main-Class': mainClassName,
+            'FMLAT' : 'earthhack_at.cfg'
         )
     }
 }

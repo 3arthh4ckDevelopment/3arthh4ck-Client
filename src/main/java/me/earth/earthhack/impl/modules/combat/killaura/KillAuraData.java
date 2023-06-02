@@ -28,6 +28,9 @@ final class KillAuraData extends EntityTypeData<KillAura>
         register(module.stopSprint, "Stops sprinting when attacking.");
         register(module.stopShield, "Hold rightclick to block.");
         register(module.whileEating, "Allows you to hit while eating.");
+        register(module.render, "Whether or not to render something on the targeted player.");
+        register(module.renderMode, "- Jello : Renders a circle moving up and down on the target. " +
+                " Code by slmpc for AutoCrystal - Target-Render.");
         register(module.stay, "Keeps rotations. " +
                 "Recommended when using Soft or Rotation-Ticks.");
         register(module.rotationTicks, "Ticks to stay rotated " +

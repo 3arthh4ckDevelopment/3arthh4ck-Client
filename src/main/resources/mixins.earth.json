@@ -147,6 +147,7 @@
     "gui.MixinGuiConnecting",
     "gui.MixinGuiIngameMenu",
     "render.MixinFramebuffer",
+    "render.MixinParticleTotem",
     "render.MixinProfile",
     "render.MixinTextureManager",
     "render.MixinTileEntityRendererDispatcher",

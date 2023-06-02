@@ -26,8 +26,6 @@ final class SurroundData extends ObbyData<Surround>
                 " surround to prevent people from stepping" +
                 " into your surround from underneath.");
         register(module.floor, "Places a block underneath you.");
-        register(module.antiCev, "Places blocks on top of you to prevent enemies from" +
-                " using CevBreak.");
         register(module.extend, "Extends the surround to include" +
                 " you when you stand in the middle of 2 or 4 blocks.");
         register(module.eDelay, "After you enable this module" +

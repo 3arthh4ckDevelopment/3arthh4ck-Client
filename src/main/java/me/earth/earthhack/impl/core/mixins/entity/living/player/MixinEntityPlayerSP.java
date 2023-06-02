@@ -11,7 +11,7 @@ import me.earth.earthhack.impl.event.events.movement.BlockPushEvent;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.events.network.PreMotionUpdateEvent;
 import me.earth.earthhack.impl.modules.Caches;
-import me.earth.earthhack.impl.modules.client.rotationbypass.Compatibility;
+import me.earth.earthhack.impl.modules.client.compatibility.Compatibility;
 import me.earth.earthhack.impl.modules.misc.portals.Portals;
 import me.earth.earthhack.impl.modules.movement.autosprint.AutoSprint;
 import me.earth.earthhack.impl.modules.movement.autosprint.mode.SprintMode;

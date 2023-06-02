@@ -61,7 +61,7 @@ public class AutoArmor extends Module
             Caches.getModule(ExpTweaks.class);
     private static final ModuleCache<XCarry> XCARRY =
             Caches.getModule(XCarry.class);
-    private static final ModuleCache<Suicide> AUTOKYS =
+    private static final ModuleCache<Suicide> SUICIDE =
             Caches.getModule(Suicide.class);
 
     protected final Setting<ArmorMode> mode =
@@ -415,7 +415,7 @@ public class AutoArmor extends Module
      */
     boolean canAutoMend()
     {
-        if (AUTOKYS.returnIfPresent(Suicide::shouldTakeOffArmor, false))
+        if (SUICIDE.returnIfPresent(Suicide::shouldTakeOffArmor, false))
         {
             return takeOffLoot.getValue()
                     || mc.world

@@ -181,4 +181,9 @@ public class PlayerUtil implements Globals {
         return null;
     }
 
+    public static BlockPos getPlayerPos() {
+        assert mc.player != null;
+        return new BlockPos(Math.floor(mc.player.posX), Math.floor(mc.player.posY), Math.floor(mc.player.posZ));
+    }
+
 }

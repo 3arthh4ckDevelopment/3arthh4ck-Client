@@ -37,7 +37,6 @@ public abstract class Module extends SettingContainer
     protected final List<Listener<?>> listeners = new ArrayList<>();
     private final AtomicBoolean enableCheck = new AtomicBoolean();
     private final AtomicBoolean inOnEnable  = new AtomicBoolean();
-    boolean hiddenState;
     boolean registered;
 
     private final Setting<String> name;
@@ -63,8 +62,7 @@ public abstract class Module extends SettingContainer
      * @param name the name for the new module.
      * @param category the category of the new module.
      */
-    public Module(String name, Category category)
-    {
+    public Module(String name, Category category) {
         this.name = register(new StringSetting("Name", name))
             .setComplexity(Complexity.Medium);
         this.category = category;
@@ -74,18 +72,14 @@ public abstract class Module extends SettingContainer
 
     protected void onEnabledEvent(SettingEvent<Boolean> event) {
         if (event.isCancelled())
-        {
             return;
-        }
 
         enableCheck.set(event.getValue());
-        if (event.getValue() && !Bus.EVENT_BUS.isSubscribed(this))
-        {
+        if (event.getValue() && !Bus.EVENT_BUS.isSubscribed(this)) {
             inOnEnable.set(true);
             onEnable();
             inOnEnable.set(false);
-            if (enableCheck.get())
-            {
+            if (enableCheck.get()) {
                 Bus.EVENT_BUS.subscribe(this);
             }
         }
@@ -122,38 +116,25 @@ public abstract class Module extends SettingContainer
         this.name.setValue(name);
     }
 
-    public final void toggle()
-    {
+    public final void toggle() {
         if (isEnabled())
-        {
             disable();
-        }
         else
-        {
             enable();
-        }
     }
 
-    public final void enable()
-    {
+    public final void enable() {
         if (!isEnabled())
-        {
             enabled.setValue(true);
-        }
     }
 
-    public final void disable()
-    {
+    public final void disable() {
         if (isEnabled())
-        {
             enabled.setValue(false);
-        }
     }
 
-    public final void load()
-    {
-        if (this.isEnabled() && !Bus.EVENT_BUS.isSubscribed(this))
-        {
+    public final void load() {
+        if (this.isEnabled() && !Bus.EVENT_BUS.isSubscribed(this)) {
             Bus.EVENT_BUS.subscribe(this);
         }
 
@@ -191,12 +172,9 @@ public abstract class Module extends SettingContainer
         return data;
     }
 
-    public void setData(ModuleData<?> data)
-    {
+    public void setData(ModuleData<?> data) {
         if (data != null)
-        {
             this.data = data;
-        }
     }
     /**
      *
@@ -249,13 +227,6 @@ public abstract class Module extends SettingContainer
     {
         /* Implemented by the module */
     }
-    /**
-     *
-     * @return whether the module is hidden completely or not.
-     */
-    public boolean getHiddenState(){
-        return hiddenState;
-    }
 
     public boolean isRegistered() {
         return registered;
@@ -265,15 +236,7 @@ public abstract class Module extends SettingContainer
         registered = value;
     }
 
-    /**
-     *
-     * @param value - The value (boolean) we should assign to the HiddenState.
-     *              true = The module is hidden, and won't be visible in the ClickGUI or Arraylist.
-     *              false = The module is visible, and visible in the ClickGUI and Arraylist, if the module hasn't been specifically hidden from the Arraylist.
-     */
-    public void setHiddenState(boolean value){
-        hiddenState = value;
-    }
+
     /**
      *
      * @return the listeners the module is using.
@@ -295,12 +258,10 @@ public abstract class Module extends SettingContainer
     @Override
     public boolean equals(Object o)
     {
-        if (o == this)
-        {
+        if (o == this) {
             return true;
         }
-        else if (o instanceof Module)
-        {
+        else if (o instanceof Module) {
             String name = this.name.getInitial();
             return name != null && name.equals(((Module) o).name.getInitial()) && this.getClass() == o.getClass();
         }

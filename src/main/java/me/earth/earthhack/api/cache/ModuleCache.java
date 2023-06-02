@@ -119,6 +119,19 @@ public class ModuleCache<T extends Module> extends Cache<T>
     }
 
     /**
+     * @return {@link Module#getDisplayName()}, if present.
+     */
+    public String getDisplayName()
+    {
+        if (isPresent())
+        {
+            return get().getDisplayName();
+        }
+
+        return null;
+    }
+
+    /**
      * @return {@link Module#getDisplayInfo()}, if present.
      */
     public String getDisplayInfo()

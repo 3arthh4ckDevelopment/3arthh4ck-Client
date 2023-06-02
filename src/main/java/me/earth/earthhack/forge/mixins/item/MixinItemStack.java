@@ -2,7 +2,7 @@ package me.earth.earthhack.forge.mixins.item;
 
 import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.impl.modules.Caches;
-import me.earth.earthhack.impl.modules.misc.truedurability.TrueDurability;
+import me.earth.earthhack.impl.modules.player.truedurability.TrueDurability;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

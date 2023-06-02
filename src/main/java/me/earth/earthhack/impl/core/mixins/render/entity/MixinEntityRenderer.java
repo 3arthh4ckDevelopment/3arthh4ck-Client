@@ -79,6 +79,8 @@ public abstract class MixinEntityRenderer implements IEntityRenderer {
             RAYTRACE = Caches.getModule(RayTrace.class);
     private static final ModuleCache<Spectate>
             SPECTATE = Caches.getModule(Spectate.class);
+    private static final ModuleCache<Management>
+            MANAGEMENT = Caches.getModule(Management.class);
     private static final ModuleCache<Ambience> 
             AMBIENCE = Caches.getModule(Ambience.class);
 
@@ -522,10 +524,10 @@ public abstract class MixinEntityRenderer implements IEntityRenderer {
     // Maybe modifyArgs in the future to reduce the amount of calls?
     @Inject(method = "setupFogColor", at = @At("HEAD"), cancellable = true)
     public void setupFogColoHook(boolean black, CallbackInfo ci) {
-        if (AMBIENCE.get().isUsingCustomFogColor())
+        if (MANAGEMENT.get().isUsingCustomFogColor())
         {
             ci.cancel();
-            Color fogColor = AMBIENCE.get().getCustomFogColor();
+            Color fogColor = MANAGEMENT.get().getCustomFogColor();
             GlStateManager.glFog(2918, setFogColorBuffer(fogColor.getRed() / 255.0f, fogColor.getGreen() / 255.0f, fogColor.getBlue() / 255.0f, fogColor.getAlpha() / 255.0f));
         }
     }
