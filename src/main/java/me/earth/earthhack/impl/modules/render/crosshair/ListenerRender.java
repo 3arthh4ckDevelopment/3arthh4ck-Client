@@ -33,11 +33,6 @@ final class ListenerRender extends ModuleListener<CrossHair, Render2DEvent> {
         super(module, Render2DEvent.class);
     }
 
-    boolean info = module.info.getValue();
-    boolean hudSync = module.hudSync.getValue();
-    float textHeight = Managers.TEXT.getStringHeight();
-    final ModuleCache<HUD> HUD = Caches.getModule(HUD.class);
-
     @Override
     public void invoke(Render2DEvent event) {
         final int screenMiddleX = event.getResolution().getScaledWidth() / 2;
@@ -100,10 +95,14 @@ final class ListenerRender extends ModuleListener<CrossHair, Render2DEvent> {
 
 
     private int renderModule(ModuleCache<?> setting, int screenMiddleX, int screenMiddleY, int offset) {
+        boolean info = module.info.getValue();
+        boolean hudSync = module.hudSync.getValue();
+        float textHeight = Managers.TEXT.getStringHeight();
+        final ModuleCache<HUD> HUD = Caches.getModule(HUD.class);
         if (setting.isEnabled()) {
             if (hudSync) {
                 String colorCode = HUD.get().colorMode.getValue().getColor();
-                RENDERER.drawStringWithShadow(colorCode + setting.getDisplayName() + (info && setting.getDisplayInfo() != null ? TextColor.GRAY + " [" + setting.getDisplayInfo() +TextColor.GRAY + "]" : ""),
+                RENDERER.drawStringWithShadow(colorCode + setting.getDisplayName() + (info && setting.getDisplayInfo() != null ? TextColor.GRAY + " [" + TextColor.WHITE + setting.getDisplayInfo() +TextColor.GRAY + "]" : ""),
                         rescaleTextX(setting, screenMiddleX, info), (screenMiddleY + offset) / module.scale.getValue(),
                         HUD.get().colorMode.getValue() == HudRainbow.None
                                 ? HUD.get().color.getValue().getRGB()
@@ -111,7 +110,7 @@ final class ListenerRender extends ModuleListener<CrossHair, Render2DEvent> {
 
             } else {
                 Managers.TEXT.drawStringWithShadow(
-                        setting.getDisplayName() + (info && setting.getDisplayInfo() != null ? TextColor.GRAY + " [" + setting.getDisplayInfo() + TextColor.GRAY + "]" : ""),
+                        setting.getDisplayName() + (info && setting.getDisplayInfo() != null ? TextColor.GRAY + " [" + TextColor.WHITE + setting.getDisplayInfo() + TextColor.GRAY + "]" : ""),
                         rescaleTextX(setting, screenMiddleX, info),
                         (screenMiddleY + offset) / module.scale.getValue(),
                         module.PvpInfoColor.getValue().getRGB());

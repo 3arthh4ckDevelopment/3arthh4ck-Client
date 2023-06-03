@@ -42,6 +42,8 @@ public class CrossHair extends Module
             register(new NumberSetting<>("Dot-radius", 1.5f, 0.3f, 5.0f));
     protected final Setting<GapMode> gapMode =
             register(new EnumSetting<>("Gap-Mode", GapMode.Normal));
+    protected final Setting<Float> gapSize =
+            register(new NumberSetting<>("Gap-Size", 2.0f, 0.5f, 20.0f));
 
     protected final Setting<Color> color =
             register(new ColorSetting("CrossHair-Color", new Color(190,60,190)));
@@ -51,8 +53,6 @@ public class CrossHair extends Module
             register(new NumberSetting<>("Length", 5.5f, 0.5f, 50.0f));
     protected final Setting<Float> width =
             register(new NumberSetting<>("Width", 0.5f, 0.1f, 10.0f));
-    protected final Setting<Float> gapSize =
-            register(new NumberSetting<>("Gap-Size", 2.0f, 0.5f, 20.0f));
     /* ---------------- PvpInfo Settings -------------- */
     protected final Setting<Boolean> pvpInfo =
             register(new BooleanSetting("PvpInfo", false));

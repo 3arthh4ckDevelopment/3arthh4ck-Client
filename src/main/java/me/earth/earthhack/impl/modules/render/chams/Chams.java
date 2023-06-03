@@ -93,7 +93,7 @@ public class Chams extends Module
     protected final Setting<Float> noClusterRange =
             register(new NumberSetting<>("noClusterRange", 2.5f, 1.0f, 10.0f));
     protected final Setting<Float> noClusterMinA =
-            register(new NumberSetting<>("noClusterMinAlpha", 30.0f, 0.0f, 200.0f));
+            register(new NumberSetting<>("noClusterMinAlpha", 30.0f, 1.0f, 180.0f));
 
     protected boolean force;
     protected boolean hasImageChammed;
@@ -268,10 +268,10 @@ public class Chams extends Module
         if (entity.getDistance(mc.player) < noClusterRange.getValue() && noCluster.getValue() && entity != mc.player) {
             float maxDistance = noClusterRange.getValue();
             float playerDistance = entity.getDistance(mc.player);
-            float range = setting.getValue().getAlpha() - (255 - noClusterMinA.getValue());
+            float range = setting.getValue().getAlpha();
 
             float normalizedDistance = Math.max(0, Math.min(1, playerDistance / maxDistance)); // normalizing the distance between 0 and 1
-            int value = (int) (25 + range * normalizedDistance);
+            int value = (int) (noClusterMinA.getValue() + range * normalizedDistance);
 
             return new Color(setting.getValue().getRed(), setting.getValue().getGreen(), setting.getValue().getBlue(), value);
         } else {

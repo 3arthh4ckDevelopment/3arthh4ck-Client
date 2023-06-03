@@ -30,6 +30,7 @@ import me.earth.earthhack.pingbypass.modules.PbModule;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -41,6 +42,7 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -130,15 +132,15 @@ public class HUD extends Module {
     protected final Setting<Boolean> image =
             register(new BooleanSetting("Image", false));
     protected final Setting<NameableImage> imageName   =
-            register(new ListSetting<>("ImgName", Managers.FILES.getInitialImage(), Managers.FILES.getImages()));
+            register(new ListSetting<>("ImgName", Managers.FILES.getInitialImage(), Managers.FILES.getImages())).setComplexity(Complexity.Dev);
     protected final Setting<Float> imageScale =
-            register(new NumberSetting<>("ImgScale", 1.0f, 0.0f, 30.0f));
+            register(new NumberSetting<>("ImgScale", 1.0f, 0.0f, 30.0f)).setComplexity(Complexity.Dev);
     protected final Setting<Float> imageX =
-            register(new NumberSetting<>("ImgX", 0.5f,0.0f,1.0f));
+            register(new NumberSetting<>("ImgX", 0.5f,0.0f,1.0f)).setComplexity(Complexity.Dev);
     protected final Setting<Float> imageY =
-            register(new NumberSetting<>("ImgY", 0.5f,0.0f,1.0f));
+            register(new NumberSetting<>("ImgY", 0.5f,0.0f,1.0f)).setComplexity(Complexity.Dev);
     protected final Setting<Boolean> reloadImages =
-            register(new BooleanSetting("RealoadImages", false));
+            register(new BooleanSetting("RealoadImages", false)).setComplexity(Complexity.Dev);
 
     protected final List<Map.Entry<String, Module>> modules = new ArrayList<>();
 
@@ -250,11 +252,12 @@ public class HUD extends Module {
             float x = imageX.getValue() * Render2DUtil.CSWidth();
             float y = imageY.getValue() * Render2DUtil.CSHeight();
             GL11.glPushMatrix();
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, imageName.getValue().getTexture().getGlTextureId());
-            Render2DUtil.drawCompleteImage(x, y, -100.0f, -100.0f);
+            Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation("earthhack/images" + imageName.getValue().getTexture().getClass().getName()));
+            Gui.drawScaledCustomSizeModalRect(30, 30, 0, 0, 30, 30, 30, 30, 30, 30);
             GL11.glPopMatrix();
         }
     }
+    //TODO: fix the rendering
 
     protected void renderModules() {
         int offset = 0;
