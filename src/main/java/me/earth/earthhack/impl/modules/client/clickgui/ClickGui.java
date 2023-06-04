@@ -20,11 +20,11 @@ public class ClickGui extends Module
     public final Setting<Float> guiScale =
             register(new NumberSetting<>("Scale", 1.0f, 0.1f, 2.0f)); //TODO : better way of doing this
     public final Setting<Color> color =
-            register(new ColorSetting("Color", new Color(0, 80, 255)));
+            register(new ColorSetting("Color", new Color(0, 80, 255, 255)));
     public final Setting<Boolean> catEars =
             register(new BooleanSetting("CatEars", false));
     public final Setting<Integer> scrollSpeed =
-            register(new NumberSetting<>("Scroll-speed", 5, 1, 200));
+            register(new NumberSetting<>("ScrollSpeed", 80, 1, 200));
     public final Setting<Boolean> blur =
             register(new BooleanSetting("OldBlur", false));
     public final Setting<Boolean> newBlur =

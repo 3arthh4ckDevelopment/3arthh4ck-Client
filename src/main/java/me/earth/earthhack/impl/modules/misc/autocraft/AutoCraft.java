@@ -21,6 +21,9 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+//TODO: fix it/rewrite
+// module is now deactivated
+
 public class AutoCraft extends BlockPlacingModule
 {
     protected final Setting<Integer> delay =

@@ -9,7 +9,7 @@ import me.earth.earthhack.impl.core.ducks.network.IPlayerControllerMP;
 import me.earth.earthhack.impl.event.events.misc.*;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
-import me.earth.earthhack.impl.modules.misc.tpssync.TpsSync;
+import me.earth.earthhack.impl.modules.player.tpssync.TpsSync;
 import me.earth.earthhack.impl.util.thread.Locks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;

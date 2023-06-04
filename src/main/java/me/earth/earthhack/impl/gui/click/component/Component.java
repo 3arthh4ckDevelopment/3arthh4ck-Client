@@ -3,6 +3,7 @@ package me.earth.earthhack.impl.gui.click.component;
 import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.impl.gui.click.Click;
 import me.earth.earthhack.impl.modules.client.clickgui.ClickGui;
+import me.earth.earthhack.impl.modules.client.colors.Colors;
 import me.earth.earthhack.impl.util.render.RenderUtil;
 
 import java.util.function.Supplier;
@@ -155,6 +156,9 @@ public class Component {
 
     public static ModuleCache<ClickGui> getClickGui() {
         return Click.CLICK_GUI;
+    }
+    public static ModuleCache<Colors> getColor() {
+        return Click.COLOR_MODULE;
     }
 
     public void setWidth(float width) {

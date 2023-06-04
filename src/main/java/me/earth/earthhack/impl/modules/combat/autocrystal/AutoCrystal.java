@@ -394,13 +394,16 @@ public class AutoCrystal extends Module
     /* ---------------- FacePlace and ArmorPlace -------------- */
     protected final Setting<Boolean> holdFacePlace =
             register(new BooleanSetting("HoldFacePlace", false));
+    protected final Setting<Bind> holdFacePlaceKey =
+            register(new BindSetting("HoldFacePlaceBind", Bind.none())
+                .setComplexity(Complexity.Medium));
     protected final Setting<Float> facePlace =
-            register(new NumberSetting<>("FacePlace", 10.0f, 0.0f, 36.0f));
+            register(new NumberSetting<>("FacePlace", 5.0f, 0.0f, 36.0f));
     protected final Setting<Float> minFaceDmg =
             register(new NumberSetting<>("Min-FP", 2.0f, 0.0f, 5.0f))
                 .setComplexity(Complexity.Medium);
     protected final Setting<Float> armorPlace =
-            register(new NumberSetting<>("ArmorPlace", 5.0f, 0.0f, 100.0f))
+            register(new NumberSetting<>("ArmorPlace", 5.0f, -10.0f, 100.0f))
                 .setComplexity(Complexity.Medium);
     protected final Setting<Boolean> pickAxeHold =
             register(new BooleanSetting("PickAxe-Hold", false))
@@ -471,10 +474,6 @@ public class AutoCrystal extends Module
     protected final Setting<Boolean> box =
             register(new BooleanSetting("Draw-Box", true))
                 .setComplexity(Complexity.Medium);
-    protected final Setting<Boolean> targetRender =
-            register(new BooleanSetting("Target-Render", true));
-    protected final Setting<Color> jelloColor =
-            register(new ColorSetting("Jello", new Color(255, 255, 255, 255)));
     protected final Setting<Color> boxColor =
             register(new ColorSetting("Box", new Color(255, 255, 255, 120)));
     protected final Setting<Color> outLine =
@@ -515,6 +514,10 @@ public class AutoCrystal extends Module
     protected final Setting<Boolean> multiZoom =
             register(new BooleanSetting("Multi-Zoom", false))
                 .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> jelloRender =
+            register(new BooleanSetting("JelloRender", false));
+    protected final Setting<Color> jelloColor =
+            register(new ColorSetting("Jello", new Color(255, 255, 255, 255)));
     protected final Setting<Boolean> renderExtrapolation =
             register(new BooleanSetting("RenderExtrapolation", false))
                 .setComplexity(Complexity.Expert);
@@ -1337,14 +1340,18 @@ public class AutoCrystal extends Module
      */
     public float getMinDamage()
     {
+        int bind = holdFacePlaceKey.getValue().getKey();
+        if (bind == Bind.none().getKey())
+            bind = 0;
+
         // We could also check if we are mining webs with our sword.
         return holdFacePlace.getValue()
                 && mc.currentScreen == null
-                && Mouse.isButtonDown(0)
-                && (!(mc.player.getHeldItemMainhand().getItem()
-                            instanceof ItemPickaxe)
-                    || pickAxeHold.getValue())
-                || dangerFacePlace.getValue() && !Managers.SAFETY.isSafe()
+                && Mouse.isButtonDown(bind)
+                && (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemPickaxe)
+                || pickAxeHold.getValue())
+                || dangerFacePlace.getValue()
+                && !Managers.SAFETY.isSafe()
                         ? minFaceDmg.getValue()
                         : minDamage.getValue();
     }

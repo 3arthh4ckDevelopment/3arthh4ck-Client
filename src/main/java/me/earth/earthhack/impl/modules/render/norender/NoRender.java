@@ -49,6 +49,8 @@ public class NoRender extends Module
             register(new BooleanSetting("BossHealth", true));
     public final Setting<Boolean> explosions         =
             register(new BooleanSetting("Explosions", true));
+    public final Setting<Boolean> potion         =
+            register(new BooleanSetting("Potions", true));
     public final Setting<Boolean> defaultBackGround  =
             register(new BooleanSetting("DefaultGuiBackGround", false));
     protected final Setting<Boolean> items =

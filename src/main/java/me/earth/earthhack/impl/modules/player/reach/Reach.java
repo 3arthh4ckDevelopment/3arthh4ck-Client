@@ -8,9 +8,9 @@ import me.earth.earthhack.impl.util.client.SimpleData;
 
 public class Reach extends Module
 {
-    protected final Setting<Float> reach  =
+    public final Setting<Float> reach  =
             register(new NumberSetting<>("Add", 1.5f, 0.0f, 6.0f));
-    protected final Setting<Float> hitBox =
+    public final Setting<Float> hitBox =
             register(new NumberSetting<>("HitBox", 0.0f, 0.0f, 6.0f));
 
     public Reach()

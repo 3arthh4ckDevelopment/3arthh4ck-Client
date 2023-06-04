@@ -44,23 +44,17 @@ final class ListenerJoin extends ModuleListener<LogoutSpots, ConnectionEvent.Joi
             else
             {
                 EntityPlayer player = event.getPlayer();
-                if (player != null)
-                {
+                if (player != null) {
                     text = TextColor.YELLOW + player.getName() + TextColor.GREEN + " just joined at: %sx, %sy, %sz!";
                     text = String.format(text, MathUtil.round(player.posX, 1),
-                                               MathUtil.round(player.posY, 1),
-                                               MathUtil.round(player.posZ, 1));
+                            MathUtil.round(player.posY, 1),
+                            MathUtil.round(player.posZ, 1));
+                    if (module.message.getValue() != MessageMode.Render) {
+                        text = TextColor.YELLOW + event.getName() + TextColor.GREEN + " just joined.";
+                    }
                 }
-                else if (module.message.getValue() != MessageMode.Render)
-                {
-                    text = TextColor.YELLOW + event.getName() + TextColor.GREEN + " just joined.";
-                }
-                else
-                {
-                    return;
-                }
+                else { return; }
             }
-
             Managers.CHAT.sendDeleteMessageScheduled(text, event.getUuid().toString(), ChatIDs.MODULE);
         }
     }

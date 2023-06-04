@@ -22,6 +22,7 @@ import me.earth.earthhack.impl.util.math.position.PositionUtil;
 import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
 import me.earth.earthhack.impl.util.minecraft.Swing;
 import me.earth.earthhack.impl.util.network.NetworkUtil;
+import me.earth.earthhack.impl.util.text.ChatIDs;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -43,7 +44,7 @@ public class BlockLag extends DisablingModule
     protected final Setting<OffsetMode> offsetMode =
             register(new EnumSetting<>("Mode", OffsetMode.Smart));
     protected final Setting<Double> vClip =
-            register(new NumberSetting<>("V-Clip", -9.0, -256.0, 256.0));
+            register(new NumberSetting<>("V-Clip", -9.0, -20.0, 20.0)); // old one was 256 range
     protected final Setting<Double> minDown =
             register(new NumberSetting<>("Min-Down", 3.0, 0.0, 1337.0));
     protected final Setting<Double> maxDown =
@@ -142,6 +143,20 @@ public class BlockLag extends DisablingModule
             register(new BooleanSetting("UseTimer", false));
     protected final Setting<Float> timerAmount =
             register(new NumberSetting<>("Timer-Speed", 6.0f, 0.1f, 30.0f));
+    // --------------- NEW SMART --------------- //
+    protected final Setting<Float> smartRange =
+            register(new NumberSetting<>("Range", 3.0f, 0.0f, 10.0f));
+    protected  final Setting<Boolean> turnoff =
+            register(new BooleanSetting("Auto-Off", false));
+    protected  final Setting<Boolean> holeOnly =
+            register(new BooleanSetting("OnlyHoles", false));
+    protected  final Setting<Boolean> onTeleport =
+            register(new BooleanSetting("OnTeleport", false));
+    protected  final Setting<Boolean> chorusDisable =
+            register(new BooleanSetting("DisableTP", false));
+    protected final Setting<Integer> smartDelay =
+            register(new NumberSetting<>("Delay", 100, 0, 1000));
+
 
     protected final StopWatch scaleTimer = new StopWatch();
     protected final StopWatch timer = new StopWatch();
@@ -149,11 +164,24 @@ public class BlockLag extends DisablingModule
     protected final StopWatch jumpTimer = new StopWatch();
     protected double motionY;
     protected BlockPos startPos;
+
+    // Implemented for mode SmartNew by xyzbtw
+    protected final StopWatch delayTimer = new StopWatch();
+    public boolean blockTeleporting;
+    protected boolean ateChorus = false;
+
+    protected EntityPlayer target;
+    protected BlockPos pos;
+
     public BlockLag()
     {
         super("BlockLag", Category.Movement);
         this.setData(new BlockLagData(this));
         this.listeners.add(new ListenerMotion(this));
+
+        this.listeners.add(new ListenerTick(this));
+        this.listeners.add(new ListenerTeleport(this));
+        this.listeners.add(new ListenerEat(this));
 
         Bus.EVENT_BUS.register(new ListenerVelocity(this));
         Bus.EVENT_BUS.register(new ListenerExplosion(this));
@@ -165,12 +193,25 @@ public class BlockLag extends DisablingModule
             .addPage(v -> v == BlockLagPages.Attack, attack, cooldown)
             .addPage(v -> v == BlockLagPages.Scale, scaleExplosion, scaleFactor)
             .addPage(v -> v == BlockLagPages.Bypass, motionAmount, timerAmount)
+            .addPage(v -> v == BlockLagPages.Smart, smartRange, smartDelay)
             .register(Visibilities.VISIBILITY_MANAGER);
     }
 
     @Override
     protected void onEnable()
     {
+        if(offsetMode.getValue() == OffsetMode.SmartNew)
+        {
+            delayTimer.setTime(0);
+
+            if(mc.isSingleplayer()) {
+                Managers.CHAT.sendDeleteMessage("You cannot use BlockLag with mode SmartNew in local worlds. Sorry!", getName(), ChatIDs.MODULE);
+                this.disable();
+            }
+            target = null;
+        }
+
+
         timer.setTime(0);
         jumpTimer.reset();
         blinkTimer.reset();
@@ -187,10 +228,9 @@ public class BlockLag extends DisablingModule
 
         startPos = getPlayerPos();
         if (singlePlayerCheck(startPos))
-        {
             this.disable();
-        }
     }
+
 
 
 
@@ -342,6 +382,7 @@ public class BlockLag extends DisablingModule
 
     protected void onDisable(){
         super.onDisable();
+        ateChorus = false;
         Managers.TIMER.setTimer(1);
         blinkTimer.reset();
         jumpTimer.reset();

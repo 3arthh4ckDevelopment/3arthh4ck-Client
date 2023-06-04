@@ -8,10 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.client.shader.ShaderGroup;
@@ -19,7 +17,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
@@ -32,6 +29,8 @@ import java.awt.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import static me.earth.earthhack.impl.modules.client.hud.HUD.RENDERER;
+
 public class Render2DUtil implements Globals {
     protected static ShaderGroup blurShader;
     protected static float zLevel;
@@ -41,6 +40,10 @@ public class Render2DUtil implements Globals {
     protected static int lastScaleHeight;
     protected static final ResourceLocation shader = new ResourceLocation("earthhack:shaders/blur.json");
     protected static final StopWatch timer = new StopWatch();
+
+    public static int CGScale() {return Minecraft.getMinecraft().gameSettings.guiScale;}
+    public static int CSWidth() {return Minecraft.getMinecraft().displayWidth;}
+    public static int CSHeight() {return Minecraft.getMinecraft().displayHeight;}
 
 
     public static Vec3d to2D(double x, double y, double z) {
@@ -82,7 +85,7 @@ public class Render2DUtil implements Globals {
         ((IShaderGroup) blurShader).getListShaders().get(1).getShaderManager().getShaderUniform("BlurDir").set(blurHeight, blurWidth);
     }
 
-    public static void drawBlurryRect(float x, float y, float x1, float y1, int intensity, int size) {
+    public static void drawBlurryRect(float x, float y, float x1, float y1, int intensity, float size) {
         drawRect(
                 (int) x,
                 (int) y,
@@ -94,8 +97,8 @@ public class Render2DUtil implements Globals {
                 (int) x1 - (int) x,
                 (int) y1 - (int) y,
                 intensity, size, size);
-
     }
+
 
     public static void drawRect(float startX, float startY, float endX, float endY, int color) {
         float alpha = (float) (color >> 24 & 255) / 255.0F;
@@ -181,12 +184,90 @@ public class Render2DUtil implements Globals {
         GlStateManager.popMatrix();
     }
 
+    public static void drawQuarterCircle(float x, float y, float radius, int color, int position) {
+        float alpha = (float) (color >> 24 & 255) / 255.0F;
+        float red = (float) (color >> 16 & 255) / 255.0F;
+        float green = (float) (color >> 8 & 255) / 255.0F;
+        float blue = (float) (color & 255) / 255.0F;
+
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder bufferbuilder = tessellator.getBuffer();
+
+        double angle = 90;
+
+        GlStateManager.pushMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GL11.glColor4f(red, green, blue, alpha);
+        GL11.glBegin(GL11.GL_POLYGON);
+        for (double i = angle * (position - 1); i < angle * (position - 1) + 90; i += 0.5) {
+            GL11.glVertex2d(x + Math.sin(i * 3.141593 / 180.0) * (double) radius, y + Math.cos(i * 3.141593 / 180.0) * (double) radius);
+        }
+        GL11.glEnd();
+
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        bufferbuilder.begin(5, DefaultVertexFormats.POSITION_COLOR);
+
+        if (position == 1) {
+            bufferbuilder.pos(x, y + radius, 0.0D).color(red, green, blue, alpha).endVertex();
+            bufferbuilder.pos(x + radius, y, 0.0D).color(red, green, blue, alpha).endVertex();
+            bufferbuilder.pos(x, y, 0.0D).color(red, green, blue, alpha).endVertex();
+        }
+        else if (position == 2) {
+            bufferbuilder.pos(x, y - radius, 0.0D).color(red, green, blue, alpha).endVertex();
+            bufferbuilder.pos(x, y, 0.0D).color(red, green, blue, alpha).endVertex();
+            bufferbuilder.pos(x + radius, y, 0.0D).color(red, green, blue, alpha).endVertex();
+        }
+        else if (position == 3) {
+            bufferbuilder.pos(x, y - radius - 0.1f, 0.0D).color(red, green, blue, alpha).endVertex();
+            bufferbuilder.pos(x - radius, y, 0.0D).color(red, green, blue, alpha).endVertex();
+            bufferbuilder.pos(x, y, 0.0D).color(red, green, blue, alpha).endVertex();
+        }
+        else if (position == 4) {
+            bufferbuilder.pos(x, y + radius, 0.0D).color(red, green, blue, alpha).endVertex();
+            bufferbuilder.pos(x, y, 0.0D).color(red, green, blue, alpha).endVertex();
+            bufferbuilder.pos(x - radius, y, 0.0D).color(red, green, blue, alpha).endVertex();
+        }
+
+        tessellator.draw();
+        GlStateManager.resetColor();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
+    }
+
     public static void drawBorderedRect(float x, float y, float x2, float y2, float lineSize, int color, int borderColor) {
         drawRect(x, y, x2, y2, color);
         drawRect(x, y, x + lineSize, y2, borderColor);
         drawRect(x2 - lineSize, y, x2, y2, borderColor);
         drawRect(x, y2 - lineSize, x2, y2, borderColor);
         drawRect(x, y, x2, y + lineSize, borderColor);
+    }
+
+    public static void progressBar(float startX, float endX, float y, float radius, int color) {
+        // the y should be the middle of the bar
+        float startY = y - radius / 2, endY = y + radius / 2;
+        drawRect(startX - radius, startY, endX + radius, endY, color);
+
+        drawQuarterCircle(startX - radius, y, radius / 2 - 0.3f, color, 3);
+        drawQuarterCircle(startX - radius, y, radius / 2 - 0.3f, color, 4);
+        drawQuarterCircle(endX + radius, y, radius / 2 - 0.3f, color, 1);
+        drawQuarterCircle(endX + radius, y, radius / 2 - 0.3f, color, 2);
+    }
+
+    public static void roundedRect(float startX, float startY, float endX, float endY, float radius, int color) {
+        drawRect(startX, startY - radius, endX, endY + radius, color);
+        drawRect(startX - radius, startY, startX, endY, color);
+        drawRect(endX, startY, endX + radius, endY, color);
+
+        drawQuarterCircle(endX, endY, radius - 0.2f, color, 1);
+        drawQuarterCircle(endX, startY, radius - 0.2f, color, 2);
+        drawQuarterCircle(startX, startY, radius - 0.2f, color, 3);
+        drawQuarterCircle(startX, endY, radius - 0.2f, color, 4);
+
+        // blurArea((int) (startX - radius), (int) (startY - radius), (int) (endX - startX + radius * 2), (int) (endY - startY + radius * 2), 3,2,2);
+        //TODO: make blur
     }
 
     public static void drawTexturedRect(int x, int y, int textureX, int textureY, int width, int height, int zLevel) {
@@ -422,22 +503,26 @@ public class Render2DUtil implements Globals {
         drawRect(x, h + lineWidth, w, h, c);
     }
 
-    public static void drawPlayerFace(NetworkPlayerInfo info, int x, int y, int width, int height) {
-        GlStateManager.pushAttrib();
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.enableAlpha();
-        GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+    public static void drawPlayerFace(EntityPlayer entityplayer ,int x, int y, int width, int height) {
+        if (entityplayer != null && mc.world != null) {
+            if(mc.player.connection == null) return;
+            NetworkPlayerInfo networkPlayerInfo = mc.player.connection.getPlayerInfo(entityplayer.getName());
+            if(networkPlayerInfo == null) return;
+            ResourceLocation resourceLocation = networkPlayerInfo.getLocationSkin();
+            if(resourceLocation == null) return;
 
-        EntityPlayer entityplayer = mc.world.getPlayerEntityByUUID(info.getGameProfile().getId());
-        mc.getTextureManager().bindTexture(info.getLocationSkin());
+            GlStateManager.pushAttrib();
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.enableAlpha();
+            GlStateManager.enableBlend();
+            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
-        Gui.drawScaledCustomSizeModalRect(x, y, 8.0F, 8, 8, 8, width, height, 64.0F, 64.0F);
+            mc.getTextureManager().bindTexture(resourceLocation);
 
-        if (entityplayer != null && entityplayer.isWearing(EnumPlayerModelParts.HAT)) {
-            Gui.drawScaledCustomSizeModalRect(x, y, 40.0F, 8, 8, 8, 8, 8, 64.0F, 64.0F);
+            Gui.drawScaledCustomSizeModalRect(x, y, 8.0F, 8, 8, 8, width, height, 64.0F, 64.0F);
+
+            GlStateManager.popAttrib();
         }
-        GlStateManager.popAttrib();
     }
 
     public static void drawFramebuffer(TextureFramebuffer framebuffer, int width, int height, boolean blend) {
@@ -482,5 +567,58 @@ public class Render2DUtil implements Globals {
             GlStateManager.colorMask(true, true, true, true);
         }
     }
+    public static void drawPlayer(EntityPlayer player, float playerScale, float x, float y) {
+        final EntityPlayer ent = player;
+        GlStateManager.pushMatrix();
+        GlStateManager.color(1.0f, 1.0f, 1.0f);
+        RenderHelper.enableStandardItemLighting();
+        GlStateManager.enableAlpha();
+        GlStateManager.shadeModel(7424);
+        GlStateManager.enableAlpha();
+        GlStateManager.enableDepth();
+        GlStateManager.rotate(0.0f, 0.0f, 5.0f, 0.0f);
+        GlStateManager.enableColorMaterial();
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, 50.0f);
+        GlStateManager.scale(-50.0f * playerScale, 50.0f * playerScale, 50.0f * playerScale);
+        GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
+        GlStateManager.rotate(135.0f, 0.0f, 1.0f, 0.0f);
+        RenderHelper.enableStandardItemLighting();
+        GlStateManager.rotate(-135.0f, 0.0f, 1.0f, 0.0f);
+        GlStateManager.rotate(-(float)Math.atan(y / 40.0f) * 20.0f, 1.0f, 0.0f, 0.0f);
+        GlStateManager.translate(0.0f, 0.0f, 0.0f);
+        final RenderManager rendermanager = mc.getRenderManager();
+        rendermanager.setPlayerViewY(180.0f);
+        rendermanager.setRenderShadow(false);
+        try {
+            rendermanager.renderEntity(ent, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
+        } catch(Exception ignored) {}
+        rendermanager.setRenderShadow(true);
+        GlStateManager.popMatrix();
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+        GlStateManager.disableTexture2D();
+        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+        GlStateManager.depthFunc(515);
+        GlStateManager.resetColor();
+        GlStateManager.disableDepth();
+        GlStateManager.popMatrix();
+        // fix the inventory player
+    }
 
+    public static void testGrid() {
+        int x = 50;
+        int y = 50;
+        for (int j = 0; j < 30; j++) {
+            drawLine(x, 0, x, 2000, 5, 0x23343434);
+            RENDERER.drawString(String.valueOf(x), x, 20, 0x23ff0000);
+            x += 50;
+        }
+        for (int i = 0; i < 30; i++) {
+            drawLine(0, y, 2000, y, 5, 0x23003400);
+            RENDERER.drawString(String.valueOf(y), 20, y, 0x2300ff00);
+            y += 50;
+        }
+    }
 }

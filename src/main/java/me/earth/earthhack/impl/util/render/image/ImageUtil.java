@@ -16,6 +16,7 @@ import java.awt.image.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -203,6 +204,17 @@ public class ImageUtil implements Globals
             throw new IllegalArgumentException("Not implemented for data buffer type: " + dataBuffer.getClass());
         }
         return null;
+    }
+
+    public static ByteBuffer readImageToBuffer(InputStream image) throws IOException {
+        BufferedImage bufferedimage = ImageIO.read(image);
+        int[] pixelIndex = bufferedimage.getRGB(0, 0, bufferedimage.getWidth(), bufferedimage.getHeight(), null, 0, bufferedimage.getWidth());
+        ByteBuffer bytebuffer = ByteBuffer.allocate(pixelIndex.length * 4);
+        for (int i : pixelIndex) {
+            bytebuffer.putInt(i << 8 | (i >> 24 & 255));
+        }
+        bytebuffer.flip();
+        return bytebuffer;
     }
 
 }

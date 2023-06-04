@@ -4,13 +4,19 @@ import me.earth.earthhack.api.event.events.Stage;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 final class ListenerMotion extends ModuleListener<AntiAim, MotionUpdateEvent>
 {
     private static final Random RANDOM = new Random();
     private int skip;
+    int[] numbers;
+
+    int[] numbers2;
 
     public ListenerMotion(AntiAim module)
     {
@@ -36,7 +42,7 @@ final class ListenerMotion extends ModuleListener<AntiAim, MotionUpdateEvent>
         {
             case Random:
                 module.lastYaw = (float) ThreadLocalRandom.current()
-                                                    .nextDouble(-180.0, 180.0);
+                        .nextDouble(-180.0, 180.0);
                 module.lastPitch = -90.0f + RANDOM.nextFloat() * (180.0f);
                 break;
             case Spin:
@@ -49,7 +55,7 @@ final class ListenerMotion extends ModuleListener<AntiAim, MotionUpdateEvent>
                 module.lastYaw = event.getYaw();
                 module.lastPitch = 90.0f;
                 break;
-            case Headbang:
+            case HeadBang:
                 module.lastYaw = event.getYaw();
                 module.lastPitch =
                         (module.lastPitch + module.vSpeed.getValue());
@@ -57,7 +63,7 @@ final class ListenerMotion extends ModuleListener<AntiAim, MotionUpdateEvent>
             case Horizontal:
                 module.lastPitch = event.getPitch();
                 module.lastYaw   =
-                    (module.lastYaw + module.hSpeed.getValue()) % 360;
+                        (module.lastYaw + module.hSpeed.getValue()) % 360;
                 break;
             case Constant:
                 event.setYaw(module.yaw.getValue());
@@ -73,6 +79,36 @@ final class ListenerMotion extends ModuleListener<AntiAim, MotionUpdateEvent>
                 {
                     module.lastPitch = -event.getPitch();
                 }
+            case ViewLock:
+
+                // yaw
+                if (module.sliceYaw.getValue()) {
+                    if (module.yawSlices.getValue() == 1) {
+                        numbers = new int[] {0};
+                    } else if (module.yawSlices.getValue() == 2) {
+                        numbers = new int[] {-180, 0};
+                    } else if (module.yawSlices.getValue() == 3) {
+                        numbers = new int[] {-120, 0, 120};
+                    } else {
+                        numbers = new int[] {-180, -90, 0, 90};
+                    }
+                    module.lastYaw = roundToClosest(Math.round(event.getYaw()));
+                } else { module.lastYaw = event.getYaw(); }
+
+
+                // pitch
+                if (module.slicePitch.getValue()) {
+                    if (module.pitchSlices.getValue() == 1) {
+                        numbers = new int[] {0};
+                    } else if (module.pitchSlices.getValue() == 2) {
+                        numbers = new int[] {-90, 90};
+                    } else if (module.pitchSlices.getValue() == 3) {
+                        numbers = new int[] {-90, 0, 90};
+                    } else {
+                        numbers = new int[] {-90, -30, 30, 90};
+                    }
+                    module.lastPitch = roundToClosest(Math.round(event.getPitch()));
+                } else { module.lastYaw = event.getYaw(); }
             default:
         }
 
@@ -85,4 +121,16 @@ final class ListenerMotion extends ModuleListener<AntiAim, MotionUpdateEvent>
         event.setPitch(module.lastPitch);
     }
 
+    private int roundToClosest(int number) {
+        int distance = Math.abs(numbers[0] - number);
+        int idx = 0;
+        for(int c = 1; c < numbers.length; c++){
+            int cdistance = Math.abs(numbers[c] - number);
+            if(cdistance < distance){
+                idx = c;
+                distance = cdistance;
+            }
+        }
+        return numbers[idx];
+    }
 }

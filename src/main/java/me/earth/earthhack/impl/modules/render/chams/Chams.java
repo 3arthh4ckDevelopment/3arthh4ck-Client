@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.EXTFramebufferObject;
@@ -28,7 +29,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import static org.lwjgl.opengl.GL11.*;
-
+// TODO: move the render part to util, also make the image stuff easier/working!
 public class Chams extends Module
 {
     public static final ResourceLocation GALAXY_LOCATION = new ResourceLocation("earthhack:textures/client/galaxy.jpg");
@@ -75,12 +76,11 @@ public class Chams extends Module
             register(new ColorSetting("ArmorFriendColor", new Color(255, 255, 255, 255)));
     protected final Setting<Color> armorEnemyColor      =
             register(new ColorSetting("ArmorEnemyColor", new Color(255, 255, 255, 255)));
-
     public final Setting<WireFrameMode> wireframe    =
         register(new EnumSetting<>("Wireframe", WireFrameMode.None));
     public final Setting<Boolean> wireWalls    =
         register(new BooleanSetting("WireThroughWalls", false));
-    public final NumberSetting<Float> lineWidth =
+    public final Setting<Float> lineWidth =
         register(new NumberSetting<>("LineWidth" , 1f , 0.1f , 4f));
     public final Setting<Color> wireFrameColor =
         register(new ColorSetting("WireframeColor", new Color(255, 255, 255, 255)));
@@ -88,6 +88,12 @@ public class Chams extends Module
         register(new StringSetting("CustomShaderLocation", "None!"));
     protected final Setting<Boolean> refreshCustomShader =
         register(new BooleanSetting("RefreshCustomShader", false));
+    protected final Setting<Boolean> noCluster =
+            register(new BooleanSetting("noCluster", false));
+    protected final Setting<Float> noClusterRange =
+            register(new NumberSetting<>("noClusterRange", 2.5f, 1.0f, 10.0f));
+    protected final Setting<Float> noClusterMinA =
+            register(new NumberSetting<>("noClusterMinAlpha", 30.0f, 1.0f, 180.0f));
 
     protected boolean force;
     protected boolean hasImageChammed;
@@ -171,67 +177,61 @@ public class Chams extends Module
         glPopAttrib();
     }
 
-    public boolean isValid(Entity entity, ChamsMode modeIn)
-    {
+    public boolean isValid(Entity entity, ChamsMode modeIn) {
         return this.isEnabled() && modeIn == mode.getValue() && isValid(entity);
     }
 
-    public boolean isValid(Entity entity)
-    {
+    public boolean isValid(Entity entity) {
         Entity renderEntity = RenderUtil.getEntity();
-        if (entity == null)
-        {
+        if (entity == null) {
             return false;
         }
-        else if (!self.getValue() && entity.equals(renderEntity))
-        {
+        else if (!self.getValue() && entity.equals(renderEntity)) {
             return false;
         }
-        else if (players.getValue() && entity instanceof EntityPlayer)
-        {
+        else if (players.getValue() && entity instanceof EntityPlayer) {
             return true;
         }
         else if (!monsters.getValue()
                     || !EntityType.isMonster(entity)
-                && !EntityType.isBoss(entity))
+                    && !EntityType.isBoss(entity))
         {
             return animals.getValue()
-                    && (EntityType.isAngry(entity)
+                        && (EntityType.isAngry(entity)
                         || EntityType.isAnimal(entity));
         }
-        else
-        {
+        else {
             return true;
         }
     }
 
     protected Color getVisibleColor(Entity entity) {
         if (Managers.FRIENDS.contains(entity)) {
-            return friendColor.getValue();
+            return noClusterCalc(friendColor, entity);
         } else if (Managers.ENEMIES.contains(entity)) {
-            return enemyColor.getValue();
+            return noClusterCalc(enemyColor, entity);
         } else {
-            return color.getValue();
+            return noClusterCalc(color, entity);
         }
     }
 
     protected Color getWallsColor(Entity entity) {
         if (Managers.FRIENDS.contains(entity)) {
-            return friendWallColor.getValue();
+            return noClusterCalc(friendWallColor, entity);
         } else if (Managers.ENEMIES.contains(entity)) {
-            return enemyWallsColor.getValue();
+            return noClusterCalc(enemyWallsColor, entity);
         } else {
-            return wallsColor.getValue();
+            return noClusterCalc(wallsColor, entity);
         }
     }
 
     public Color getArmorVisibleColor(Entity entity) {
         if (Managers.FRIENDS.contains(entity)) {
-            return armorFriendColor.getValue();
+            return noClusterCalc(armorFriendColor, entity);
         } else if (Managers.ENEMIES.contains(entity)) {
-            return armorEnemyColor.getValue();
+            return noClusterCalc(armorEnemyColor, entity);
         } else {
-            return armorColor.getValue();
+            return noClusterCalc(armorColor, entity);
         }
     }
 
@@ -263,4 +263,20 @@ public class Chams extends Module
     public float getAlpha() {
         return color.getValue().getAlpha() / 255.0f;
     }
+
+    public Color noClusterCalc(Setting<Color> setting, Entity entity) {
+        if (entity.getDistance(mc.player) < noClusterRange.getValue() && noCluster.getValue() && entity != mc.player) {
+            float maxDistance = noClusterRange.getValue();
+            float playerDistance = entity.getDistance(mc.player);
+            float range = setting.getValue().getAlpha();
+
+            float normalizedDistance = Math.max(0, Math.min(1, playerDistance / maxDistance)); // normalizing the distance between 0 and 1
+            int value = (int) (noClusterMinA.getValue() + range * normalizedDistance);
+
+            return new Color(setting.getValue().getRed(), setting.getValue().getGreen(), setting.getValue().getBlue(), value);
+        } else {
+            return setting.getValue();
+        }
+    }
+
 }

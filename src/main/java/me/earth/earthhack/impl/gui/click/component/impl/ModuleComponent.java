@@ -89,7 +89,6 @@ public class ModuleComponent extends Component {
                 }
             }
         }
-
         getComponents().forEach(Component::init);
     }
 
@@ -105,27 +104,27 @@ public class ModuleComponent extends Component {
         final boolean hovered = RenderUtil.mouseWithinBounds(mouseX, mouseY, getFinishedX(), getFinishedY(), getWidth(), getHeight());
 
         if (hovered)
-            Render2DUtil.drawRect(getFinishedX() + 1, getFinishedY() + 0.5f, getFinishedX() + getWidth() - 1, getFinishedY() + getHeight() - 0.5f, 0x66333333);
+            Render2DUtil.drawRect(getFinishedX() + 1, getFinishedY() + 0.5f, getFinishedX() + getWidth() - 1, getFinishedY() + getHeight() - 0.5f, getColor().get().getModuleHover().brighter().getRGB());
         if (getModule().isEnabled()) {
-            Render2DUtil.drawRect(getFinishedX() + 1, getFinishedY() + 0.5f, getFinishedX() + getWidth() - 1, getFinishedY() + getHeight() - 0.5f, hovered ? getClickGui().get().color.getValue().brighter().getRGB() : getClickGui().get().color.getValue().getRGB());
+            Render2DUtil.drawRect(getFinishedX() + 1, getFinishedY() + 0.5f, getFinishedX() + getWidth() - 1, getFinishedY() + getHeight() - 0.5f, hovered ? getColor().get().getModulesColor().brighter().getRGB() : getColor().get().getModulesColor().getRGB());
         }
 
         String label = module instanceof ConfigHelperModule && ((ConfigHelperModule) module).isDeleted() ? TextColor.RED + getLabel() : getLabel();
-        Managers.TEXT.drawStringWithShadow(label, getFinishedX() + 4, getFinishedY() + getHeight() / 2 - (Managers.TEXT.getStringHeightI() >> 1), getModule().isEnabled() ? 0xFFFFFFFF : 0xFFAAAAAA);
+        Managers.TEXT.drawStringWithShadow(label, getFinishedX() + 4, getFinishedY() + getHeight() / 2 - (Managers.TEXT.getStringHeightI() >> 1), getModule().isEnabled() ? getColor().get().getOnModule().brighter().getRGB() : getColor().get().getOffModule().brighter().getRGB());
         if (!getComponents().isEmpty())
-            Managers.TEXT.drawStringWithShadow(isExtended() ? getClickGui().get().close.getValue() : getClickGui().get().open.getValue(), getFinishedX() + getWidth() - 4 - Managers.TEXT.getStringWidth(isExtended() ? getClickGui().get().close.getValue() : getClickGui().get().open.getValue()), getFinishedY() + getHeight() / 2 - (Managers.TEXT.getStringHeightI() >> 1), getModule().isEnabled() ? 0xFFFFFFFF : 0xFFAAAAAA);
+            Managers.TEXT.drawStringWithShadow(isExtended() ? getClickGui().get().close.getValue() : getClickGui().get().open.getValue(), getFinishedX() + getWidth() - 4 - Managers.TEXT.getStringWidth(isExtended() ? getClickGui().get().close.getValue() : getClickGui().get().open.getValue()), getFinishedY() + getHeight() / 2 - (Managers.TEXT.getStringHeightI() >> 1), getModule().isEnabled() ? getColor().get().getOnModule().brighter().getRGB() : getColor().get().getOffModule().brighter().getRGB());
 
         if (getClickGui().get().showBind.getValue() && !getModule().getBind().toString().equalsIgnoreCase("none")) {
             GL11.glPushMatrix();
             GL11.glScalef(0.5f, 0.5f, 0.5f);
-            String disString = getModule().getBind().toString().toLowerCase().replace("none", "-");
-            disString = String.valueOf(disString.charAt(0)).toUpperCase() + disString.substring(1);
-            if (disString.length() > 3) {
-                disString = disString.substring(0, 3);
+            String moduleBinding = getModule().getBind().toString().toLowerCase().replace("none", "-");
+            moduleBinding = String.valueOf(moduleBinding.charAt(0)).toUpperCase() + moduleBinding.substring(1);
+            if (moduleBinding.length() > 3) {
+                moduleBinding = moduleBinding.substring(0, 3);
             }
-            disString = "[" + disString + "]";
+            moduleBinding = "[" + moduleBinding + "]";
             float offset = getFinishedX() + getWidth() - Managers.TEXT.getStringWidth(isExtended() ? getClickGui().get().close.getValue() : getClickGui().get().open.getValue());
-            Managers.TEXT.drawStringWithShadow(disString, (offset - (Managers.TEXT.getStringWidth(disString) >> 1)) * 2 - 12, (getFinishedY() + getHeight() / 1.5f - (Managers.TEXT.getStringHeightI() >> 1)) * 2.0f, getModule().isEnabled() ? 0xFFFFFFFF : 0xFFAAAAAA);
+            Managers.TEXT.drawStringWithShadow(moduleBinding, (offset - (Managers.TEXT.getStringWidth(moduleBinding) >> 1)) * 2 - 12, (getFinishedY() + getHeight() / 1.5f - (Managers.TEXT.getStringHeightI() >> 1)) * 2.0f, getModule().isEnabled() ? getColor().get().getOnModule().brighter().getRGB() : getColor().get().getOffModule().brighter().getRGB());
             GL11.glScalef(1.0f, 1.0f, 1.0f);
             GL11.glPopMatrix();
         }
@@ -137,9 +136,9 @@ public class ModuleComponent extends Component {
                 }
             }
             if (getModule().isEnabled()) {
-                Render2DUtil.drawRect(getFinishedX() + 1.0f, getFinishedY() + getHeight() - 0.5f, getFinishedX() + 3, getFinishedY() + getHeight() + getComponentsSize(), hovered ? getClickGui().get().color.getValue().brighter().getRGB() : getClickGui().get().color.getValue().getRGB());
-                Render2DUtil.drawRect(getFinishedX() + 1.0f, getFinishedY() + getHeight() + getComponentsSize(), getFinishedX() + getWidth() - 1.f, getFinishedY() + getHeight() + getComponentsSize() + 2, hovered ? getClickGui().get().color.getValue().brighter().getRGB() : getClickGui().get().color.getValue().getRGB());
-                Render2DUtil.drawRect(getFinishedX() + getWidth() - 3.f, getFinishedY() + getHeight() - 0.5f, getFinishedX() + getWidth() - 1.f, getFinishedY() + getHeight() + getComponentsSize(), hovered ? getClickGui().get().color.getValue().brighter().getRGB() : getClickGui().get().color.getValue().getRGB());
+                Render2DUtil.drawRect(getFinishedX() + 1.0f, getFinishedY() + getHeight() - 0.5f, getFinishedX() + 3, getFinishedY() + getHeight() + getComponentsSize(), hovered ? getColor().get().getModulesColor().brighter().getRGB() : getColor().get().getModulesColor().getRGB());
+                Render2DUtil.drawRect(getFinishedX() + 1.0f, getFinishedY() + getHeight() + getComponentsSize(), getFinishedX() + getWidth() - 1.f, getFinishedY() + getHeight() + getComponentsSize() + 2, hovered ? getColor().get().getModulesColor().brighter().getRGB() : getColor().get().getModulesColor().getRGB());
+                Render2DUtil.drawRect(getFinishedX() + getWidth() - 3.f, getFinishedY() + getHeight() - 0.5f, getFinishedX() + getWidth() - 1.f, getFinishedY() + getHeight() + getComponentsSize(), hovered ? getColor().get().getModulesColor().brighter().getRGB() : getColor().get().getModulesColor().getRGB());
             }
             Render2DUtil.drawBorderedRect(getFinishedX() + 3.0f, getFinishedY() + getHeight() - 0.5f, getFinishedX() + getWidth() - 3.f, getFinishedY() + getHeight() + getComponentsSize() + 0.5f, 0.5f, 0, getClickGui().get().white.getValue() ? 0xffffffff : 0xff000000);
 

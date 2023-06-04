@@ -204,7 +204,8 @@ public class AutoCrystalData extends DefaultData<AutoCrystal>
                 " only stops AutoCrystal when you are eating with" +
                 " your offhand.");
 
-        register(module.holdFacePlace, "Hold Mouse 1 to FacePlace.");
+        register(module.holdFacePlace, "Hold left click to FacePlace.");
+        register(module.holdFacePlaceKey, "Change the button to hold for FacePlace.");
         register(module.facePlace,
             "Faceplaces if the target has less health than this.");
         register(module.minFaceDmg,
@@ -254,6 +255,10 @@ public class AutoCrystalData extends DefaultData<AutoCrystal>
         register(module.fade, "Fade the rendering box when a new position gets selected.");
         register(module.fadeComp, "Makes Fade compatible with Zoom and Slide.");
         register(module.fadeTime, "Time to render the Fade ESP for.");
+        register(module.jelloRender, "Also renders an effect on the player AutoCrystal is" +
+                " current targeting." +
+                "\nMade by 'slmpc'. No clue if he's the actual original author, but he pull requested it.");
+
         register(module.renderDamage, "Renders the Damage a position deals.");
 
         register(module.setDead, "Removes Crystals after it attacked them." +

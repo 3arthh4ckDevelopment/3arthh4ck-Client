@@ -10,7 +10,7 @@ import me.earth.earthhack.impl.event.events.movement.SprintEvent;
 import me.earth.earthhack.impl.event.events.render.SuffocationEvent;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
-import me.earth.earthhack.impl.modules.misc.tpssync.TpsSync;
+import me.earth.earthhack.impl.modules.player.tpssync.TpsSync;
 import me.earth.earthhack.impl.util.minecraft.MotionTracker;
 import me.earth.earthhack.impl.util.thread.EnchantmentUtil;
 import net.minecraft.entity.Entity;

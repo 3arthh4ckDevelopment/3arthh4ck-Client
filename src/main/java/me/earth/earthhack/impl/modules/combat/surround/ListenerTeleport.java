@@ -19,8 +19,7 @@ final class ListenerTeleport
         if(module.autoOnTeleport.getValue()
                 && player != null
                 && module.teleport.getValue()
-                && !module.isEnabled())
-        {
+                && !module.isEnabled()){
             module.startPos = module.getPlayerPos();
             module.enable();
         }

@@ -17,7 +17,7 @@ public enum CooldownBypass {
         @Override
         public void switchTo(int slot) {
             InventoryUtil.switchToBypass(
-                InventoryUtil.hotbarToInventory(slot));
+                    InventoryUtil.hotbarToInventory(slot));
         }
     },
     Swap() {

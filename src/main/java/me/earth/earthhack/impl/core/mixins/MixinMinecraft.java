@@ -28,6 +28,8 @@ import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.resources.IReloadableResourceManager;
+import net.minecraft.client.resources.ResourcePackRepository;
 import net.minecraft.client.resources.data.MetadataSerializer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
