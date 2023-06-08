@@ -11,7 +11,6 @@ import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.managers.render.TextRenderer;
 import me.earth.earthhack.impl.modules.client.hud.arraylist.ArrayEntry;
 import me.earth.earthhack.impl.modules.client.hud.modes.*;
-import me.earth.earthhack.impl.modules.render.pvpresources.Styles;
 import me.earth.earthhack.impl.util.client.ModuleUtil;
 import me.earth.earthhack.impl.util.math.MathUtil;
 import me.earth.earthhack.impl.util.math.rotation.RotationUtil;
