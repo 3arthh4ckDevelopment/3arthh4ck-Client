@@ -9,10 +9,19 @@ public class HUDData extends DefaultData<HUD>
         super(hud);
         register(hud.colorMode, "HUD color modes.");
         register(hud.logo, "Watermark.");
-        register(hud.coordinates, "Shows your current coords");
+        register(hud.coordinates, "Shows your current coordinates.");
         register(hud.armor, "Shows the armor.");
         register(hud.durability, "Shows armor durability.");
         register(hud.totems, "Shows totem count.");
+
+        register(hud.items, "Shows all PvP items, including Totems.");
+        register(hud.itemsColor, "Items background color.");
+        register(hud.itemsX, "Items X position.");
+        register(hud.itemsY, "Items Y position");
+        register(hud.itemsObby, "If Obsidian should be shown.");
+        register(hud.itemsPretty, "If the item display should be rounded.");
+        register(hud.itemsStyle, "Rendering style.");
+
         register(hud.shadow, "Text shadow.");
         register(hud.ping, "Shows your ping.");
         register(hud.speed, "Shows your speed.");
@@ -20,13 +29,12 @@ public class HUDData extends DefaultData<HUD>
         register(hud.fps, "Shows your fps.");
         register(hud.tps, "Shows the server tps.");
         register(hud.currentTps, "Shows the server current tps.");
-        register(hud.animations, "Animate the arraylist");
-        register(hud.potions, "Potions position");
-        register(hud.potionColor, "Potions color");
-        register(hud.serverBrand, "Shows the server brand");
-        register(hud.model, "Render your 3D model on screen");
+        register(hud.animations, "Animate the arraylist.");
+        register(hud.potions, "Potions position.");
+        register(hud.potionColor, "Potions color.");
+        register(hud.serverBrand, "Shows the server brand.");
 
-
+        register(hud.model, "Shows your PlayerModel.");
 
         register(hud.timeFormat, "All letters 'A' to 'Z' and 'a' to 'z' are reserved as pattern letters.\n\n" +
             "    Symbol  Meaning                    \n" +
@@ -75,6 +83,7 @@ public class HUDData extends DefaultData<HUD>
             "     #       reserved for future use\n" +
             "     {       reserved for future use\n" +
             "     }       reserved for future use");
+
         register(hud.image, "Render an image");
         register(hud.imageName, "Choose the image name");
         register(hud.imageScale, "The image scale");
@@ -83,7 +92,7 @@ public class HUDData extends DefaultData<HUD>
         register(hud.reloadImages,
                 "Reloads all the images. To add\n" +
                         "an image do +folder and go to the\n" +
-                        "images folder, then click reload");
+                        "images folder, then click reload.");
     }
 
     @Override
@@ -95,7 +104,8 @@ public class HUDData extends DefaultData<HUD>
     @Override
     public String getDescription()
     {
-        return "Displays info like ping, tps or toggled modules on your screen.";
+        return "Displays information like TPS, Ping or enabled modules" +
+                " on your screen.";
     }
 
 }

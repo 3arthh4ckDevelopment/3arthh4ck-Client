@@ -10,10 +10,8 @@ import me.earth.earthhack.impl.Earthhack;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.managers.render.TextRenderer;
 import me.earth.earthhack.impl.modules.client.hud.arraylist.ArrayEntry;
-import me.earth.earthhack.impl.modules.client.hud.modes.HudRainbow;
-import me.earth.earthhack.impl.modules.client.hud.modes.Modules;
-import me.earth.earthhack.impl.modules.client.hud.modes.PotionColor;
-import me.earth.earthhack.impl.modules.client.hud.modes.Potions;
+import me.earth.earthhack.impl.modules.client.hud.modes.*;
+import me.earth.earthhack.impl.modules.render.pvpresources.Styles;
 import me.earth.earthhack.impl.util.client.ModuleUtil;
 import me.earth.earthhack.impl.util.math.MathUtil;
 import me.earth.earthhack.impl.util.math.rotation.RotationUtil;
@@ -57,10 +55,13 @@ import java.util.stream.Collectors;
 public class HUD extends Module {
     public static final TextRenderer RENDERER = Managers.TEXT;
 
+    /* ---------------- COLOR SETTINGS ---------------- */
     public final Setting<HudRainbow> colorMode =
             register(new EnumSetting<>("Rainbow", HudRainbow.None));
     public final Setting<Color> color =
             register(new ColorSetting("Color", Color.WHITE));
+
+    /* ---------------- HUD-ELEMENT SETTINGS ---------------- */
     protected final Setting<Boolean> logo =
             register(new BooleanSetting("Logo", true));
     protected final Setting<String> logoText =
@@ -79,6 +80,22 @@ public class HUD extends Module {
             register(new NumberSetting<>("Totems-X-Offset", 0, -10, 10));
     protected final Setting<Integer> totemsYOffset =
             register(new NumberSetting<>("Totems-Y-Offset", 0, -10, 10));
+
+    public final Setting<Boolean> items =
+            register(new BooleanSetting("Items", false));
+    public final Setting<ItemsStyle> itemsStyle =
+            register(new EnumSetting<>("Items-Style", ItemsStyle.Vertical));
+    public final Setting<Boolean> itemsPretty =
+            register(new BooleanSetting("Items-Pretty", true));
+    public final Setting<Color> itemsColor =
+            register(new ColorSetting("Items-Color", new Color(0, 0, 0, 0)));
+    public final Setting<Float> itemsX =
+            register(new NumberSetting<>("Items-X", 0.0F, 0.0f, 1.0f));
+    public final Setting<Float> itemsY =
+            register(new NumberSetting<>("Items-Y", 0.0F, 0.0f, 1.0f));
+    public final Setting<Boolean> itemsObby =
+            register(new BooleanSetting("Items-Obsidian", false));
+
     protected final Setting<Modules> renderModules =
             register(new EnumSetting<>("Modules", Modules.Length));
     protected final Setting<Potions> potions =
@@ -99,8 +116,14 @@ public class HUD extends Module {
             register(new BooleanSetting("CurrentTps", true));
     protected final Setting<Boolean> animations =
             register(new BooleanSetting("Animations", true));
+    protected final Setting<Boolean> time =
+            register(new BooleanSetting("Time", false));
+    protected final Setting<String> timeFormat =
+            register(new StringSetting("TimeFormat", "hh:mm:ss"));
     protected final Setting<Boolean> serverBrand =
             register(new BooleanSetting("ServerBrand", false));
+
+    /* ---------------- SKEETLINE SETTINGS ---------------- */
     protected final Setting<Boolean> skeetLine =
             register(new BooleanSetting("SkeetLine", false));
     protected final Setting<Boolean> skeetLineGradient =
@@ -111,6 +134,8 @@ public class HUD extends Module {
             register(new ColorSetting("SkeetColorGradient", new Color(0x7817ff)));
     protected final Setting<Float> skeetLineWidth =
             register(new NumberSetting<>("SkeetLineWidth", 1.3f, 0.5f, 3.0f));
+
+    /* ---------------- PLAYERMODEL SETTINGS ---------------- */
     //TODO: make an offset from the top
     protected final Setting<Boolean> model =
             register(new BooleanSetting("Model3D", false));
@@ -121,11 +146,7 @@ public class HUD extends Module {
     protected final Setting<Float> modelScale =
             register(new NumberSetting<>("ModelScale", 0.8f, 0.4f, 2.0f));
 
-    protected final Setting<Boolean> time =
-        register(new BooleanSetting("Time", false));
-    protected final Setting<String> timeFormat =
-        register(new StringSetting("TimeFormat", "hh:mm:ss"));
-
+    /* ---------------- IMAGE(?) SETTINGS ---------------- */
     protected final Setting<Integer> textOffset =
             register(new NumberSetting<>("Offset", 2, 0, 10))
                 .setComplexity(Complexity.Expert);
@@ -140,7 +161,7 @@ public class HUD extends Module {
     protected final Setting<Float> imageY =
             register(new NumberSetting<>("ImgY", 0.5f,0.0f,1.0f)).setComplexity(Complexity.Dev);
     protected final Setting<Boolean> reloadImages =
-            register(new BooleanSetting("RealoadImages", false)).setComplexity(Complexity.Dev);
+            register(new BooleanSetting("ReloadImages", false)).setComplexity(Complexity.Dev);
 
     protected final List<Map.Entry<String, Module>> modules = new ArrayList<>();
 
