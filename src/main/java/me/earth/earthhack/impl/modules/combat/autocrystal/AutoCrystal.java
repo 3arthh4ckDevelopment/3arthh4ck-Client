@@ -32,7 +32,6 @@ import me.earth.earthhack.impl.util.minecraft.CooldownBypass;
 import me.earth.earthhack.impl.util.minecraft.blocks.BlockUtil;
 import me.earth.earthhack.impl.util.minecraft.entity.EntityUtil;
 import me.earth.earthhack.impl.util.misc.collections.CollectionUtil;
-import me.earth.earthhack.impl.util.network.ServerUtil;
 import me.earth.earthhack.impl.util.text.TextColor;
 import me.earth.earthhack.impl.util.thread.SafeRunnable;
 import me.earth.earthhack.impl.util.thread.ThreadUtil;
@@ -82,7 +81,7 @@ public class AutoCrystal extends Module
 
     private static final ScheduledExecutorService EXECUTOR =
             ThreadUtil.newDaemonScheduledExecutor("AutoCrystal");
-    private static final ModuleCache<PingBypassModule> PINGBYPASS =
+    protected static final ModuleCache<PingBypassModule> PINGBYPASS =
             Caches.getModule(PingBypassModule.class);
     private static final ModuleCache<PacketFly> PACKET_FLY =
             Caches.getModule(PacketFly.class);
@@ -517,7 +516,7 @@ public class AutoCrystal extends Module
     protected final Setting<Boolean> jelloRender =
             register(new BooleanSetting("JelloRender", false));
     protected final Setting<Color> jelloColor =
-            register(new ColorSetting("Jello", new Color(255, 255, 255, 255)));
+            register(new ColorSetting("JelloColor", new Color(255, 255, 255, 255)));
     protected final Setting<Boolean> renderExtrapolation =
             register(new BooleanSetting("RenderExtrapolation", false))
                 .setComplexity(Complexity.Expert);
@@ -727,8 +726,8 @@ public class AutoCrystal extends Module
     protected final Setting<Boolean> pingSync =
             register(new BooleanSetting("Ping-Sync", false))
                     .setComplexity(Complexity.Expert);
-    protected final Setting<Float> pingSyncStrength =
-            register(new NumberSetting<>("PingSync-%", 70.0f, 0.0f, 100.0f))
+    protected final Setting<Integer> pingSyncStrength =
+            register(new NumberSetting<>("PingSync-%", 70, 0, 100))
                     .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> absolutePingSync =
             register(new BooleanSetting("Absolute", true))
@@ -986,7 +985,6 @@ public class AutoCrystal extends Module
     protected final DiscreteTimer breakTimer =
             new GuardTimer(1000, 5).reset(breakDelay.getValue());
     protected final StopWatch renderTimer = new StopWatch();
-    protected final StopWatch pingSyncTimer = new StopWatch();
     protected final StopWatch bypassTimer = new StopWatch();
     protected final StopWatch obbyTimer = new StopWatch();
     protected final StopWatch obbyCalcTimer = new StopWatch();
@@ -1124,6 +1122,7 @@ public class AutoCrystal extends Module
         this.listeners.add(new ListenerWorldClient(this));
         this.listeners.add(new ListenerDestroyBlock(this));
         this.listeners.add(new ListenerUseEntity(this));
+        this.listeners.add(new ListenerPingSync(this));
         this.listeners.addAll(new ListenerCPlayers(this).getListeners());
         this.listeners.addAll(new ListenerEntity(this).getListeners());
         this.listeners.addAll(extrapolationHelper.getListeners());
@@ -1148,50 +1147,6 @@ public class AutoCrystal extends Module
                 .addPage(p -> p == ACPages.MultiThread, preCalc, blockChangeThread)
                 .addPage(p -> p == ACPages.Development, priority, removeTime)
                 .register(Visibilities.VISIBILITY_MANAGER);
-
-
-        if(pingSync.getValue() && pingSyncTimer.passed(ServerUtil.getPing()))
-        {
-            pingSyncTimer.reset();
-            pingSyncTimer.setTime(0);
-
-            if(PINGBYPASS.isEnabled() && ignorePingBypass.getValue())
-                pingSync.setValue(false);
-
-            if(pingSyncStrength.getValue() > 0)
-            {
-                if(absolutePingSync.getValue())
-                {
-                    placeTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()));           // math teacher would be proud :^)
-                    breakTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()) - 10);      // -10 because generally we should break faster than we place :P
-                }else
-                {
-                    placeTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()));           // math teacher would be proud :^)
-                    breakTimer.reset((long)ServerUtil.getPing() / 100 * Math.round(pingSyncStrength.getValue()) - Math.round(pingSyncRemoval.getValue()));      // we now use PingSync-Break for the reduction :))
-                }
-
-                if(ignorePingspoof.getValue() && absolutePingSync.getValue())
-                {
-                    placeTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()));           // if that else this lmao
-                    breakTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()) - 10);
-                }
-                else if(ignorePingspoof.getValue() && !absolutePingSync.getValue())
-                {
-                    placeTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()));           // if that else this lmao
-                    breakTimer.reset((long)ServerUtil.getPingNoPingSpoof() / 100 * Math.round(pingSyncStrength.getValue()) - Math.round(pingSyncRemoval.getValue()));
-                }
-
-            }
-            else
-            {
-                pingSync.setValue(false); // honestly this should probably be rewritten, this just looks like it's not going to be efficient
-            }
-        }
-        else
-        {
-            breakTimer.reset(breakDelay.getValue());
-            placeTimer.reset(breakDelay.getValue());
-        }
 
         boolean start = false;
         for (Setting<?> setting : this.getSettings()) {
