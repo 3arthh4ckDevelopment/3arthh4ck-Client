@@ -126,7 +126,7 @@ public class BlockLag extends DisablingModule
     protected final Setting<Double> scaleFactor =
             register(new NumberSetting<>("Scale-Factor", 1.0, 0.1, 10.0));
 
-    // --------------- BYPASS --------------- //
+    // --------------- MOTION --------------- //
     protected final Setting<Float> motionAmount =
             register(new NumberSetting<>("Motion-Amount", 60f, 0.1f, 1337.0f));
     protected final Setting<Boolean> motionNegate =
@@ -192,7 +192,7 @@ public class BlockLag extends DisablingModule
             .addPage(v -> v == BlockLagPages.Misc, rotate, deltaY)
             .addPage(v -> v == BlockLagPages.Attack, attack, cooldown)
             .addPage(v -> v == BlockLagPages.Scale, scaleExplosion, scaleFactor)
-            .addPage(v -> v == BlockLagPages.Bypass, motionAmount, timerAmount)
+            .addPage(v -> v == BlockLagPages.Motion, motionAmount, timerAmount)
             .addPage(v -> v == BlockLagPages.Smart, smartRange, smartDelay)
             .register(Visibilities.VISIBILITY_MANAGER);
     }
