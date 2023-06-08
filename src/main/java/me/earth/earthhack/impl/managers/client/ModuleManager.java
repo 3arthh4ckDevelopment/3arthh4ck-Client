@@ -167,7 +167,6 @@ import me.earth.earthhack.impl.modules.render.newchunks.NewChunks;
 import me.earth.earthhack.impl.modules.render.norender.NoRender;
 import me.earth.earthhack.impl.modules.render.penis.Penis;
 import me.earth.earthhack.impl.modules.render.popchams.PopChams;
-import me.earth.earthhack.impl.modules.render.pvpresources.PvpResources;
 import me.earth.earthhack.impl.modules.render.rainbowenchant.RainbowEnchant;
 import me.earth.earthhack.impl.modules.render.search.Search;
 import me.earth.earthhack.impl.modules.render.skeleton.Skeleton;
@@ -372,7 +371,6 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new Penis());
         this.forceRegister(new WayPoints());
         this.forceRegister(new Weather());
-        this.forceRegister(new PvpResources());
         this.forceRegister(new HandChams());
         this.forceRegister(new CrystalChams());
         this.forceRegister(new RainbowEnchant());
