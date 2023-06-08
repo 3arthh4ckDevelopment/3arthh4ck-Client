@@ -153,7 +153,7 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
             }
         }
 
-        if(module.offsetMode.getValue() == OffsetMode.Bypass
+        if(module.offsetMode.getValue() == OffsetMode.Motion
                 && mc.player != null
                 && mc.world != null) {
 
