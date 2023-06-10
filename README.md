@@ -2,9 +2,10 @@
 
 # 3arthh4ck
 
-[![GitHub All Releases](https://img.shields.io/github/downloads/Ai2473/3arthh4ck/total.svg)](https://github.com/Ai2473/3arthh4ck/releases)
-[![Lines of code](docs/loc.svg)](https://tokei.rs/b1/github/Ai_2473/3arthh4ck?category=code)
-[![Build](https://github.com/Ai2473/3arthh4ck/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/Ai_2473/3arthh4ck/actions)
+[![GitHub All Releases](https://img.shields.io/github/downloads/3arthh4ckDevelopment/3arthh4ck-Client/total.svg?color=g)](https://github.com/3arthh4ckDevelopment/3arthh4ck-Client/releases)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/3arthh4ckDevelopment/3arthh4ck-Client/gradle-publish.yml)
+![GitHub](https://img.shields.io/github/license/3arthh4ckDevelopment/3arthh4ck-Client?color=g)
+[![Lines of code](docs/loc.svg)]()
 [![](https://discordapp.com/api/guilds/1065633124366688298/widget.png?style=shield)](https://discord.gg/ByCCxHcX8U)
 <br>
 3arthh4ck is an open source Minecraft 1.12.2 utility mod for anarchy PvP. With the 1.7.0 release it also takes over the role
