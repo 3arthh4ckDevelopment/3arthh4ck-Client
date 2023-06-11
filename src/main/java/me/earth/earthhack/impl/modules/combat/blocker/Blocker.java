@@ -21,7 +21,7 @@ import net.minecraft.util.math.Vec3i;
 // from a 3arthh4ck skid, remapped and cleaned (module originally made by xyzbtw and AquaMinerale2b2t)
 public class Blocker extends ObbyListenerModule<ListenerObsidian> {
     protected final Setting<Boolean> antiCev =
-            register(new BooleanSetting("AntiCev", false));
+            register(new BooleanSetting("AntiCev", true));
     protected final Setting<Boolean> extend =
             register(new BooleanSetting("Extend", true));
     protected final Setting<Boolean> face =
@@ -29,7 +29,7 @@ public class Blocker extends ObbyListenerModule<ListenerObsidian> {
     protected final Setting<Boolean> hole =
             register(new BooleanSetting("HoleCheck", true));
     protected final Setting<Boolean> fullExtend =
-            register(new BooleanSetting("FullExtend", true));
+            register(new BooleanSetting("FullExtendd", true)).setComplexity(Complexity.Dev);
     protected final Setting<Boolean> extendxyz =
             register(new BooleanSetting("Extend-diag", false));
     protected final Setting<Float> range =
@@ -105,10 +105,8 @@ public class Blocker extends ObbyListenerModule<ListenerObsidian> {
             if (fullExtend.getValue()) {
                 if (pos.getY() == playerPos.getY()) {
                     ListenerUpdate.scheduledPlacements.add(pos.offset(enumFacing));
-                    continue;
                 }
                 ListenerUpdate.scheduledPlacements.add(pos.add(0, 1, 0));
-                continue;
             }
 
             if (!playerPos.offset(enumFacing).equals(pos)) continue;

@@ -25,10 +25,7 @@ public class DiscordPresence implements Globals
     private boolean customId = false;
 
     public void details() {
-        if (module.logoBig.getValue() == LargeImage.Logo) {
-            presence.largeImageKey = "logo";
-            presence.largeImageText = Earthhack.NAME + " " + Earthhack.VERSION;
-        } else if (module.logoBig.getValue() == LargeImage.Skin) {
+        if (module.logoBig.getValue() == LargeImage.Skin) {
             presence.largeImageKey = "skin";
             presence.largeImageText = Earthhack.NAME + " " + Earthhack.VERSION;
         } else if (module.logoBig.getValue() == LargeImage.Phobos) {
