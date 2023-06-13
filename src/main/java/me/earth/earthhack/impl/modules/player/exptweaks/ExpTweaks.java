@@ -9,6 +9,7 @@ import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.api.util.bind.Bind;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.util.client.SimpleData;
+import me.earth.earthhack.impl.util.math.Timer;
 import me.earth.earthhack.impl.util.math.rotation.RotationUtil;
 import me.earth.earthhack.impl.util.minecraft.DamageUtil;
 import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
@@ -69,6 +70,8 @@ public class ExpTweaks extends Module
         register(new BooleanSetting("CancelPickBlock", true));
     protected final Setting<Boolean> normalMC =
         register(new BooleanSetting("CancelDefaultMiddleClick", true));
+    protected final Setting<Boolean> toggleMode =
+            register(new BooleanSetting("Hold-Bind", false));
 
     protected boolean justCancelled;
     protected boolean isMiddleClick;
@@ -120,12 +123,39 @@ public class ExpTweaks extends Module
         }
     }
 
-    public boolean isMiddleClick()
-    {
-        return middleClickExp.getValue()
-                && (Mouse.isButtonDown(2) && mceBind.getValue().getKey() == -1
-                        || KeyBoardUtil.isKeyDown(mceBind));
+    private boolean clicking = false, clicked = false;
+    private final Timer timer = new Timer();
+
+    public boolean isMiddleClick() {
+        if (toggleMode.getValue() && !timer.passed(300)) {
+            return false;
+        }
+
+        if (middleClickExp.getValue() && (Mouse.isButtonDown(2) && mceBind.getValue().getKey() == -1 || KeyBoardUtil.isKeyDown(mceBind))) {
+            if (clicked) {
+                resetClickState();
+                return false;
+            }
+            if (toggleMode.getValue()) {
+                clicking = true;
+            }
+            return true;
+        }
+
+        if (toggleMode.getValue() && clicking) {
+            clicked = true;
+            return true;
+        }
+
+        return false;
     }
+
+    private void resetClickState() {
+        timer.reset();
+        clicked = false;
+        clicking = false;
+    }
+
 
     public boolean isWastingLoot(List<Entity> entities)
     {

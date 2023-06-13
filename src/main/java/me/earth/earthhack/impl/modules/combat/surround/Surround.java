@@ -319,6 +319,8 @@ public class Surround extends ObbyModule
     @Override
     public boolean placeBlock(BlockPos pos)
     {
+        if (pos.getX() >= mc.world.getWorldBorder().maxX() || pos.getZ() >= mc.world.getWorldBorder().maxZ())
+            return false;
         boolean hasPlaced = super.placeBlock(pos);
         if (hasPlaced)
         {
