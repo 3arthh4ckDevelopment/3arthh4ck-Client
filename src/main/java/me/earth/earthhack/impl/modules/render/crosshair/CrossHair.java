@@ -22,7 +22,7 @@ import java.awt.*;
  * @author Gerald
  * @since 6/17/2021
  **/
-public class Crosshair extends Module
+public class CrossHair extends Module
 {
     //TODO: add custom crosshairs?
     protected final Setting<CrossHairPages> pages =
