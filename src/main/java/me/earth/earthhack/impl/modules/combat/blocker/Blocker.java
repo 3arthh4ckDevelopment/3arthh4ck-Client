@@ -29,18 +29,19 @@ public class Blocker extends ObbyListenerModule<ListenerObsidian> {
     protected final Setting<Boolean> hole =
             register(new BooleanSetting("HoleCheck", true));
     protected final Setting<Boolean> fullExtend =
-            register(new BooleanSetting("FullExtendd", true)).setComplexity(Complexity.Dev);
+            register(new BooleanSetting("FullExtend", true))
+                    .setComplexity(Complexity.Dev);
     protected final Setting<Boolean> extendxyz =
-            register(new BooleanSetting("Extend-diag", false));
+            register(new BooleanSetting("Extend-Diagonal", false));
     protected final Setting<Float> range =
             register(new NumberSetting<>("Range", 6.0f,0.0f, 10.0f));
     protected final Setting<Integer> surroundDelay =
             register(new NumberSetting<>("SurroundDelay", 500, 0, 3000));
     protected final Setting<DetectMode> mode =
-            register(new EnumSetting<>("Detect", DetectMode.Breaked))
+            register(new EnumSetting<>("Detect", DetectMode.Break))
                     .setComplexity(Complexity.Expert);
     protected final Setting<DetectMode> modeCev =
-            register(new EnumSetting<>("CevDetect", DetectMode.Touched))
+            register(new EnumSetting<>("CevDetect", DetectMode.Touch))
                     .setComplexity(Complexity.Expert);
 
 
@@ -138,8 +139,8 @@ public class Blocker extends ObbyListenerModule<ListenerObsidian> {
     }
 
     protected enum DetectMode {
-        Breaked,
-        Touched
+        Break,
+        Touch
     }
 
 }

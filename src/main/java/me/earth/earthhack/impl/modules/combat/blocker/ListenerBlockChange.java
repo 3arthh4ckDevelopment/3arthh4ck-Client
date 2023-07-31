@@ -29,7 +29,7 @@ public class ListenerBlockChange extends ModuleListener<Blocker, PacketEvent.Rec
 
         final BlockPos blockPosition = event.getPacket().getBlockPosition();
 
-        if (module.modeCev.getValue() == Blocker.DetectMode.Breaked) {
+        if (module.modeCev.getValue() == Blocker.DetectMode.Break) {
             if (module.antiCev.getValue()) {
                 BlockPos playerPos = PlayerUtil.getPlayerPos();
                 if (blockPosition.equals(playerPos.add(0, 2, 0))) {
@@ -38,7 +38,7 @@ public class ListenerBlockChange extends ModuleListener<Blocker, PacketEvent.Rec
             }
         }
 
-        if (module.mode.getValue() == Blocker.DetectMode.Breaked) {
+        if (module.mode.getValue() == Blocker.DetectMode.Break) {
             if (event.getPacket().getBlockState().getBlock() instanceof BlockAir) {
                 module.scanAndPlace(blockPosition, true);
             }
