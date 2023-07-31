@@ -26,7 +26,7 @@ public class ListenerBlockBreakAnim extends ModuleListener<Blocker, PacketEvent.
         }
 
         final BlockPos blockPosition = event.getPacket().getPosition();
-        if (module.mode.getValue() == Blocker.DetectMode.Touched) {
+        if (module.modeCev.getValue() == Blocker.DetectMode.Touched) {
             if (module.antiCev.getValue()) {
                 BlockPos playerPos = PlayerUtil.getPlayerPos();
                 if (blockPosition.equals(playerPos.add(0, 2, 0))) {
@@ -35,7 +35,7 @@ public class ListenerBlockBreakAnim extends ModuleListener<Blocker, PacketEvent.
             }
         }
 
-        if (module.mode.getValue() != Blocker.DetectMode.Touched) {
+        if (module.mode.getValue() == Blocker.DetectMode.Touched) {
             if (!mc.world.isAirBlock(blockPosition)) {
                 module.scanAndPlace(blockPosition, true);
             }

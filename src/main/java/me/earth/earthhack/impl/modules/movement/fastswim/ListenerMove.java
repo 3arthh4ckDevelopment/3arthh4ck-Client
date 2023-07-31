@@ -16,6 +16,7 @@ final class ListenerMove extends ModuleListener<FastSwim, MoveEvent>
     @Override
     public void invoke(MoveEvent event)
     {
+        if (mc.player.isElytraFlying()) return;
         if (module.strafe.getValue())
         {
             if (!module.accelerate.getValue() && Managers.NCP.passed(250))

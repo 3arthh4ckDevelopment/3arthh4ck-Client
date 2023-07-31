@@ -19,10 +19,13 @@ public class JelloRender {
             drawPercent -= 1;
         }
 
-        if (drawPercent < 0.5f) {
-            drawPercent = 2.0f * drawPercent * drawPercent;
+        drawPercent = drawPercent * 2;
+
+        if (drawPercent < 1) {
+            drawPercent = 0.5f * drawPercent * drawPercent * drawPercent;
         } else {
-            drawPercent = 1.0f - (-2.0f * drawPercent + 2.0f) / 2.0f;
+            float f = drawPercent - 2;
+            drawPercent = 0.5f * (f * f * f + 2);
         }
 
         mc.entityRenderer.disableLightmap();
@@ -34,7 +37,7 @@ public class JelloRender {
 
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glDisable(GL11.GL_CULL_FACE);
-        GL11.glShadeModel(7425);
+        GL11.glShadeModel(GL11.GL_SMOOTH);
         mc.entityRenderer.disableLightmap();
 
         double radius = target.width;
@@ -56,7 +59,7 @@ public class JelloRender {
             GL11.glColor4f(pulseColor(color, 200, 1).getRed() / 255.0f, pulseColor(color, 200, 1).getGreen() / 255.0f, pulseColor(color, 200, 1).getBlue() / 255.0f, 0.0f);
             GL11.glVertex3d(x1, y + eased, z1);
             GL11.glVertex3d(x2, y + eased, z2);
-            GL11.glColor4f(pulseColor(color, 200, 1).getRed() / 255.0f, pulseColor(color, 200, 1).getGreen() / 255.0f, pulseColor(color, 200, 1).getBlue() / 255.0f, color.getAlpha());
+            GL11.glColor4f(pulseColor(color, 200, 1).getRed() / 255.0f, pulseColor(color, 200, 1).getGreen() / 255.0f, pulseColor(color, 200, 1).getBlue() / 255.0f, color.getAlpha() / 255.0f);
             GL11.glVertex3d(x2, y, z2);
             GL11.glVertex3d(x1, y, z1);
             GL11.glEnd();
@@ -67,7 +70,7 @@ public class JelloRender {
         }
 
         GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glShadeModel(7424);
+        GL11.glShadeModel(GL11.GL_FLAT);
         GL11.glColor4f(1f, 1f, 1f, 1f);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
@@ -84,5 +87,4 @@ public class JelloRender {
         hsb[2] = brightness % Float.intBitsToFloat(Float.floatToIntBits(0.8992331f) ^ 0x7F663424);
         return new Color(Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]));
     }
-
 }
