@@ -7,6 +7,9 @@ import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.ColorSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.modules.Caches;
+import me.earth.earthhack.impl.modules.player.freecam.Freecam;
+import me.earth.earthhack.impl.modules.player.spectate.Spectate;
 import me.earth.earthhack.impl.util.render.Interpolation;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -53,16 +56,29 @@ public class Penis extends Module {
     }
 
     protected void onRender3D() {
+        int id = -133700;
+        int freecamId = -1;
+
+        if (Caches.getModule(Freecam.class).isEnabled()) {
+            id = mc.player.entityId;
+            freecamId = Caches.getModule(Freecam.class).get().getPlayer().getEntityId();
+        }
+        else if (Caches.getModule(Spectate.class).isEnabled()) {
+            id = -10000;
+        }
+
         for (final EntityPlayer player : mc.world.playerEntities) {
-            final Vec3d interpolateEntity = Interpolation.interpolateEntity(player);
-            drawPenis(player, interpolateEntity.x, interpolateEntity.y, interpolateEntity.z);
+            if (id != player.getEntityId()) {
+                final Vec3d interpolateEntity = Interpolation.interpolateEntity(player);
+                drawPenis(player, interpolateEntity.x, interpolateEntity.y, interpolateEntity.z, (freecamId != -1));
+            }
         }
     }
 
-    protected void drawPenis(EntityPlayer player, double x, double y, double z) {
-        final float length =  player == mc.player ? selfLength.getValue() : (Managers.FRIENDS.contains(player) ? friendLength.getValue() : enemyLength.getValue());
-        final Color shaftColor = player == mc.player ? selfShaftColor.getValue() : (Managers.FRIENDS.contains(player) ? friendShaftColor.getValue() : enemyShaftColor.getValue());
-        final Color tipColor = player == mc.player ? selfTipColor.getValue() : (Managers.FRIENDS.contains(player) ? friendTipColor.getValue() : enemyTipColor.getValue());
+    protected void drawPenis(EntityPlayer player, double x, double y, double z, boolean forceSelf) {
+        final float length = player == mc.player || forceSelf ? selfLength.getValue() : (Managers.FRIENDS.contains(player) ? friendLength.getValue() : enemyLength.getValue());
+        final Color shaftColor = player == mc.player || forceSelf ? selfShaftColor.getValue() : (Managers.FRIENDS.contains(player) ? friendShaftColor.getValue() : enemyShaftColor.getValue());
+        final Color tipColor = player == mc.player || forceSelf ? selfTipColor.getValue() : (Managers.FRIENDS.contains(player) ? friendTipColor.getValue() : enemyTipColor.getValue());
         GL11.glPushMatrix();
         RenderHelper.disableStandardItemLighting();
         GL11.glDisable(2896);
