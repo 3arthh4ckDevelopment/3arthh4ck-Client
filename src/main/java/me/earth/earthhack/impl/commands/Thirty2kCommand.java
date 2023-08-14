@@ -19,14 +19,15 @@ public class Thirty2kCommand extends AbstractStackCommand
 {
     public Thirty2kCommand()
     {
-        super("32k", "32k");
+        super(new String[][]{{"32k"},
+                {"sword", "bow", "pick", "helmet", "chest", "legs", "boots", "skeleton"}}, "32k");
         CommandDescriptions.register(this, "Gives you a 32k sword.");
     }
 
     @Override
     protected ItemStack getStack(String[] args)
     {
-        if (Arrays.stream(args).anyMatch("-bow"::equalsIgnoreCase))
+        if (Arrays.stream(args).anyMatch("bow"::equalsIgnoreCase))
         {
             ItemStack s = new ItemStack(Items.BOW);
             s.setStackDisplayName("3\u00B2arthB0w");
@@ -43,21 +44,22 @@ public class Thirty2kCommand extends AbstractStackCommand
             return s;
         }
 
-        if (Arrays.stream(args).anyMatch("-skeleton"::equalsIgnoreCase))
+        if (Arrays.stream(args).anyMatch("skeleton"::equalsIgnoreCase))
         {
             return getSkeleton();
         }
 
-        if (Arrays.stream(args).anyMatch("-slime"::equalsIgnoreCase)
-            || Arrays.stream(args).anyMatch("-magma"::equalsIgnoreCase))
+        if (Arrays.stream(args).anyMatch("slime"::equalsIgnoreCase)
+                || Arrays.stream(args).anyMatch("magma"::equalsIgnoreCase))
         {
             return getSlime(args);
         }
 
-        if (Arrays.stream(args).anyMatch("-pick"::equalsIgnoreCase))
+        if (Arrays.stream(args).anyMatch("pick"::equalsIgnoreCase))
         {
             ItemStack s = new ItemStack(Items.DIAMOND_PICKAXE);
             s.setStackDisplayName("3\u00B2arth P1ck");
+            s.setCount(64);
 
             addEnchantment(s, 32, Short.MAX_VALUE); // Efficiency 32767
             if (Arrays.stream(args).anyMatch("-fortune"::equalsIgnoreCase))
@@ -75,31 +77,35 @@ public class Thirty2kCommand extends AbstractStackCommand
             return s;
         }
 
-        boolean helmet = Arrays.stream(args).anyMatch("-helmet"::equalsIgnoreCase);
-        boolean chest = Arrays.stream(args).anyMatch("-chest"::equalsIgnoreCase);
-        boolean legs = Arrays.stream(args).anyMatch("-legs"::equalsIgnoreCase);
-        boolean boots = Arrays.stream(args).anyMatch("-boots"::equalsIgnoreCase);
+        boolean helmet = Arrays.stream(args).anyMatch("helmet"::equalsIgnoreCase);
+        boolean chest = Arrays.stream(args).anyMatch("chest"::equalsIgnoreCase);
+        boolean legs = Arrays.stream(args).anyMatch("legs"::equalsIgnoreCase);
+        boolean boots = Arrays.stream(args).anyMatch("boots"::equalsIgnoreCase);
 
         ItemStack s = null;
         if (helmet) {
             s = new ItemStack(Items.DIAMOND_HELMET);
             s.setStackDisplayName("3\u00B2arth H3lmet");
+            s.setCount(64);
         }
 
         if (chest) {
             s = new ItemStack(Items.DIAMOND_CHESTPLATE);
             s.setStackDisplayName("3\u00B2arth Ch3stPl4te");
+            s.setCount(64);
         }
 
         if (legs) {
             s = new ItemStack(Items.DIAMOND_LEGGINGS);
             s.setStackDisplayName("3\u00B2arth L3ggings");
+            s.setCount(64);
             addEnchantment(s, 3, Short.MAX_VALUE); // Blast Prot  32767
         }
 
         if (boots) {
             s = new ItemStack(Items.DIAMOND_BOOTS);
             s.setStackDisplayName("3\u00B2arth Bo0ts");
+            s.setCount(64);
         }
 
         if (helmet || chest || legs || boots) {

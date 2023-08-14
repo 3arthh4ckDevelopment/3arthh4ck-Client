@@ -19,12 +19,11 @@ import me.earth.earthhack.impl.modules.client.compatibility.Compatibility;
 import me.earth.earthhack.impl.modules.client.configs.ConfigModule;
 import me.earth.earthhack.impl.modules.client.customfont.FontMod;
 import me.earth.earthhack.impl.modules.client.debug.Debug;
-import me.earth.earthhack.impl.modules.client.hud.HUD;
+import me.earth.earthhack.impl.modules.client.editor.HudEditor;
 import me.earth.earthhack.impl.modules.client.management.Management;
 import me.earth.earthhack.impl.modules.client.media.Media;
 import me.earth.earthhack.impl.modules.client.nospoof.NoSpoof;
 import me.earth.earthhack.impl.modules.client.notifications.Notifications;
-import me.earth.earthhack.impl.modules.client.notificationsTTS.NotificationsTTS;
 import me.earth.earthhack.impl.modules.client.pbgui.PbGui;
 import me.earth.earthhack.impl.modules.client.pbteleport.PbTeleport;
 import me.earth.earthhack.impl.modules.client.pingbypass.PingBypassModule;
@@ -33,7 +32,6 @@ import me.earth.earthhack.impl.modules.client.safety.Safety;
 import me.earth.earthhack.impl.modules.client.server.ServerModule;
 import me.earth.earthhack.impl.modules.client.settings.SettingsModule;
 import me.earth.earthhack.impl.modules.client.tab.TabModule;
-import me.earth.earthhack.impl.modules.client.xcrash.XCrash;
 import me.earth.earthhack.impl.modules.combat.antisurround.AntiSurround;
 import me.earth.earthhack.impl.modules.combat.antitrap.AntiTrap;
 import me.earth.earthhack.impl.modules.combat.anvilaura.AnvilAura;
@@ -171,7 +169,6 @@ import me.earth.earthhack.impl.modules.render.rainbowenchant.RainbowEnchant;
 import me.earth.earthhack.impl.modules.render.search.Search;
 import me.earth.earthhack.impl.modules.render.skeleton.Skeleton;
 import me.earth.earthhack.impl.modules.render.sounds.Sounds;
-import me.earth.earthhack.impl.modules.render.targethud.TargetHud;
 import me.earth.earthhack.impl.modules.render.tracers.Tracers;
 import me.earth.earthhack.impl.modules.render.trails.Trails;
 import me.earth.earthhack.impl.modules.render.trajectories.Trajectories;
@@ -200,11 +197,10 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new ConfigModule());
         this.forceRegister(new Debug());
         this.forceRegister(new FontMod());
-        this.forceRegister(new HUD());
+        this.forceRegister(new HudEditor());
         this.forceRegister(new Management());
         this.forceRegister(new NoSpoof());
         this.forceRegister(new Notifications());
-        this.forceRegister(new NotificationsTTS());
         this.forceRegister(new Compatibility());
         this.forceRegister(new Safety());
         this.forceRegister(new ServerModule());
@@ -213,7 +209,6 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new SettingsModule());
         this.forceRegister(new TabModule());
         this.forceRegister(new Media());
-        this.forceRegister(new XCrash());
 
         //combat
         this.forceRegister(new AntiSurround());
@@ -378,7 +373,6 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new PopChams());
         this.forceRegister(new ItemChams());
         this.forceRegister(new Ambience());
-        this.forceRegister(new TargetHud());
 
         this.forceRegister(new PingBypassModule());
 

@@ -14,21 +14,21 @@ if [ ! -d "${dir_origin}" ]; then
 fi
 
 #Building the project
-echo -e "\e[32m[3arthh4ck]Building the project...\e[37m"
+echo -e "\e[32m[3arthh4ck] Building the project...\e[37m"
 ./gradlew build
 
 #Checking if the mods folder exists
 if [ -d "${dir_destination}" ]; then
-    echo -e "\e[32m[3arthh4ck]Folder found! Moving file...\e[37m"
+    echo -e "\e[32m[3arthh4ck] Folder found! Moving file...\e[37m"
 else
-    echo -e "\e[33m[3arthh4ck]Folder not found!! Creating...\e[37m"
+    echo -e "\e[33m[3arthh4ck] Folder not found!! Creating...\e[37m"
     ./gradlew genintellijruns
     mkdir "$(pwd)/run/mods"
 fi
 
 #Moving the builded file
-mv "${dir_origin}/3arthh4ck-1.8.8-release.jar" "${dir_destination}"
-echo -e "\e[35m[3arthh4ck]The file is in the mods folder, Starting the game!\e[37m"
+mv "${dir_origin}/3arthh4ck-1.9.0-release.jar" "${dir_destination}"
+echo -e "\e[35m[3arthh4ck] The file is in the mods folder, Starting the game!\e[37m"
 
 #Starting the game
 ./gradlew runclient

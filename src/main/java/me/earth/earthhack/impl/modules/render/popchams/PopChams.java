@@ -11,7 +11,6 @@ import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.gui.visibility.PageBuilder;
 import me.earth.earthhack.impl.gui.visibility.Visibilities;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.modules.client.hud.HUDData;
 import me.earth.earthhack.impl.modules.client.settings.SettingsModule;
 import me.earth.earthhack.impl.modules.render.popchams.util.PopChamsPages;
 import me.earth.earthhack.impl.util.helpers.render.BlockESPBuilder;

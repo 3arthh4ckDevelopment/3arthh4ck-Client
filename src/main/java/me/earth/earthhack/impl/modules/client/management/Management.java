@@ -15,13 +15,10 @@ import me.earth.earthhack.impl.event.listeners.LambdaListener;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.util.minecraft.CooldownBypass;
 import me.earth.earthhack.impl.util.text.ChatUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import org.lwjgl.opengl.Display;
 
 import java.awt.*;
-
-import static me.earth.earthhack.impl.Earthhack.STARTING_FPS;
 
 /**
  * {@link me.earth.earthhack.impl.core.mixins.util.MixinScreenShotHelper}
@@ -68,6 +65,8 @@ public class Management extends Module {
 
     protected GameProfile lastProfile;
     protected EntityPlayerSP player;
+    int fps;
+    boolean displayFlag = true;
 
 
     public Management()
@@ -102,10 +101,17 @@ public class Management extends Module {
 
         if (unfocusedFps.getValue() != 0) {
             this.listeners.add(new LambdaListener<>(Render2DEvent.class, e -> {
-                if (!Display.isActive())
-                    Minecraft.getMinecraft().gameSettings.limitFramerate = unfocusedFps.getValue();
-                else
-                    Minecraft.getMinecraft().gameSettings.limitFramerate = STARTING_FPS;
+                if (!Display.isActive()) {
+                    if (displayFlag) {
+                        fps = mc.gameSettings.limitFramerate;
+                        displayFlag = false;
+                    }
+                    mc.gameSettings.limitFramerate = unfocusedFps.getValue();
+                }
+                else if (!displayFlag) {
+                    mc.gameSettings.limitFramerate = fps;
+                    displayFlag = true;
+                }
             }));
         }
     }

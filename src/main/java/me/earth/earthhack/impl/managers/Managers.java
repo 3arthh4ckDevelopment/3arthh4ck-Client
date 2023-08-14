@@ -9,10 +9,7 @@ import me.earth.earthhack.impl.event.events.client.InitEvent;
 import me.earth.earthhack.impl.managers.chat.ChatManager;
 import me.earth.earthhack.impl.managers.chat.CommandManager;
 import me.earth.earthhack.impl.managers.chat.WrapManager;
-import me.earth.earthhack.impl.managers.client.FileManager;
-import me.earth.earthhack.impl.managers.client.ModuleManager;
-import me.earth.earthhack.impl.managers.client.PlayerManager;
-import me.earth.earthhack.impl.managers.client.PluginManager;
+import me.earth.earthhack.impl.managers.client.*;
 import me.earth.earthhack.impl.managers.client.macro.MacroManager;
 import me.earth.earthhack.impl.managers.config.ConfigManager;
 import me.earth.earthhack.impl.managers.config.helpers.BindConfigHelper;
@@ -45,6 +42,7 @@ public class Managers
     public static final PlayerManager FRIENDS      = new PlayerManager();
     public static final PlayerManager ENEMIES      = new PlayerManager();
     public static final ModuleManager MODULES      = new ModuleManager();
+    public static final HudElementManager ELEMENTS = new HudElementManager();
     public static final CombatManager COMBAT       = new CombatManager();
     public static final PositionManager POSITION   = new PositionManager();
     public static final RotationManager ROTATION   = new RotationManager();
@@ -125,6 +123,9 @@ public class Managers
         SplashScreenHelper.setSubStep("Initializing Modules");
         MODULES.load();
         MACRO.validateAll();
+
+        ELEMENTS.init();
+        ELEMENTS.load();
 
         PingBypass.init();
         Bus.EVENT_BUS.post(new InitEvent());

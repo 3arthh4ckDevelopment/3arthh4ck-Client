@@ -1,6 +1,6 @@
 package me.earth.earthhack.impl.util.helpers.addable.data;
 
-import me.earth.earthhack.api.module.data.AbstractData;
+import me.earth.earthhack.api.util.AbstractData;
 import me.earth.earthhack.impl.util.helpers.addable.AddableModule;
 
 public abstract class AddableData<T extends AddableModule>

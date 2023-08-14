@@ -1,10 +1,9 @@
 package me.earth.earthhack.impl.core.mixins.render;
 
-import me.earth.earthhack.api.cache.SettingCache;
-import me.earth.earthhack.api.setting.settings.BooleanSetting;
+import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
-import me.earth.earthhack.impl.modules.client.hud.HUD;
+import me.earth.earthhack.impl.modules.client.editor.HudEditor;
 import me.earth.earthhack.impl.util.text.TextColor;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -22,8 +21,8 @@ import java.util.regex.Pattern;
 @Mixin(FontRenderer.class)
 public abstract class MixinFontRenderer
 {
-    private static final SettingCache<Boolean, BooleanSetting, HUD> SHADOW =
-        Caches.getSetting(HUD.class, BooleanSetting.class, "Shadow", false);
+    private static final ModuleCache<HudEditor> HUD_EDITOR =
+            Caches.getModule(HudEditor.class);
 
     private static final String COLOR_CODES = "0123456789abcdefklmnorzy+-p";
 
@@ -74,7 +73,7 @@ public abstract class MixinFontRenderer
                                 int color,
                                 boolean dropShadow)
     {
-        if (dropShadow && SHADOW.getValue())
+        if (dropShadow && HUD_EDITOR.get().testShadow.getValue())
         {
             return this.renderString(text, x - 0.4f, y - 0.4f, color, true);
         }

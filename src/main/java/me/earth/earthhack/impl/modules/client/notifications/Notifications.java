@@ -1,5 +1,6 @@
 package me.earth.earthhack.impl.modules.client.notifications;
 
+import com.mojang.text2speech.Narrator;
 import me.earth.earthhack.api.event.bus.EventListener;
 import me.earth.earthhack.api.event.bus.instance.Bus;
 import me.earth.earthhack.api.module.Module;
@@ -8,7 +9,9 @@ import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
+import me.earth.earthhack.api.setting.settings.StringSetting;
 import me.earth.earthhack.impl.event.events.client.PostInitEvent;
+import me.earth.earthhack.impl.event.events.misc.TickEvent;
 import me.earth.earthhack.impl.event.events.render.Render2DEvent;
 import me.earth.earthhack.impl.event.listeners.LambdaListener;
 import me.earth.earthhack.impl.gui.visibility.Visibilities;
@@ -18,11 +21,13 @@ import me.earth.earthhack.impl.util.render.Render2DUtil;
 import me.earth.earthhack.impl.util.text.ChatIDs;
 import me.earth.earthhack.impl.util.text.TextColor;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import static me.earth.earthhack.impl.modules.client.hud.HUD.RENDERER;
+import static me.earth.earthhack.impl.util.otherplayers.IgnoreSelfClosest.GetClosestIgnore;
+import static me.earth.earthhack.impl.util.text.NumbersToWords.numberWords;
 
 public class Notifications extends Module
 {
@@ -42,16 +47,36 @@ public class Notifications extends Module
             register(new NumberSetting<>("PosX", 680.0f, 0.0f, (float) Render2DUtil.CSWidth()));
     protected final Setting<Float> posY =
             register(new NumberSetting<>("posY", 380.0f, 0.0f, (float) Render2DUtil.CSWidth() / 2));
+    /*
     protected final Setting<Boolean> leave  =
             register(new BooleanSetting("Leave", true));
+    protected final Setting<TextColor> leftColor =
+            register(new EnumSetting<>("LeaveColor", TextColor.None));
     protected final Setting<Boolean> entered =
             register(new BooleanSetting("Entered", true));
-    protected final Setting<TextColor> visualRangePlayerColor =
-            register(new EnumSetting<>("Visualrange Player-Color", TextColor.None));
-    protected final Setting<TextColor> leftColor =
-            register(new EnumSetting<>("Left-Color", TextColor.None));
     protected final Setting<TextColor> enteredColor =
             register(new EnumSetting<>("Entered-Color", TextColor.None));
+    protected final Setting<TextColor> visualRangePlayerColor =
+            register(new EnumSetting<>("VisualrangePlayerColor", TextColor.None)); // this name is too long!!
+    protected final Setting<Boolean> onJoin =
+            register(new BooleanSetting("OnJoin", false));
+    protected final Setting<Boolean> onLeave =
+            register(new BooleanSetting("OnLeave", false));
+     */
+
+
+
+    protected final Setting<Boolean> target =
+            register(new BooleanSetting("TargetPops", false));
+    protected final Setting<Boolean> pops   =
+            register(new BooleanSetting("OwnPops", false));
+    protected final Setting<Integer> percentage =
+            register(new NumberSetting<>("percentage", 5, 0,30));
+    protected final Setting<Double> targetDistance =
+            register(new NumberSetting<>("TargetDistance", 10.0, 0.0,30.0));
+    protected final Setting<String> name =
+            register(new StringSetting("PlayerName", "You"));
+
     protected final Setting<Boolean> modules     =
             register(new BooleanSetting("Modules", true));
     protected final Setting<Boolean> configure   =
@@ -60,7 +85,9 @@ public class Notifications extends Module
             register(new EnumSetting<>("Categories", Category.CategoryEnum.Combat));
 
     protected final Map<Module, Setting<Boolean>> announceMap = new HashMap<>();
+    private final List<Entity> visiblePlayers = new ArrayList<>();
     protected final StopWatch timer = new StopWatch();
+    private final Narrator narrator = Narrator.getNarrator();
 
     boolean hudnotify = false;
     private float time = 1, border = 4, width = 130.0f;
@@ -70,9 +97,10 @@ public class Notifications extends Module
         super("Notifications", Category.Client);
         this.listeners.add(new ListenerTotems(this));
         this.listeners.add(new ListenerDeath(this));
-        // this.listeners.add(new ListenerPlayerEnter(this));
-        // this.listeners.add(new ListenerPlayerLeave(this));
+        /*this.listeners.add(new ListenerPlayerEnter(this));
+        this.listeners.add(new ListenerPlayerLeave(this));*/
         this.setData(new NotificationData(this));
+
         this.listeners.add(new LambdaListener<>(Render2DEvent.class, e -> {
             if (hudnotify) {
                 time++;
@@ -89,14 +117,32 @@ public class Notifications extends Module
         }));
 
         Bus.EVENT_BUS.register(
-            new EventListener<PostInitEvent>(PostInitEvent.class)
-            {
-                @Override
-                public void invoke(PostInitEvent event)
-                {
-                    createSettings();
+                new EventListener<PostInitEvent>(PostInitEvent.class) {
+                    @Override
+                    public void invoke(PostInitEvent event)
+                    {
+                        createSettings();
+                    }
                 }
-            });
+        );
+
+        String[][] armorPieces = {{"boots", "0"},{"leggings", "0"},{"chestplate", "0"},{"helmet", "0"}};
+
+        this.listeners.add(new LambdaListener<>(TickEvent.class, e -> {
+            if (mc.player == null || mc.world == null) {return;}
+            for (int i = 3; i >= 0; i--) {
+                ItemStack stack = mc.player.inventory.armorInventory.get(i);
+                if (!stack.isEmpty()
+                        && (stack.getMaxDamage() - stack.getItemDamage()) * 100 / stack.getMaxDamage() <= percentage.getValue()
+                        && !Objects.equals(armorPieces[i][1], "1")) {
+                    narrator.clear();
+                    narrator.say(armorPieces[i][0] + " has " + numberWords.get((stack.getMaxDamage() - stack.getItemDamage())) + " durability left!");
+                    armorPieces[i][1] = "1";
+                } else if (stack.isEmpty() && Objects.equals(armorPieces[i][1], "1")) {
+                    armorPieces[i][1] = "0"; // basically checking if the armor piece got replaced
+                }
+            }
+        }));
     }
 
     @Override
@@ -112,7 +158,7 @@ public class Notifications extends Module
         for (Module module : Managers.MODULES.getRegistered())
         {
             Setting<Boolean> enabled = module.getSetting("Enabled",
-                                                    BooleanSetting.class);
+                    BooleanSetting.class);
             if (enabled == null)
             {
                 continue;
@@ -126,7 +172,7 @@ public class Notifications extends Module
                         && announceMap.get(module).getValue())
                 {
                     onToggleModule((Module) event.getSetting().getContainer(),
-                                            event.getValue());
+                            event.getValue());
                 }
             });
 
@@ -140,11 +186,11 @@ public class Notifications extends Module
 
             Visibilities.VISIBILITY_MANAGER.registerVisibility(setting,
                     () -> configure.getValue()
-                        && categories.getValue().toValue() == module.getCategory());
+                            && categories.getValue().toValue() == module.getCategory());
 
             this.getData()
-                .settingDescriptions()
-                .put(setting, "Announce Toggling of " + name + "?");
+                    .settingDescriptions()
+                    .put(setting, "Announce Toggling of " + name + "?");
         }
     }
 
@@ -164,47 +210,71 @@ public class Notifications extends Module
 
     public void onPop(Entity player, int totemPops)
     {
-        if (this.isEnabled() && totems.getValue())
-        {
-            String message = totemPlayerColor.getValue().getColor()
-                    + player.getName()
-                    + totemColor.getValue().getColor()
-                    + " popped "
-                    + totemAmountColor.getValue().getColor()
-                    + totemPops
-                    + totemColor.getValue().getColor()
-                    + " totem"
-                    + (totemPops == 1 ? "" : "s");
+        if (this.isEnabled()) {
+            if (totems.getValue()) {
+                String message = totemPlayerColor.getValue().getColor()
+                        + player.getName()
+                        + totemColor.getValue().getColor()
+                        + " popped "
+                        + totemAmountColor.getValue().getColor()
+                        + totemPops
+                        + totemColor.getValue().getColor()
+                        + " totem"
+                        + (totemPops == 1 ? "" : "s");
 
-            sendNotification(message, player.getName(), ChatIDs.TOTEM_POPS, false);
+                sendNotification(message, player.getName(), ChatIDs.TOTEM_POPS, false);
+            }
+
+            if (pops.getValue() && (player.getName().equals(mc.player.getName()) || player.getName().equals(closestPlayerName()))) {
+                String message = (player.getName() == mc.player.getName() ? name.getValue() : player.getName())
+                        + " popped "
+                        + numberWords.get(totemPops)
+                        + " totem"
+                        + (totemPops == 1 ? "." : "s.");
+
+                narrator.clear();
+                narrator.say(message);
+            }
         }
     }
 
     public void onDeath(Entity player, int totemPops)
     {
-        if (this.isEnabled() && totems.getValue())
-        {
-            String message = totemPlayerColor.getValue().getColor()
-                    + player.getName()
-                    + totemColor.getValue().getColor()
-                    + " died after popping "
-                    + totemAmountColor.getValue().getColor()
-                    + totemPops
-                    + totemColor.getValue().getColor()
-                    + " totem"
-                    + (totemPops == 1 ? "" : "s");
+        if (this.isEnabled()) {
+            if (totems.getValue()) {
+                String message = totemPlayerColor.getValue().getColor()
+                        + player.getName()
+                        + totemColor.getValue().getColor()
+                        + " died after popping "
+                        + totemAmountColor.getValue().getColor()
+                        + totemPops
+                        + totemColor.getValue().getColor()
+                        + " totem"
+                        + (totemPops == 1 ? "" : "s");
 
-            sendNotification(message, player.getName(), ChatIDs.TOTEM_POPS, false);
+                sendNotification(message, player.getName(), ChatIDs.TOTEM_POPS, false);
+            }
+
+            if (pops.getValue() && totemPops < 30 && (player.getName().equals(closestPlayerName()) || player.getName().equals(mc.player.getName()))) {
+                String message = (player.getName() == mc.player.getName() ? name.getValue() : player.getName())
+                        + " died after popping "
+                        + totemPops
+                        + " totem"
+                        + (totemPops == 1 ? "." : "s.");
+
+                narrator.clear();
+                narrator.say(message);
+            }
         }
     }
 
     private String messageEvent;
 
-    public void sendNotification(String message, String playerName, int senderID, boolean scheduled) {
+    public void sendNotification(String message, String name, int senderID, boolean scheduled) {
         if (typeNotification.getValue() == NotificationType.Chat && !scheduled) {
-            Managers.CHAT.sendDeleteMessage(message, playerName, senderID);
+            Managers.CHAT.sendDeleteMessage(message, name, senderID);
         } else if (typeNotification.getValue() == NotificationType.Chat && scheduled) {
-            mc.addScheduledTask(() -> Managers.CHAT.sendDeleteMessage(message, playerName, senderID));
+            mc.addScheduledTask(() -> Managers.CHAT.sendDeleteMessage(message, name, senderID));
         } else if (typeNotification.getValue() != NotificationType.Chat) {
             System.out.println(message);
             messageEvent = message;
@@ -218,7 +288,7 @@ public class Notifications extends Module
         float messageWidth= Managers.TEXT.getStringWidth(messageEvent);
         float endX = (messageWidth < width ? posX.getValue() + width : posX.getValue() + messageWidth + 2.0f);
         Render2DUtil.roundedRect(posX.getValue() - 5, posY.getValue(), endX + 5.0f, posY.getValue() + 25.0f, border,0xaa454545);
-        RENDERER.drawString(messageEvent, posX.getValue() + ((endX - posX.getValue() + 5.0f) / 2 - messageWidth / 2), posY.getValue() + (25.0f / 2 - Managers.TEXT.getStringHeight() / 2), 0xffffffff);
+        Managers.TEXT.drawString(messageEvent, posX.getValue() + ((endX - posX.getValue() + 5.0f) / 2 - messageWidth / 2), posY.getValue() + (25.0f / 2 - Managers.TEXT.getStringHeight() / 2), 0xffffffff);
 
         /*
         float progress;
@@ -235,6 +305,16 @@ public class Notifications extends Module
     public void notificationHudOld() {
         // remember that this uses inverted coords!!
         Render2DUtil.drawRect(posX.getValue() - Managers.TEXT.getStringWidth(messageEvent) - 1.0f, posY.getValue() - Managers.TEXT.getStringHeight() - 1.0f, posX.getValue(), posY.getValue() - 1.0f,0xaa454545);
-        RENDERER.drawString(messageEvent, posX.getValue() - Managers.TEXT.getStringWidth(messageEvent), posY.getValue() - Managers.TEXT.getStringHeight(), 0xffffffff);
+        Managers.TEXT.drawString(messageEvent, posX.getValue() - Managers.TEXT.getStringWidth(messageEvent), posY.getValue() - Managers.TEXT.getStringHeight(), 0xffffffff);
     }
+
+    public String closestPlayerName() {
+        EntityPlayer closestPlayer;
+        if (mc.player != null && mc.world != null) {
+            closestPlayer = GetClosestIgnore(targetDistance.getValue());
+            if (closestPlayer != null) {return closestPlayer.getName();}
+        }
+        return "no player";
+    }
+
 }

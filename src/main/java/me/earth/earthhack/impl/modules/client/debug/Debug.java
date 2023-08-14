@@ -49,8 +49,6 @@ import net.minecraft.util.math.Vec3d;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static me.earth.earthhack.impl.modules.client.hud.HUD.RENDERER;
-
 /**
  * Don't remove debugPlace!
  * and debugBreak
@@ -230,7 +228,18 @@ public class Debug extends Module
 
         this.listeners.add(new LambdaListener<>(Render2DEvent.class, e -> {
             if (glGrid.getValue()) {
-                Render2DUtil.testGrid();
+                int x = 50;
+                int y = 50;
+                for (int j = 0; j < 30; j++) {
+                    Render2DUtil.drawLine(x, 0, x, 2000, 5, 0x23343434);
+                    Managers.TEXT.drawString(String.valueOf(x), x, 20, 0x23ff0000);
+                    x += 50;
+                }
+                for (int i = 0; i < 30; i++) {
+                    Render2DUtil.drawLine(0, y, 2000, y, 5, 0x23003400);
+                    Managers.TEXT.drawString(String.valueOf(y), 20, y, 0x2300ff00);
+                    y += 50;
+                }
             }
         }));
 

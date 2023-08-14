@@ -8,7 +8,6 @@ import me.earth.earthhack.impl.modules.client.commands.Commands;
 import me.earth.earthhack.impl.util.math.geocache.Sphere;
 import me.earth.earthhack.impl.util.render.Icon;
 import me.earth.earthhack.impl.util.render.SplashScreenHelper;
-import net.minecraft.client.Minecraft;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
@@ -17,10 +16,12 @@ public class Earthhack implements Globals
 {
     private static final Logger LOGGER = LogManager.getLogger("3arthh4ck");
     public static final String NAME = "3arthh4ck";
-    public static final String VERSION = "1.8.9";
+    public static final String VERSION = "1.9.0";
+    public static long startMS;
 
     public static void preInit()
     {
+        startMS = System.currentTimeMillis();
         GlobalExecutor.EXECUTOR.submit(() -> Sphere.cacheSphere(LOGGER));
     }
 
@@ -32,15 +33,14 @@ public class Earthhack implements Globals
         Managers.load();
         LOGGER.info("Prefix is " + Commands.getPrefix());
         SplashScreenHelper.clear();
-        LOGGER.info("\n3arthh4ck initialized.\n");
+        LOGGER.info("\n\n ------------------ 3arthh4ck initialized ------------------ \n");
     }
 
     public static void postInit()
     {
         Icon.setIcon();
-        // For Plugins if they need it.
     }
-    
+
     public static Logger getLogger()
     {
         return LOGGER;
@@ -50,7 +50,5 @@ public class Earthhack implements Globals
     {
         return ((IMinecraft) mc).isEarthhackRunning();
     }
-
-    public static final int STARTING_FPS = Minecraft.getMinecraft().gameSettings.limitFramerate;
 
 }
