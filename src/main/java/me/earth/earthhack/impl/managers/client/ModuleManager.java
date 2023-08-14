@@ -52,7 +52,6 @@ import me.earth.earthhack.impl.modules.combat.offhand.Offhand;
 import me.earth.earthhack.impl.modules.combat.pistonaura.PistonAura;
 import me.earth.earthhack.impl.modules.combat.quiver.Quiver;
 import me.earth.earthhack.impl.modules.combat.selftrap.SelfTrap;
-import me.earth.earthhack.impl.modules.combat.snowballer.Snowballer;
 import me.earth.earthhack.impl.modules.combat.surround.Surround;
 import me.earth.earthhack.impl.modules.combat.webaura.WebAura;
 import me.earth.earthhack.impl.modules.misc.announcer.Announcer;
@@ -61,7 +60,6 @@ import me.earth.earthhack.impl.modules.misc.antipackets.AntiPackets;
 import me.earth.earthhack.impl.modules.misc.antipotion.AntiPotion;
 import me.earth.earthhack.impl.modules.misc.antivanish.AntiVanish;
 import me.earth.earthhack.impl.modules.misc.autoeat.AutoEat;
-import me.earth.earthhack.impl.modules.misc.autofish.AutoFish;
 import me.earth.earthhack.impl.modules.misc.autolog.AutoLog;
 import me.earth.earthhack.impl.modules.misc.autoreconnect.AutoReconnect;
 import me.earth.earthhack.impl.modules.misc.autoregear.AutoRegear;
@@ -130,7 +128,6 @@ import me.earth.earthhack.impl.modules.player.multitask.MultiTask;
 import me.earth.earthhack.impl.modules.player.ncptweaks.NCPTweaks;
 import me.earth.earthhack.impl.modules.player.noglitchblocks.NoGlitchBlocks;
 import me.earth.earthhack.impl.modules.player.nohunger.NoHunger;
-import me.earth.earthhack.impl.modules.player.noinventorydesync.InventorySync;
 import me.earth.earthhack.impl.modules.player.norotate.NoRotate;
 import me.earth.earthhack.impl.modules.player.pearlphase.PearlPhase;
 import me.earth.earthhack.impl.modules.player.raytrace.RayTrace;
@@ -231,7 +228,6 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new PistonAura());
         this.forceRegister(new Quiver());
         this.forceRegister(new Surround());
-        this.forceRegister(new Snowballer());
         this.forceRegister(new SelfTrap());
         this.forceRegister(new WebAura());
 
@@ -242,7 +238,6 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new AntiPotion());
         this.forceRegister(new AntiVanish());
         this.forceRegister(new AutoEat());
-        this.forceRegister(new AutoFish());
         this.forceRegister(new AutoLog());
         this.forceRegister(new AutoReconnect());
         this.forceRegister(new AutoRespawn());
@@ -269,12 +264,6 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new TpsSync());
         this.forceRegister(new Tracker());
         this.forceRegister(new TrueDurability());
-
-        /*
-        if (Environment.hasForge()) {
-            this.forceRegister(new AutoCraft());
-        }
-        */
         this.forceRegister(new AutoRegear());
         this.forceRegister(new PacketDelay());
         this.forceRegister(new RPC());
@@ -325,7 +314,6 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new NCPTweaks());
         this.forceRegister(new NoGlitchBlocks());
         this.forceRegister(new NoHunger());
-        this.forceRegister(new InventorySync());
         this.forceRegister(new NoRotate());
         this.forceRegister(new RayTrace());
         this.forceRegister(new Reach());

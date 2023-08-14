@@ -62,8 +62,7 @@ public class Penis extends Module {
         if (Caches.getModule(Freecam.class).isEnabled()) {
             id = mc.player.entityId;
             freecamId = Caches.getModule(Freecam.class).get().getPlayer().getEntityId();
-        }
-        else if (Caches.getModule(Spectate.class).isEnabled()) {
+        } else if (Caches.getModule(Spectate.class).isEnabled()) {
             id = -10000;
         }
 
