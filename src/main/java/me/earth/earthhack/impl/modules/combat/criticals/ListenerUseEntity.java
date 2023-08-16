@@ -115,6 +115,32 @@ final class ListenerUseEntity extends
                                 pos.z,
                                 false));
                         break;
+                    case NCP:
+                        PingBypass.sendToActualServer(
+                            new CPacketPlayer.Position(
+                                pos.x,
+                                pos.y + 0.00001058293536,
+                                pos.z,
+                                false));
+                        PingBypass.sendToActualServer(
+                            new CPacketPlayer.Position(
+                                pos.x,
+                                pos.y + 0.00000916580235,
+                                pos.z,
+                                false));
+                        PingBypass.sendToActualServer(
+                            new CPacketPlayer.Position(
+                                pos.x,
+                                pos.y + 0.00000010371854,
+                                pos.z,
+                                false));
+                        PingBypass.sendToActualServer(
+                            new CPacketPlayer.Position(
+                                pos.x,
+                                pos.y,
+                                pos.z,
+                                false));
+                        break;                                
                     case Jump:
                         mc.player.jump();
                         break;
