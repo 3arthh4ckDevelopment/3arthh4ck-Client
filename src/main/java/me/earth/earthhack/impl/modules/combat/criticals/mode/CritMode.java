@@ -4,6 +4,7 @@ public enum CritMode
 {
     Packet,
     Bypass,
+    NCP,
     Jump,
     MiniJump
 }
