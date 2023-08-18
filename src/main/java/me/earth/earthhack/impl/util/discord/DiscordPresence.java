@@ -166,8 +166,6 @@ public class DiscordPresence implements Globals
 
     private String line2()
     {
-        // module.showIP.getValue() twice, because it won't work unless I do this like this lol
-
         return module.showIP.getValue()
                 ? module.showIP.getValue()
                     ? "Playing on " + Objects.requireNonNull(mc.getCurrentServerData()).serverIP + "!"

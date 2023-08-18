@@ -77,36 +77,48 @@ public class Potions extends DynamicHudElement {
                                 : (HUD_EDITOR.get().colorMode.getValue() == HudRainbow.Static ? (ColorUtil.staticRainbow((y + 1) * 0.89f, HUD_EDITOR.get().color.getValue())) : 0xffffffff)));
     }
 
+    void normalColors() {
+        potionColorMap.clear();
+        potionColorMap.put(MobEffects.SPEED, new Color(85, 255, 255));
+        potionColorMap.put(MobEffects.SLOWNESS, new Color(0, 0, 0));
+        potionColorMap.put(MobEffects.HASTE, new Color(255, 170, 0));
+        potionColorMap.put(MobEffects.MINING_FATIGUE, new Color(74, 66, 23));
+        potionColorMap.put(MobEffects.STRENGTH, new Color(255, 85, 85));
+        potionColorMap.put(MobEffects.INSTANT_HEALTH, new Color(67, 10, 9));
+        potionColorMap.put(MobEffects.INSTANT_DAMAGE, new Color(67, 10, 9));
+        potionColorMap.put(MobEffects.JUMP_BOOST, new Color(85, 255, 255));
+        potionColorMap.put(MobEffects.NAUSEA, new Color(85, 29, 74));
+        potionColorMap.put(MobEffects.REGENERATION, new Color(255, 85, 255));
+        potionColorMap.put(MobEffects.RESISTANCE, new Color(255, 85, 85));
+        potionColorMap.put(MobEffects.FIRE_RESISTANCE, new Color(255, 170, 0));
+        potionColorMap.put(MobEffects.WATER_BREATHING, new Color(46, 82, 153));
+        potionColorMap.put(MobEffects.INVISIBILITY, new Color(127, 131, 146));
+        potionColorMap.put(MobEffects.BLINDNESS, new Color(31, 31, 35));
+        potionColorMap.put(MobEffects.NIGHT_VISION, new Color(85, 255, 85));
+        potionColorMap.put(MobEffects.HUNGER, new Color(88, 118, 83));
+        potionColorMap.put(MobEffects.WEAKNESS, new Color(0, 0, 0));
+        potionColorMap.put(MobEffects.POISON, new Color(85, 255, 85));
+        potionColorMap.put(MobEffects.WITHER, new Color(0, 0, 0));
+        potionColorMap.put(MobEffects.HEALTH_BOOST, new Color(248, 125, 35));
+        potionColorMap.put(MobEffects.ABSORPTION, new Color(85, 85, 255));
+        potionColorMap.put(MobEffects.SATURATION, new Color(248, 36, 35));
+        potionColorMap.put(MobEffects.GLOWING, new Color(148, 160, 97));
+        potionColorMap.put(MobEffects.LEVITATION, new Color(206, 255, 255));
+        potionColorMap.put(MobEffects.LUCK, new Color(51, 153, 0));
+        potionColorMap.put(MobEffects.UNLUCK, new Color(192, 164, 77));
+    }
+
     private final Map<Potion, Color> potionColorMap = new HashMap<>();
     public Potions() {
         super("PotionEffects", 120, 120);
         this.setData(new SimpleHudData(this, "Displays active potion effects."));
 
+        normalColors();
+
         this.potionColor.addObserver(e -> {
-            if (potionColor.getValue() == PotionColor.Phobos) {
-                potionColorMap.clear();
-                potionColorMap.put(MobEffects.SPEED, new Color(85, 255, 255));
-                potionColorMap.put(MobEffects.SLOWNESS, new Color(0, 0, 0));
-                potionColorMap.put(MobEffects.HASTE, new Color(255, 170, 0));
-                potionColorMap.put(MobEffects.MINING_FATIGUE, new Color(74, 66, 23));
-                potionColorMap.put(MobEffects.STRENGTH, new Color(255, 85, 85));
-                potionColorMap.put(MobEffects.INSTANT_HEALTH, new Color(67, 10, 9));
-                potionColorMap.put(MobEffects.INSTANT_DAMAGE, new Color(67, 10, 9));
-                potionColorMap.put(MobEffects.JUMP_BOOST, new Color(85, 255, 255));
-                potionColorMap.put(MobEffects.NAUSEA, new Color(85, 29, 74));
-                potionColorMap.put(MobEffects.REGENERATION, new Color(255, 85, 255));
-                potionColorMap.put(MobEffects.RESISTANCE, new Color(255, 85, 85));
-                potionColorMap.put(MobEffects.FIRE_RESISTANCE, new Color(255, 170, 0));
-                potionColorMap.put(MobEffects.WATER_BREATHING, new Color(46, 82, 153));
-                potionColorMap.put(MobEffects.INVISIBILITY, new Color(127, 131, 146));
-                potionColorMap.put(MobEffects.BLINDNESS, new Color(31, 31, 35));
-                potionColorMap.put(MobEffects.NIGHT_VISION, new Color(85, 255, 85));
-                potionColorMap.put(MobEffects.HUNGER, new Color(88, 118, 83));
-                potionColorMap.put(MobEffects.WEAKNESS, new Color(0, 0, 0));
-                potionColorMap.put(MobEffects.POISON, new Color(85, 255, 85));
-                potionColorMap.put(MobEffects.WITHER, new Color(0, 0, 0));
-                potionColorMap.put(MobEffects.HEALTH_BOOST, new Color(248, 125, 35));
-                potionColorMap.put(MobEffects.ABSORPTION, new Color(85, 85, 255));
+            System.out.println(potionColorMap.size());
+            if (potionColor.getValue() != PotionColor.Normal) {
+                normalColors();
             } else if (potionColor.getValue() == PotionColor.Normal) {
                 potionColorMap.clear();
                 potionColorMap.put(MobEffects.SPEED, new Color(124, 175, 198));
@@ -131,13 +143,14 @@ public class Potions extends DynamicHudElement {
                 potionColorMap.put(MobEffects.WITHER, new Color(53, 42, 39));
                 potionColorMap.put(MobEffects.HEALTH_BOOST, new Color(248, 125, 35));
                 potionColorMap.put(MobEffects.ABSORPTION, new Color(37, 82, 165));
+                potionColorMap.put(MobEffects.SATURATION, new Color(248, 36, 35));
+                potionColorMap.put(MobEffects.GLOWING, new Color(148, 160, 97));
+                potionColorMap.put(MobEffects.LEVITATION, new Color(206, 255, 255));
+                potionColorMap.put(MobEffects.LUCK, new Color(51, 153, 0));
+                potionColorMap.put(MobEffects.UNLUCK, new Color(192, 164, 77));
+            } else {
+                potionColorMap.clear();
             }
-
-            potionColorMap.put(MobEffects.SATURATION, new Color(248, 36, 35));
-            potionColorMap.put(MobEffects.GLOWING, new Color(148, 160, 97));
-            potionColorMap.put(MobEffects.LEVITATION, new Color(206, 255, 255));
-            potionColorMap.put(MobEffects.LUCK, new Color(51, 153, 0));
-            potionColorMap.put(MobEffects.UNLUCK, new Color(192, 164, 77));
         });
 
     }
