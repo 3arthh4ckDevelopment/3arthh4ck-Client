@@ -74,7 +74,7 @@ final class ListenerRender extends ModuleListener<Nametags, Render3DEvent>
                     Vec3d i = Interpolation.interpolateEntity(entity);
                     RenderUtil.drawNametag(entity.getEntityId() + "",
                             i.x, i.y, i.z,
-                            module.scale.getValue(),
+                            module.scale.getValue() / 100.0f,
                             0xffffffff,
                             false);
                 }
@@ -96,7 +96,7 @@ final class ListenerRender extends ModuleListener<Nametags, Render3DEvent>
         y = MathHelper.sqrt(xDist * xDist + yDist * yDist + zDist * zDist);
 
         int nameWidth = nametag.nameWidth / 2;
-        double scaling = 0.0018 + module.scale.getValue() * y;
+        double scaling = 0.0018 + module.scale.getValue() / 100.0f * y;
 
         if (y <= 8.0)
         {
@@ -126,13 +126,15 @@ final class ListenerRender extends ModuleListener<Nametags, Render3DEvent>
         GlStateManager.enableBlend();
         GlStateManager.enableBlend();
 
-        RenderUtil.prepare(-nameWidth - 1,
-                           -Managers.TEXT.getStringHeightI(),
-                           nameWidth + 2,
-                           1.0f,
-                           1.8F,
-                           0x55000400,
-                           0x33000000);
+        if (module.outlineColor.getValue().getAlpha() > 0) {
+            RenderUtil.prepare(-nameWidth - 1,
+                               -Managers.TEXT.getStringHeightI(),
+                               nameWidth + 2,
+                               1.0f,
+                                module.outlineWidth.getValue(),
+                                0x55000000,
+                                module.outlineColor.getValue().getRGB());
+        }
 
         GlStateManager.disableBlend();
 
@@ -143,7 +145,7 @@ final class ListenerRender extends ModuleListener<Nametags, Render3DEvent>
                 nametag.nameColor);
 
         xOffset = -nametag.stacks.size() * 8
-                    - (nametag.mainHand == null ? 0 : 8);
+                - (nametag.mainHand == null ? 0 : 8);
         maxEnchHeight = nametag.maxEnchHeight;
         renderDurability = nametag.renderDura;
         GlStateManager.pushMatrix();
@@ -168,10 +170,13 @@ final class ListenerRender extends ModuleListener<Nametags, Render3DEvent>
 
     private void renderStackRenderer(StackRenderer sr, boolean main)
     {
+        if (module.max.getValue()) {
+            maxEnchHeight = 1;
+        }
+
         int fontOffset = module.getFontOffset(maxEnchHeight);
-        if (module.armor.getValue())
-        {
-            sr.renderStack(xOffset, fontOffset, maxEnchHeight);
+        if (module.armor.getValue()) {
+            sr.renderStack(xOffset, fontOffset, 1);
             fontOffset -= 32;
         }
 

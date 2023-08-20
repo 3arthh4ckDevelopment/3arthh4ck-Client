@@ -4,55 +4,60 @@ import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Complexity;
 import me.earth.earthhack.api.setting.Setting;
-import me.earth.earthhack.api.setting.settings.BooleanSetting;
-import me.earth.earthhack.api.setting.settings.EnumSetting;
-import me.earth.earthhack.api.setting.settings.NumberSetting;
+import me.earth.earthhack.api.setting.settings.*;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.minecraft.PushMode;
 import me.earth.earthhack.impl.util.thread.SafeRunnable;
 import net.minecraft.entity.player.EntityPlayer;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Nametags extends Module
 {
-    protected final Setting<Boolean> twoD     =
+    protected final Setting<Boolean> twoD =
             register(new BooleanSetting("2D", false));
-    protected final Setting<Boolean> health     =
+    protected final Setting<Boolean> health =
             register(new BooleanSetting("Health", true));
-    protected final Setting<Boolean> ping       =
+    protected final Setting<Boolean> ping =
             register(new BooleanSetting("Ping", true));
-    protected final Setting<Boolean> id         =
+    protected final Setting<Boolean> id =
             register(new BooleanSetting("Id", false));
-    protected final Setting<Boolean> itemStack  =
+    protected final Setting<Boolean> itemStack =
             register(new BooleanSetting("StackName", false));
-    protected final Setting<Boolean> armor      =
+    protected final Setting<Boolean> armor =
             register(new BooleanSetting("Armor", true));
-    protected final Setting<Boolean> gameMode   =
-            register(new BooleanSetting("GameMode", false));
     protected final Setting<Boolean> durability =
             register(new BooleanSetting("Durability", true));
+    protected final Setting<Boolean> max =
+            register(new BooleanSetting("EnchantMax", false));
+    protected final Setting<String> maxText =
+            register(new StringSetting("MaxText", "Max"));
+    protected final Setting<Boolean> gameMode =
+            register(new BooleanSetting("GameMode", false));
     protected final Setting<Boolean> invisibles =
             register(new BooleanSetting("Invisibles", false));
-    protected final Setting<Boolean> pops       =
+    protected final Setting<Boolean> pops =
             register(new BooleanSetting("Pops", true));
-    protected final Setting<Boolean> burrow     =
+    protected final Setting<Boolean> burrow =
             register(new BooleanSetting("Burrow", true));
-    protected final Setting<Boolean> fov        =
+    protected final Setting<Boolean> fov =
             register(new BooleanSetting("Fov", true));
-    protected final Setting<Boolean> sneak      =
+    protected final Setting<Boolean> sneak =
             register(new BooleanSetting("Sneak", true));
-    protected final Setting<Float> scale        = // TODO: divide by 100
-            register(new NumberSetting<>("Scale", 0.003f, 0.001f, 0.01f));
-    protected final Setting<Integer> delay      =
+    protected final Setting<Float> scale =
+            register(new NumberSetting<>("Scale", 0.3f, 0.1f, 1.0f));
+    protected final Setting<Integer> delay =
             register(new NumberSetting<>("Delay", 16, 0, 100));
-    protected final Setting<Boolean> debug      =
-            register(new BooleanSetting("Debug", false));
-    protected final Setting<Boolean> media      =
+    protected final Setting<Color> outlineColor =
+            register(new ColorSetting("Outline-Color", new Color(135, 135, 135, 135)));
+    protected final Setting<Float> outlineWidth =
+            register(new NumberSetting<>("Outline-Width", 1.8f, 0.2f, 10.0f));
+    protected final Setting<Boolean> media =
             register(new BooleanSetting("Media", true));
-    protected final Setting<Boolean> phase      =
+    protected final Setting<Boolean> phase =
             register(new BooleanSetting("Phase", false));
     protected final Setting<PushMode> pushMode =
             register(new EnumSetting<>("PhasePushDetect", PushMode.None))
@@ -65,15 +70,18 @@ public class Nametags extends Module
     protected final Setting<Boolean> motionKpH =
             register(new BooleanSetting("MotionKpH", false))
                 .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> close        =
+    protected final Setting<Boolean> close =
             register(new BooleanSetting("Close", false))
                 .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> withDistance        =
+    protected final Setting<Boolean> withDistance =
             register(new BooleanSetting("WithDistance", false))
                 .setComplexity(Complexity.Expert);
-    protected final Setting<Double> distance        =
-            register(new NumberSetting<>("Distance", 300.0, 0.0, 1000.0))
+    protected final Setting<Double> distance =
+            register(new NumberSetting<>("Distance", 110.0, 0.0, 200.0))
                 .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> debug =
+            register(new BooleanSetting("Debug", false))
+                    .setComplexity(Complexity.Dev);
 
     protected List<Nametag> nametags = new ArrayList<>();
     protected final StopWatch timer = new StopWatch();

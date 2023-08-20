@@ -1,8 +1,10 @@
 package me.earth.earthhack.impl.modules.render.nametags;
 
+import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.util.TextUtil;
 import me.earth.earthhack.api.util.interfaces.Globals;
 import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.util.minecraft.DamageUtil;
 import me.earth.earthhack.impl.util.render.ColorHelper;
 import me.earth.earthhack.impl.util.text.TextColor;
@@ -32,8 +34,7 @@ public class StackRenderer implements Globals
         if (stack.isItemStackDamageable())
         {
             percent = DamageUtil.getPercent(stack) / 100.0f;
-            color = ColorHelper.toColor(percent * 120.0f, 100.0f, 50.0f, 1.0f)
-                               .getRGB();
+            color = ColorHelper.toColor(percent * 120.0f, 100.0f, 50.0f, 1.0f).getRGB();
         }
         else
         {
@@ -74,9 +75,9 @@ public class StackRenderer implements Globals
         GlStateManager.disableCull();
         int height = enchHeight > 4 ? (enchHeight - 4) * 8 / 2 : 0;
         mc.getRenderItem()
-          .renderItemAndEffectIntoGUI(stack, x, y + height);
+                .renderItemAndEffectIntoGUI(stack, x, y + height);
         mc.getRenderItem()
-          .renderItemOverlays(mc.fontRenderer, stack, x, y + height);
+                .renderItemOverlays(mc.fontRenderer, stack, x, y + height);
         mc.getRenderItem().zLevel = 0.0f;
         RenderHelper.disableStandardItemLighting();
         GlStateManager.enableCull();
@@ -161,15 +162,22 @@ public class StackRenderer implements Globals
 
     private void renderEnchants(ItemStack stack, int xOffset, int yOffset)
     {
-        for (String enchantment : enchantTexts)
-        {
-            if (enchantment != null)
-            {
-                Managers.TEXT.drawStringWithShadow(enchantment,
-                                                   xOffset * 2.0f,
-                                                   yOffset,
-                                                   0xffffffff);
-                yOffset += 8;
+        final ModuleCache<Nametags> NAMETAGS = Caches.getModule(Nametags.class);
+
+        if (NAMETAGS.isEnabled() && NAMETAGS.get().max.getValue() && !stack.getEnchantmentTagList().isEmpty()) {
+            Managers.TEXT.drawStringWithShadow(NAMETAGS.get().maxText.getValue(),
+                                                xOffset * 2.0f,
+                                                yOffset + 21,
+                                                0xffff0000);
+        } else {
+            for (String enchantment : enchantTexts) {
+                if (enchantment != null) {
+                    Managers.TEXT.drawStringWithShadow(enchantment,
+                                                        xOffset * 2.0f,
+                                                        yOffset,
+                                                        0xffffffff);
+                    yOffset += 8;
+                }
             }
         }
 
