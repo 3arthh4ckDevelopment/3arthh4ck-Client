@@ -4,6 +4,7 @@ import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
+import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.event.events.misc.TickEvent;
 import me.earth.earthhack.impl.event.events.network.NoMotionUpdateEvent;
@@ -19,13 +20,24 @@ import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
 public class TickShift extends Module
 {
-    private final Setting<Float> timer = register(new NumberSetting<>("Timer", 2.0f, 0.1f, 100.0f));
-    private final Setting<Integer> packets = register(new NumberSetting<>("Packets", 20, 0, 1000));
-    private final Setting<Boolean> sneaking = register(new BooleanSetting("Sneaking", false));
-    private final Setting<Boolean> cancelGround = register(new BooleanSetting("CancelGround", false));
-    private final Setting<Boolean> cancelRotations = register(new BooleanSetting("CancelRotation", false));
-    private final Setting<Boolean> fullResetOnPacket = register(new BooleanSetting("FullResetOnPacket", false));
-    private final Setting<Integer> lagTime = register(new NumberSetting<>("LagTime", 1000, 0, 10_000));
+    private final Setting<Float> timer =
+            register(new NumberSetting<>("Timer", 2.0f, 0.1f, 100.0f));
+    private final Setting<Integer> packets =
+            register(new NumberSetting<>("Packets", 20, 0, 1000));
+    private final Setting<Integer> factor =
+            register(new NumberSetting<>("Factor", 1, 1, 10));
+    private final Setting<Boolean> sneaking =
+            register(new BooleanSetting("Sneaking", false));
+    private final Setting<Boolean> cancelGround =
+            register(new BooleanSetting("CancelGround", false));
+    private final Setting<RotationMode> rotations =
+            register(new EnumSetting<>("CancelRotation", RotationMode.None));
+    private final Setting<Boolean> fullResetOnPacket =
+            register(new BooleanSetting("FullResetOnPacket", false));
+    private final Setting<Boolean> jump =
+            register(new BooleanSetting("ResetOnJump", false));
+    private final Setting<Integer> lagTime =
+            register(new NumberSetting<>("LagTime", 1000, 0, 10_000));
 
     private int ticks;
 
@@ -34,7 +46,7 @@ public class TickShift extends Module
         super("TickShift", Category.Movement);
         this.listeners.add(new LambdaListener<>(TickEvent.class, e ->
         {
-            if (mc.player == null || mc.world == null || !Managers.NCP.passed(lagTime.getValue()))
+            if (mc.player == null || mc.world == null || !Managers.NCP.passed(lagTime.getValue()) || (mc.player.isJumping && jump.getValue()))
             {
                 reset();
             }
@@ -47,7 +59,7 @@ public class TickShift extends Module
         {
             Managers.TIMER.setTimer(1.0f);
             int maxPackets = packets.getValue();
-            ticks = ticks >= maxPackets ? maxPackets : ticks + 1;
+            ticks = ticks >= maxPackets ? maxPackets : ticks + factor.getValue();
         }));
         this.listeners.addAll(new CPacketPlayerListener(-10_000)
         {
@@ -73,9 +85,8 @@ public class TickShift extends Module
             @Override
             protected void onRotation(PacketEvent.Send<CPacketPlayer.Rotation> event)
             {
-                if (cancelRotations.getValue()
-                        && (cancelGround.getValue()
-                        || event.getPacket().isOnGround() == Managers.POSITION.isOnGround()))
+                if ((rotations.getValue() == RotationMode.Ground && (cancelGround.getValue() || event.getPacket().isOnGround() == Managers.POSITION.isOnGround()))
+                        || rotations.getValue() == RotationMode.All)
                 {
                     event.setCancelled(true);
                 }
@@ -135,6 +146,13 @@ public class TickShift extends Module
     {
         Managers.TIMER.setTimer(1.0f);
         ticks = 0;
+    }
+
+    private enum RotationMode {
+        None,
+        Ground,
+        All
+
     }
 
 }
