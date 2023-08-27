@@ -83,8 +83,8 @@ public abstract class ObbyListener<T extends ObbyListenerModule<?>>
 
     protected void placeTargets()
     {
-        for (BlockPos pos : targets)
-        {
+        for (int i = 0; i < targets.size(); i++) { // DO NOT use foreach here
+            BlockPos pos = targets.get(i);
             if (!placed.containsKey(pos)
                     && HELPER.getBlockState(pos)
                              .getMaterial()
