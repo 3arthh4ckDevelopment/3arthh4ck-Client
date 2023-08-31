@@ -244,7 +244,7 @@ public class Render2DUtil implements Globals {
     }
 
     public static void progressBar(float startX, float endX, float y, float radius, int color) {
-        // the y should be the middle of the bar
+        // y is the horizontal middle of the bar
         float startY = y - radius / 2, endY = y + radius / 2;
         drawRect(startX - radius, startY, endX + radius, endY, color);
 
@@ -503,11 +503,11 @@ public class Render2DUtil implements Globals {
 
     public static void drawPlayerFace(EntityPlayer entityplayer ,int x, int y, int width, int height) {
         if (entityplayer != null && mc.world != null) {
-            if(mc.player.connection == null) return;
+            if (mc.player.connection == null) return;
             NetworkPlayerInfo networkPlayerInfo = mc.player.connection.getPlayerInfo(entityplayer.getName());
-            if(networkPlayerInfo == null) return;
+            if (networkPlayerInfo == null) return;
             ResourceLocation resourceLocation = networkPlayerInfo.getLocationSkin();
-            if(resourceLocation == null) return;
+            if (resourceLocation == null) return;
 
             GlStateManager.pushAttrib();
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -519,6 +519,8 @@ public class Render2DUtil implements Globals {
 
             Gui.drawScaledCustomSizeModalRect(x, y, 8.0F, 8, 8, 8, width, height, 64.0F, 64.0F);
 
+            GlStateManager.disableBlend();
+            GlStateManager.disableAlpha();
             GlStateManager.popAttrib();
         }
     }

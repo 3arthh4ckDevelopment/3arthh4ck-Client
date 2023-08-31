@@ -178,7 +178,7 @@ public class TargetHud extends HudElement {
                             RENDERER.drawString("Distance: " + df.format(closestPlayer.getDistance(mc.player)), x + 7, y + 70, fColor.getValue().getRGB());
                         }
 
-                        NetworkPlayerInfo playerInfo = Objects.requireNonNull(mc.getConnection()).getPlayerInfo(closestPlayer.getUniqueID());
+                        NetworkPlayerInfo playerInfo = mc.getConnection().getPlayerInfo(closestPlayer.entityId > 0 ? closestPlayer.getUniqueID() : mc.player.getUniqueID());
                         if (ping.getValue()) {
                             RENDERER.drawString("Ping: " + playerInfo.getResponseTime() + "ms", x + 7, y + 80, fColor.getValue().getRGB());
                         }
