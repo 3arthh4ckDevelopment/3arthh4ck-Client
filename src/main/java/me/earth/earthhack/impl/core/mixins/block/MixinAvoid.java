@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
     BlockAir.class,
     BlockFire.class,
     BlockCactus.class,
+    BlockWeb.class,
     BlockLiquid.class
 })
 public abstract class MixinAvoid {
