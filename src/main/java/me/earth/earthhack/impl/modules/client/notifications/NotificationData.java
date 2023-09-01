@@ -15,19 +15,6 @@ final class NotificationData extends DefaultData<Notifications>
         register(module.totemColor, "Color of the TotemPop Message.");
         register(module.totemPlayerColor, "Color of the PlayerName the TotemPop Message.");
         register(module.duration, "Hud notification duration.");
-        /*
-        register(module.entered, "Announces when players enter visual range.");
-        register(module.leave, "Announces when players leave visual range.");
-        register(module.enteredColor, "Color of the enter Message.");
-        register(module.leftColor, "Color of the leave message.");
-        register(module.visualRangePlayerColor, "Color of the PlayerName in the VisualRange messages.");
-
-         */
-
-        register(module.pops, "Announces your own pops.");
-        register(module.percentage, "Also announces at this armor piece percentage.");
-        register(module.targetDistance, "The target player distance.");
-        register(module.name, "Your name.");
     }
 
     @Override
