@@ -20,7 +20,7 @@ import net.minecraft.world.World;
 public class Avoid extends Module {
     private final Setting<Boolean> cactus =
         register(new BooleanSetting("Cactus", false));
-     private final Setting<Boolean> web =
+    private final Setting<Boolean> web =
         register(new BooleanSetting("Web", false));
     private final Setting<Boolean> fire =
         register(new BooleanSetting("Fire", false));
@@ -60,10 +60,10 @@ public class Avoid extends Module {
                     // same check for cactus/fire?
                     && !entity.isInLava()
                     && lava.getValue()
+                || block == Blocks.WEB
+                    && web.getValue()
                 || block == Blocks.CACTUS
                     && cactus.getValue());
-                || block == Blocks.WEB
-                    && web.getValue());
     }
 
 }
