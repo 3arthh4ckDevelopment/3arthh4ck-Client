@@ -20,6 +20,8 @@ import net.minecraft.world.World;
 public class Avoid extends Module {
     private final Setting<Boolean> cactus =
         register(new BooleanSetting("Cactus", false));
+     private final Setting<Boolean> web =
+        register(new BooleanSetting("Web", false));
     private final Setting<Boolean> fire =
         register(new BooleanSetting("Fire", false));
     private final Setting<Boolean> lava =
@@ -34,6 +36,7 @@ public class Avoid extends Module {
         SimpleData data = new SimpleData(
             this, "Avoids damage and unloaded chunks.");
         data.register(cactus, "Avoids damage from cacti.");
+        data.register(web, "Solid cobweb you walk on cobweb.");
         data.register(fire, "Avoids damage from fire.");
         data.register(unloaded,
                       "Prevents you from falling into unloaded chunks.");
@@ -59,6 +62,8 @@ public class Avoid extends Module {
                     && lava.getValue()
                 || block == Blocks.CACTUS
                     && cactus.getValue());
+                || block == Blocks.WEB
+                    && web.getValue());
     }
 
 }
