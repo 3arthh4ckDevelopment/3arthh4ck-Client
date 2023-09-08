@@ -12,7 +12,7 @@
 of the now outdated PingBypass [Server](https://github.com/3arthqu4ke/PingBypass) and
 [Client](https://github.com/3arthqu4ke/PingBypass-Client). To install it just drop the jar into your forge mods folder.
 By default, any message prefixed with a `+` will be handled as command, e.g. `+bind clickgui RShift` to set the default gui key to the Right Shift.
-Because of bloat some of the most complicated Settings are hided by default. You can find those by using the Settings module.
+Because of bloat some of the most complicated Settings are hidden by default. You can find those by using the Settings module.
 
 <details>
 <summary> Proxy/PingBypass </summary>
