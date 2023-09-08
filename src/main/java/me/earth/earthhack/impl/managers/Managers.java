@@ -102,6 +102,7 @@ public class Managers
                 e.printStackTrace();
             }
         }
+        ELEMENTS.init();
 
         SplashScreenHelper.setSubStep("Loading Plugins");
         PluginManager.getInstance().instantiatePlugins();
@@ -122,10 +123,8 @@ public class Managers
 
         SplashScreenHelper.setSubStep("Initializing Modules");
         MODULES.load();
-        MACRO.validateAll();
-
-        ELEMENTS.init();
         ELEMENTS.load();
+        MACRO.validateAll();
 
         PingBypass.init();
         Bus.EVENT_BUS.post(new InitEvent());

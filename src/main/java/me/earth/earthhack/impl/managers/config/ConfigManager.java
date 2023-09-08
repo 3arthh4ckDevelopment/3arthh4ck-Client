@@ -19,6 +19,7 @@ public class ConfigManager extends AbstractRegister<ConfigHelper<?>>
     {
         super(new LinkedHashMap<>());
         this.registered.put("macro",  new MacroConfigHelper(Managers.MACRO));
+        this.registered.put("hud",    new HudConfigHelper(Managers.ELEMENTS));
         this.registered.put("friend", new FriendConfigHelper());
         this.registered.put("enemy",  new EnemyConfigHelper());
 

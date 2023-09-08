@@ -12,6 +12,7 @@ import me.earth.earthhack.impl.hud.binds.Binds;
 import me.earth.earthhack.impl.hud.clock.Clock;
 import me.earth.earthhack.impl.hud.compass.Compass;
 import me.earth.earthhack.impl.hud.coordinates.Coordinates;
+import me.earth.earthhack.impl.hud.cps.Cps;
 import me.earth.earthhack.impl.hud.direction.Direction;
 import me.earth.earthhack.impl.hud.fps.FPS;
 import me.earth.earthhack.impl.hud.greeter.Greeter;
@@ -58,6 +59,7 @@ public class HudElementManager extends IterationRegister<HudElement> {
         this.forceRegister(new TargetHud());
         this.forceRegister(new PvpResources());
         this.forceRegister(new Pops());
+        this.forceRegister(new Cps());
         this.forceRegister(new TextRadar());
         this.forceRegister(new ArrayList());
         this.forceRegister(new Clock());

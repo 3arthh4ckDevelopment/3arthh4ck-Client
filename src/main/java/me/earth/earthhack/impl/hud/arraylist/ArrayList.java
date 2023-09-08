@@ -24,7 +24,7 @@ public class ArrayList extends DynamicHudElement {
     private final Setting<Integer> textOffset =
             register(new NumberSetting<>("Offset", 2, 0, 10));
     private final Setting<Boolean> animations =
-            register(new BooleanSetting("Animations", true));
+            register(new BooleanSetting("Animations", false));
     private final Setting<Boolean> customBrackets =
             register(new BooleanSetting("CustomBrackets", true));
 
