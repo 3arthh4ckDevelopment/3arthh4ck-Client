@@ -19,6 +19,7 @@ public abstract class Setting<T> extends Observable<SettingEvent<T>>
     public final AtomicInteger changeId = new AtomicInteger();
 
     private Complexity complexity = Complexity.Beginner;
+    private Boolean visibility = true;
 
     protected final String name;
     protected final T initial;
@@ -151,6 +152,15 @@ public abstract class Setting<T> extends Observable<SettingEvent<T>>
 
     public Setting<T> setComplexity(Complexity complexity) {
         this.complexity = complexity;
+        return this;
+    }
+
+    public Boolean getVisibility() {
+        return visibility;
+    }
+
+    public Setting<T> setVisibility(Boolean visibility) {
+        this.visibility = visibility;
         return this;
     }
 

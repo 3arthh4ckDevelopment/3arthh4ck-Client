@@ -45,7 +45,8 @@ public class VisibilityManager
     public boolean isVisible(Setting<?> setting)
     {
         return SettingsModule.shouldDisplay(setting)
-            && getVisibility(setting).isVisible();
+            && getVisibility(setting).isVisible()
+            && setting.getVisibility();
     }
 
 }

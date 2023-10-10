@@ -39,20 +39,25 @@ public abstract class Module extends SettingContainer
     private final AtomicBoolean inOnEnable  = new AtomicBoolean();
     boolean registered;
 
+
     private final Setting<String> name;
     private final Setting<Bind> bind =
-        register(new BindSetting("Bind", Bind.none()));
+            register(new BindSetting("Bind", Bind.none()));
     private final Setting<Hidden> hidden =
-        register(new EnumSetting<>("Hidden", Hidden.Visible))
-            .setComplexity(Complexity.Medium);
+            register(new EnumSetting<>("Hidden", Hidden.Visible))
+                .setComplexity(Complexity.Medium);
     private final Setting<Boolean> enabled =
-        register(new BooleanSetting("Enabled", false));
+            register(new BooleanSetting("Enabled", false));
     private final Setting<Toggle> bindMode =
-        register(new EnumSetting<>("Toggle", Toggle.Normal))
-            .setComplexity(Complexity.Medium);
+            register(new EnumSetting<>("Toggle", Toggle.Normal))
+                .setComplexity(Complexity.Medium);
+    private final Setting<Boolean> visibility =
+            register(new BooleanSetting("Visible", true))
+                    .setVisibility(false);
 
     private final Category category;
     private ModuleData<?> data;
+    public boolean searchVisibility = visibility.getValue();
 
     /**
      * Creates a new Module. It's important that the given name
@@ -66,7 +71,7 @@ public abstract class Module extends SettingContainer
         this.name = register(new StringSetting("Name", name))
             .setComplexity(Complexity.Medium);
         this.category = category;
-        this.data     = new DefaultData<>(this);
+        this.data = new DefaultData<>(this);
         this.enabled.addObserver(this::onEnabledEvent);
     }
 
@@ -90,6 +95,7 @@ public abstract class Module extends SettingContainer
             onDisable();
         }
     }
+
     /**
      *
      * @return the actual name for the module. (e.g. When display name is Aura, this would return KillAura.)
@@ -145,6 +151,7 @@ public abstract class Module extends SettingContainer
     {
         return enableCheck.get();
     }
+
     /**
      *
      * @return the display info (Stuff in the ArrayList between [] brackets. (e.g. AutoCrystal [target].))
@@ -154,6 +161,7 @@ public abstract class Module extends SettingContainer
     {
         return null;
     }
+
     /**
      *
      * @return the category of the module
@@ -176,6 +184,7 @@ public abstract class Module extends SettingContainer
         if (data != null)
             this.data = data;
     }
+
     /**
      *
      * @return the key-bind for the module.
@@ -184,6 +193,7 @@ public abstract class Module extends SettingContainer
     {
         return bind.getValue();
     }
+
     /**
      *
      * @param bind The key-bind we set for a module.
@@ -203,6 +213,7 @@ public abstract class Module extends SettingContainer
     {
         this.hidden.setValue(hidden);
     }
+
     /**
      *
      * @return whether the module is hidden in the Arraylist.
@@ -211,6 +222,16 @@ public abstract class Module extends SettingContainer
     public Hidden isHidden()
     {
         return hidden.getValue();
+    }
+
+    public boolean isVisible()
+    {
+        return visibility.getValue();
+    }
+
+    public void setShown(boolean shown)
+    {
+        visibility.setValue(shown);
     }
 
     protected void onEnable()
