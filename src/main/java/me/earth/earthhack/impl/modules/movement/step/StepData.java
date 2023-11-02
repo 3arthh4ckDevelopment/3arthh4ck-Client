@@ -12,6 +12,11 @@ final class StepData extends BlockESPModuleData<Step>
             "\n-Slow: distributes the packets from mode Normal.");
         register(module.height,
                 "Maximum height in blocks that you want to step up.");
+        register(module.offsetMode, "If you want to configure step offsets." +
+                "\n- Good for less strict servers where you can use Height - 2" +
+                " and move fast (like Crystalpvp.cc)." +
+                "\n- Old : Same offsets as older 3arthh4ck versions. Recommended for" +
+                " stricter servers.");
         register(module.entityStep,
                 "Step with entities that you are riding on as well.");
         register(module.autoOff, "Turn the module off after it stepped.");
