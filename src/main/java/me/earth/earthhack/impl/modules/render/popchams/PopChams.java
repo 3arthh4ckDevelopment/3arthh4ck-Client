@@ -80,7 +80,7 @@ public class PopChams extends Module
         this.setData(new PopChamsData(this));
 
         new PageBuilder<>(this, pages)
-                .addPage(p -> p == PopChamsPages.Player, fadeTime, friendOutline)
+                .addPage(p -> p == PopChamsPages.Player, color, friendOutline)
                 .addPage(p -> p == PopChamsPages.Particles, particles, particleDuration)
                 .register(Visibilities.VISIBILITY_MANAGER);
 
