@@ -189,9 +189,9 @@ public class HoleESP extends Module implements HoleObserver, InvalidationConfig
     }
 
     public void renderListOld(List<BlockPos> positions,
-                               Color color,
-                               float height,
-                               int max)
+                              Color color,
+                              float height,
+                              int max)
     {
         BlockPos playerPos = new BlockPos(mc.player);
         if (max != 0 && !positions.isEmpty())
@@ -209,18 +209,18 @@ public class HoleESP extends Module implements HoleObserver, InvalidationConfig
                     if (fade.getValue())
                     {
                         double alpha = (MathUtil.square(fadeRange.getValue())
-                                        + MathUtil.square(minFade.getValue())
-                                        - mc.player.getDistanceSq(pos))
-                                        / MathUtil.square(fadeRange.getValue());
+                                + MathUtil.square(minFade.getValue())
+                                - mc.player.getDistanceSq(pos))
+                                / MathUtil.square(fadeRange.getValue());
 
                         if (alpha > 0 && alpha < 1)
                         {
                             int alphaInt =
-                                MathUtil.clamp((int) (alpha * 255), 0, 255);
+                                    MathUtil.clamp((int) (alpha * 255), 0, 255);
                             Color color1 = new Color(color.getRed(),
-                                                     color.getGreen(),
-                                                     color.getBlue(),
-                                                     alphaInt);
+                                    color.getGreen(),
+                                    color.getBlue(),
+                                    alphaInt);
                             RenderUtil.renderBox(pos,
                                     color1, height, (int) (alphaInt * alphaFactor.getValue()));
                         }

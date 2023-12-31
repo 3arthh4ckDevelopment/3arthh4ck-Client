@@ -1,57 +1,68 @@
 package me.earth.earthhack.impl.gui.hud;
 
 import me.earth.earthhack.api.hud.HudElement;
-import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.util.misc.GuiUtil;
 import me.earth.earthhack.impl.util.render.Render2DUtil;
 
 import java.awt.*;
+import java.util.Collection;
 
-public class SnapPoint {
+public class SnapPoint
+{
 
-    protected Orientation orientation;
-    protected float x;
-    protected float y;
-    protected float length;
+    private float size;
+    private float off;
+    private float location;
+    private Orientation orientation;
+    private boolean visible;
+    private boolean shouldSnap;
 
-    public SnapPoint(float x, float y, float length, Orientation orientation) {
-        this.x = x;
-        this.y = y;
-        this.length = length;
+    public SnapPoint(float off, float size, float location, boolean visible, Orientation orientation) {
+        this.off = off;
+        this.size = size;
+        this.location = location;
         this.orientation = orientation;
+        this.visible = visible;
+        this.shouldSnap = true;
     }
 
-    public void update(int mouseX, int mouseY, float partialTicks) {
-        for (HudElement element : Managers.ELEMENTS.getRegistered()) {
-            if (orientation == Orientation.LEFT && (element.getX() <= x + 4 && element.getX() >= x - 4)) {
-                if (!element.isDragging() && x != element.getX()) {
-                    element.setX(x);
+    public void update(Collection<HudElement> elements) {
+        if (shouldSnap) {
+            for (HudElement element : elements) {
+                boolean inverted = false;
+                switch (this.orientation) {
+                    case TOP:
+                        inverted = Math.min(Math.abs(element.getY() - location), Math.abs(element.getY() + element.getHeight() - location)) != Math.abs(element.getY() - location);
+                        break;
+                    case BOTTOM:
+                        inverted = Math.min(Math.abs(element.getY() - location), Math.abs(element.getY() + element.getHeight() - location)) == Math.abs(element.getY() - location);
+                        break;
+                    case LEFT:
+                        inverted = Math.min(Math.abs(element.getX() - location), Math.abs(element.getX() + element.getWidth() - location)) != Math.abs(element.getX() - location);
+                        break;
+                    case RIGHT:
+                        inverted = Math.min(Math.abs(element.getX() - location), Math.abs(element.getX() + element.getWidth() - location)) == Math.abs(element.getX() - location);
+                        break;
                 }
-            } else if (orientation == Orientation.RIGHT && (element.getX() + element.getWidth() <= x + 4 && element.getX() + element.getWidth() >= x - 4)) {
-                if (!element.isDragging() && x != element.getX() + element.getWidth()) {
-                    element.setX(x - element.getWidth());
-                }
-            } else if (orientation == Orientation.TOP && (element.getY() <= y + 4 && element.getY() >= y - 4)) {
-                if (!element.isDragging() && y != element.getY()) {
-                    element.setY(y);
-                }
-            } else if (orientation == Orientation.BOTTOM && (element.getY() + element.getHeight() <= y + 4 && element.getY() + element.getHeight() >= y - 4)) {
-                if (!element.isDragging() && y != element.getY() + element.getHeight()) {
-                    element.setY(y - element.getHeight());
+                if (GuiUtil.getDistance(this, element) < 4 && !element.isDragging()) {
+                    GuiUtil.updatePosition(this, element, inverted); // TODO: find inverted
                 }
             }
         }
     }
 
     public void draw(int mouseX, int mouseY, float partialTicks) {
-        switch (orientation) {
-            case TOP:
-            case BOTTOM:
-                Render2DUtil.drawLine(x, y, x + length, y, 1.0f, Color.WHITE.getRGB());
-                break;
-            case RIGHT:
-            case LEFT:
-                Render2DUtil.drawLine(x, y, x, y + length, 1.0f, Color.WHITE.getRGB());
-                break;
+        if (orientation == Orientation.BOTTOM
+                || orientation == Orientation.TOP
+                || orientation == Orientation.HORIZONTAL_CENTER)
+        {
+            Render2DUtil.drawLine(off, location, off + size, location, 1.0f, Color.WHITE.getRGB());
+        }
+        else if (orientation == Orientation.LEFT
+                || orientation == Orientation.RIGHT
+                || orientation == Orientation.VERTICAL_CENTER)
+        {
+            Render2DUtil.drawLine(location, off, location, off + size, 1.0f, Color.WHITE.getRGB());
         }
     }
 
@@ -63,28 +74,53 @@ public class SnapPoint {
         this.orientation = orientation;
     }
 
-    public float getX() {
-        return x;
+    public float getOff() {
+        return off;
     }
 
-    public float getY() {
-        return y;
+    public void setOff(float off) {
+        this.off = off;
     }
 
-    public void setX(float x) {
-        this.x = x;
+    public float getSize() {
+        return size;
     }
 
-    public void setY(float y) {
-        this.y = y;
+    public void setSize(float size) {
+        this.size = size;
     }
 
-    public float getLength() {
-        return length;
+    public float getLocation() {
+        return location;
     }
 
-    public void setLength(float length) {
-        this.length = length;
+    public void setLocation(float location) {
+        this.location = location;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public boolean shouldSnap() {
+        return shouldSnap;
+    }
+
+    public void setShouldSnap(boolean shouldSnap) {
+        this.shouldSnap = shouldSnap;
+    }
+
+    public enum Orientation {
+        TOP,
+        BOTTOM,
+        LEFT,
+        RIGHT,
+        VERTICAL_CENTER,
+        HORIZONTAL_CENTER
     }
 
 }

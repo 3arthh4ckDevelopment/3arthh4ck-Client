@@ -33,7 +33,7 @@ public class FakePlayer extends DisablingModule
         register(new NumberSetting<>("Gapple-Delay", 1600, 1500, 2000));
     protected final Setting<Boolean> damage =
         register(new BooleanSetting("Damage", true));
-    protected final Setting<String> name =
+    public final Setting<String> name =
         register(new StringSetting("PlayerName", "FakePlayer"));
 
     protected final List<Position> positions = new ArrayList<>();
@@ -66,17 +66,13 @@ public class FakePlayer extends DisablingModule
         GameProfile profile = new GameProfile(new UUID(1, 1), "FakePlayer");
         if (!name.getValue().equalsIgnoreCase("FakePlayer"))
         {
-            UUID uuid = LookUpUtil.getUUIDSimple(name.getValue());
-            if (uuid != null)
-            {
+            UUID uuid = LookUpUtil.getUUID(name.getValue());
+            if (uuid != null) {
                 profile = new GameProfile(uuid, name.getValue());
             }
         }
         index = 0;
-        fakePlayer = (EntityPlayerAttack)
-                PlayerUtil.createFakePlayerAndAddToWorld(
-                        profile,
-                        EntityPlayerPop::new);
+        fakePlayer = (EntityPlayerAttack) PlayerUtil.createFakePlayerAndAddToWorld(profile, EntityPlayerPop::new);
 
         fakePlayer.setRemoteSupplier(damage::getValue);
     }

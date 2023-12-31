@@ -59,7 +59,8 @@ public class Surround extends ObbyModule
     protected final Setting<Boolean> holeC     =
         register(new BooleanSetting("Hole-C", false));
     protected final Setting<Boolean> instant   =
-        register(new BooleanSetting("Instant", false));
+        register(new BooleanSetting("Instant", false))
+                .setComplexity(Complexity.Dev);
     protected final Setting<Boolean> sound =
         register(new BooleanSetting("Sound", false));
     protected final Setting<Integer> playerExtend =

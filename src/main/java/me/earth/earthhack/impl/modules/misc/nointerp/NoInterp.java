@@ -10,6 +10,7 @@ import me.earth.earthhack.impl.util.minecraft.entity.EntityUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityFlying;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 
 // Could fix DebugCollisionRender?
@@ -41,6 +42,7 @@ public class NoInterp extends Module
     {
         return noDeathJitter.getValue();
     }
+    public boolean isOnlyPlayers() { return onlyPlayers.getValue(); }
 
     /**
      * @param entity the entity to noInterp.
@@ -65,6 +67,9 @@ public class NoInterp extends Module
         {
             return;
         }
+
+        if(noInterp.isOnlyPlayers() && !(entity instanceof EntityPlayer))
+            return;
 
         if (noInterp.setRotations.getValue())
         {

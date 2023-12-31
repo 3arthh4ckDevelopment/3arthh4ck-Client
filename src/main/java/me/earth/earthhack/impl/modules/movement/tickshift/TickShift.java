@@ -152,7 +152,6 @@ public class TickShift extends Module
         None,
         Ground,
         All
-
     }
 
 }

@@ -1,39 +1,43 @@
 package me.earth.earthhack.impl.managers.client;
 
 import me.earth.earthhack.api.event.bus.instance.Bus;
+import me.earth.earthhack.api.hud.HudCategory;
 import me.earth.earthhack.api.hud.HudElement;
 import me.earth.earthhack.api.register.IterationRegister;
 import me.earth.earthhack.api.register.Registrable;
 import me.earth.earthhack.api.register.exception.CantUnregisterException;
 import me.earth.earthhack.impl.Earthhack;
-import me.earth.earthhack.impl.hud.armor.Armor;
-import me.earth.earthhack.impl.hud.arraylist.ArrayList;
-import me.earth.earthhack.impl.hud.binds.Binds;
-import me.earth.earthhack.impl.hud.clock.Clock;
-import me.earth.earthhack.impl.hud.compass.Compass;
-import me.earth.earthhack.impl.hud.coordinates.Coordinates;
-import me.earth.earthhack.impl.hud.cps.Cps;
-import me.earth.earthhack.impl.hud.direction.Direction;
-import me.earth.earthhack.impl.hud.fps.FPS;
-import me.earth.earthhack.impl.hud.greeter.Greeter;
-import me.earth.earthhack.impl.hud.inventory.Inventory;
-import me.earth.earthhack.impl.hud.model.Model;
-import me.earth.earthhack.impl.hud.ping.Ping;
-import me.earth.earthhack.impl.hud.pops.Pops;
-import me.earth.earthhack.impl.hud.potions.Potions;
-import me.earth.earthhack.impl.hud.pvpresources.PvpResources;
-import me.earth.earthhack.impl.hud.safetyhud.SafetyHud;
-import me.earth.earthhack.impl.hud.serverbrand.ServerBrand;
-import me.earth.earthhack.impl.hud.session.Session;
-import me.earth.earthhack.impl.hud.skeetline.SkeetLine;
-import me.earth.earthhack.impl.hud.speed.HudSpeed;
-import me.earth.earthhack.impl.hud.targethud.TargetHud;
-import me.earth.earthhack.impl.hud.textradar.TextRadar;
-import me.earth.earthhack.impl.hud.time.Time;
-import me.earth.earthhack.impl.hud.totem.Totem;
-import me.earth.earthhack.impl.hud.tps.Tps;
-import me.earth.earthhack.impl.hud.watermark.Watermark;
+import me.earth.earthhack.impl.hud.text.arraylist.HudArrayList;
+import me.earth.earthhack.impl.hud.text.binds.Binds;
+import me.earth.earthhack.impl.hud.text.coordinates.Coordinates;
+import me.earth.earthhack.impl.hud.text.cps.Cps;
+import me.earth.earthhack.impl.hud.text.degrees.Degrees;
+import me.earth.earthhack.impl.hud.text.direction.Direction;
+import me.earth.earthhack.impl.hud.text.durabilitynotifier.DurabilityNotifier;
+import me.earth.earthhack.impl.hud.text.fps.FPS;
+import me.earth.earthhack.impl.hud.text.greeter.Greeter;
+import me.earth.earthhack.impl.hud.text.ping.Ping;
+import me.earth.earthhack.impl.hud.text.pops.Pops;
+import me.earth.earthhack.impl.hud.text.potions.Potions;
+import me.earth.earthhack.impl.hud.text.serverbrand.ServerBrand;
+import me.earth.earthhack.impl.hud.text.session.Session;
+import me.earth.earthhack.impl.hud.text.speed.HudSpeed;
+import me.earth.earthhack.impl.hud.text.time.Time;
+import me.earth.earthhack.impl.hud.text.tps.Tps;
+import me.earth.earthhack.impl.hud.text.watermark.Watermark;
+import me.earth.earthhack.impl.hud.visual.armor.Armor;
+import me.earth.earthhack.impl.hud.visual.compass.Compass;
+import me.earth.earthhack.impl.hud.visual.imagerender.ImageRender;
+import me.earth.earthhack.impl.hud.visual.inventory.Inventory;
+import me.earth.earthhack.impl.hud.visual.model.Model;
+import me.earth.earthhack.impl.hud.visual.pvpresources.PvpResources;
+import me.earth.earthhack.impl.hud.visual.safetyhud.SafetyHud;
+import me.earth.earthhack.impl.hud.visual.skeetline.SkeetLine;
+import me.earth.earthhack.impl.hud.visual.targethud.TargetHud;
+import me.earth.earthhack.impl.hud.visual.textradar.TextRadar;
+import me.earth.earthhack.impl.hud.visual.totem.Totem;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 
 public class HudElementManager extends IterationRegister<HudElement> {
@@ -55,23 +59,25 @@ public class HudElementManager extends IterationRegister<HudElement> {
         this.forceRegister(new Model());
         this.forceRegister(new Armor());
         this.forceRegister(new Time());
-        this.forceRegister(new Potions());
         this.forceRegister(new TargetHud());
         this.forceRegister(new PvpResources());
         this.forceRegister(new Pops());
         this.forceRegister(new Cps());
+        this.forceRegister(new DurabilityNotifier());
         this.forceRegister(new TextRadar());
-        this.forceRegister(new ArrayList());
-        this.forceRegister(new Clock());
+        this.forceRegister(new HudArrayList());
         this.forceRegister(new Session());
         this.forceRegister(new Compass());
         this.forceRegister(new Binds());
         this.forceRegister(new SkeetLine());
         this.forceRegister(new SafetyHud());
+        this.forceRegister(new Degrees());
         this.forceRegister(new Inventory());
         this.forceRegister(new HudSpeed());
 
-        // this.forceRegister(new ImageRender());
+        this.forceRegister(Potions.getInstance());
+
+        this.forceRegister(new ImageRender());
     }
 
     public void load()
@@ -100,6 +106,15 @@ public class HudElementManager extends IterationRegister<HudElement> {
         }
         element.setZ(currentZ);
         currentZ++;
+    }
+
+    public ArrayList<HudElement> getModulesFromCategory(HudCategory hudCategory) {
+        final ArrayList<HudElement> iHudElements = new ArrayList<>();
+        for (HudElement iHudElement : getRegistered()) {
+            System.out.println(iHudElement.getName());
+            if (iHudElement.getCategory() == hudCategory) iHudElements.add(iHudElement);
+        }
+        return iHudElements;
     }
 
 }

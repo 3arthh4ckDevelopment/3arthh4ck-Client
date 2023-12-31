@@ -22,7 +22,7 @@ public class PbData extends DefaultData<PbModule> {
         for (Map.Entry<Setting<?>, String> entry : data.settingDescriptions().entrySet()) {
             Setting<?> setting = module.getSetting(entry.getKey().getName());
             if (setting != null) {
-                this.descriptions.put(setting, entry.getValue());
+                register(setting, entry.getValue());
             }
         }
 

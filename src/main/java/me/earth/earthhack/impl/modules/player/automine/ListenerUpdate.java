@@ -140,7 +140,7 @@ final class ListenerUpdate extends ModuleListener<AutoMine, UpdateEvent>
                                                  (System.currentTimeMillis() - e.getValue()) / 1000.0f
                                                      > module.blackListFor.getValue());
 
-        if (module.mode.getValue() == AutoMineMode.Combat)
+        if (module.mode.getValue() == AutoMineMode.Combat || module.mode.getValue() == AutoMineMode.Compatibility)
         {
             if (module.noSelfMine.getValue() && SURROUND.isPresent())
             {
@@ -312,7 +312,8 @@ final class ListenerUpdate extends ModuleListener<AutoMine, UpdateEvent>
                     .stream()
                     .filter(Objects::nonNull)
                     .filter(e -> !(e instanceof EntityItem)) // we ignore items
-                    .filter(e -> !EntityUtil.isDead(e))
+                    .filter(e -> !EntityUtil.isDead(e)) // to ignore dead entities
+                    .filter(e -> !(e.posY > module.maxY.getValue())) // to ignore entities above a certain Y level
                     .filter(e ->
                                 e.getDistanceSq(RotationUtil.getRotationPlayer())
                                     < MathUtil.square(module.range.getValue()))

@@ -13,8 +13,8 @@ import me.earth.earthhack.impl.modules.render.xray.mode.XrayMode;
 import me.earth.earthhack.impl.util.helpers.addable.BlockAddingModule;
 import me.earth.earthhack.impl.util.helpers.addable.setting.SimpleRemovingSetting;
 import me.earth.earthhack.impl.util.render.WorldRenderUtil;
-import me.earth.earthhack.vanilla.Environment;
 import net.minecraft.block.Block;
+import net.minecraftforge.common.ForgeModContainer;
 
 import java.lang.reflect.Field;
 
@@ -69,25 +69,22 @@ public class XRay extends BlockAddingModule
     {
         if (mode.getValue() == XrayMode.Opacity)
         {
-            if (Environment.hasForge())
+            try
             {
-                try
-                {
-                    Field field = Class
-                        .forName("net.minecraftforge.common.ForgeModContainer",
-                                    true, this.getClass().getClassLoader())
-                        .getDeclaredField("forgeLightPipelineEnabled");
+                Field field = Class
+                    .forName(ForgeModContainer.class.getName(),
+                                true, this.getClass().getClassLoader())
+                    .getDeclaredField("forgeLightPipelineEnabled");
 
-                    boolean accessible = field.isAccessible();
-                    field.setAccessible(true);
-                    this.lightPipeLine = field.getBoolean(null);
-                    field.set(null, false);
-                    field.setAccessible(accessible);
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
+                boolean accessible = field.isAccessible();
+                field.setAccessible(true);
+                this.lightPipeLine = field.getBoolean(null);
+                field.set(null, false);
+                field.setAccessible(accessible);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
             }
 
             if (!FULL_BRIGHT.isEnabled())
@@ -106,24 +103,21 @@ public class XRay extends BlockAddingModule
     {
         if (mode.getValue() == XrayMode.Opacity)
         {
-            if (Environment.hasForge())
+            try
             {
-                try
-                {
-                    Field field = Class
-                        .forName("net.minecraftforge.common.ForgeModContainer",
-                                    true, this.getClass().getClassLoader())
-                        .getDeclaredField("forgeLightPipelineEnabled");
+                Field field = Class
+                    .forName(ForgeModContainer.class.getName(),
+                                true, this.getClass().getClassLoader())
+                    .getDeclaredField("forgeLightPipelineEnabled");
 
-                    boolean accessible = field.isAccessible();
-                    field.setAccessible(true);
-                    field.set(null, this.lightPipeLine);
-                    field.setAccessible(accessible);
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
+                boolean accessible = field.isAccessible();
+                field.setAccessible(true);
+                field.set(null, this.lightPipeLine);
+                field.setAccessible(accessible);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
             }
 
             if (!FULL_BRIGHT.isEnabled())

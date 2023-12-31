@@ -87,8 +87,8 @@ public abstract class ObbyListener<T extends ObbyListenerModule<?>>
             BlockPos pos = targets.get(i);
             if (!placed.containsKey(pos)
                     && HELPER.getBlockState(pos)
-                             .getMaterial()
-                             .isReplaceable())
+                    .getMaterial()
+                    .isReplaceable())
             {
                 if (module.placeBlock(pos))
                 {
@@ -103,7 +103,8 @@ public abstract class ObbyListener<T extends ObbyListenerModule<?>>
         boolean hasPlaced = false;
         // ensure that we attack the pos with the
         // crystal first before the others,
-        // so we dont have to deal with switchcooldown.
+        // so we don't have to deal with switchcooldown.
+        // this crashes sometimes with concurrentmodificationexception! ;)
         Optional<BlockPos> crystalPos = targets
                 .stream()
                 .filter(pos ->

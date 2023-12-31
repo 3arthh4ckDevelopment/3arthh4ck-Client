@@ -111,6 +111,10 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         Entity entityToInteractOn,
         EnumHand hand);
 
+    @Shadow public abstract String getName();
+
+    @Shadow protected abstract boolean isMovementBlocked();
+
     @Inject(method = "onUpdate", at = @At("RETURN"))
     public void onUpdateHook(CallbackInfo ci)
     {

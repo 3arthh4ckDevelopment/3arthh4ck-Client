@@ -11,6 +11,8 @@ import me.earth.earthhack.impl.gui.visibility.PageBuilder;
 import me.earth.earthhack.impl.gui.visibility.Visibilities;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
+import me.earth.earthhack.impl.modules.movement.blocklag.mode.BlockLagPages;
+import me.earth.earthhack.impl.modules.movement.blocklag.mode.BlockLagRotate;
 import me.earth.earthhack.impl.modules.movement.blocklag.mode.BlockLagStage;
 import me.earth.earthhack.impl.modules.movement.blocklag.mode.OffsetMode;
 import me.earth.earthhack.impl.modules.player.blink.Blink;
@@ -28,10 +30,16 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.Packet;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // TODO: thingy that makes crystals fall on us
+// TODO: clean
 public class BlockLag extends DisablingModule
 {
     protected static final ModuleCache<Freecam> FREECAM =
@@ -43,6 +51,8 @@ public class BlockLag extends DisablingModule
     // --------------------- OFFSETS --------------------- //
     protected final Setting<OffsetMode> offsetMode =
             register(new EnumSetting<>("Mode", OffsetMode.Smart));
+    protected final Setting<BlockLagStage> stage =
+            register(new EnumSetting<>("Stage", BlockLagStage.All));
     protected final Setting<Double> vClip =
             register(new NumberSetting<>("V-Clip", -9.0, -20.0, 20.0)); // old one was 256 range
     protected final Setting<Double> minDown =
@@ -64,9 +74,9 @@ public class BlockLag extends DisablingModule
     protected final Setting<Boolean> discrete =
             register(new BooleanSetting("Discrete", true));
 
-    // --------------------- ROTATIONS --------------------- //
-    protected final Setting<Boolean> rotate =
-            register(new BooleanSetting("Rotate", false));
+    // --------------------- ROTATIONS & MISC --------------------- //
+    protected final Setting<BlockLagRotate> rotate =
+            register(new EnumSetting<>("Rotate", BlockLagRotate.Packet));
     protected final Setting<Boolean> anvil =
             register(new BooleanSetting("Anvil", false));
     protected final Setting<Boolean> echest =
@@ -87,6 +97,29 @@ public class BlockLag extends DisablingModule
             register(new BooleanSetting("Freecam", false));
     protected final Setting<Boolean> highBlock =
             register(new BooleanSetting("HighBlock", false));
+    protected final Setting<Float> motionAmount =
+            register(new NumberSetting<>("Motion-Amount", 60f, 0.1f, 1337.0f))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.Motion);
+    protected final Setting<Boolean> motionNegate =
+            register(new BooleanSetting("Motion-Negate", false));
+    protected final Setting<Float> negateAmount =
+            register(new NumberSetting<>("Negate-Amount", -120f, 0.1f, -1337.0f))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.Motion);
+    protected final Setting<Boolean> useBlink =
+            register(new BooleanSetting("UseBlink", true))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.Motion);
+    protected final Setting<Boolean> autoDisableBlink =
+            register(new BooleanSetting("AutoDisable", false))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.Motion);
+    protected final Setting<Integer> blinkDuration =
+            register(new NumberSetting<>("Blink-Duration", 650, 0, 5000))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.Motion);
+    protected final Setting<Boolean> useTimer =
+            register(new BooleanSetting("MotionTimer", false))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.Motion);
+    protected final Setting<Float> timerAmount =
+            register(new NumberSetting<>("MotionTimer-Speed", 6.0f, 0.1f, 30.0f))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.Motion);
     protected final Setting<Boolean> bypass =
             register(new BooleanSetting("Bypass", false));
     protected final Setting<Double> bypassOffset =
@@ -95,10 +128,27 @@ public class BlockLag extends DisablingModule
             register(new BooleanSetting("Wait", true));
     protected final Setting<Boolean> placeDisable =
             register(new BooleanSetting("PlaceDisable", false));
-    protected final Setting<BlockLagStage> stage =
-            register(new EnumSetting<>("Stage", BlockLagStage.All));
     protected final Setting<Boolean> deltaY =
             register(new BooleanSetting("Delta-Y", true));
+    protected final Setting<Float> smartRange =
+            register(new NumberSetting<>("Range", 3.0f, 0.0f, 10.0f))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.SmartNew);
+    protected  final Setting<Boolean> turnoff =
+            register(new BooleanSetting("Auto-Off", false))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.SmartNew);
+    protected  final Setting<Boolean> holeOnly =
+            register(new BooleanSetting("OnlyHoles", false))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.SmartNew);
+    protected  final Setting<Boolean> onTeleport =
+            register(new BooleanSetting("OnTeleport", false))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.SmartNew);
+    protected  final Setting<Boolean> chorusDisable =
+            register(new BooleanSetting("DisableTP", false))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.SmartNew);
+    protected final Setting<Integer> smartDelay =
+            register(new NumberSetting<>("Smart-Delay", 100, 0, 1000))
+                    .setVisibility(offsetMode.getValue() == OffsetMode.SmartNew);
+
     // --------------------- ATTACK, POP --------------------- //
     protected final Setting<Boolean> attack =
             register(new BooleanSetting("Attack", false));
@@ -114,6 +164,7 @@ public class BlockLag extends DisablingModule
             register(new NumberSetting<>("Pop-Time", 500, 0, 500));
     protected final Setting<Integer> cooldown =
             register(new NumberSetting<>("Cooldown", 500, 0, 500));
+
     // --------------- EXPLOSION, VELOCITY, SCALE --------------- //
     protected final Setting<Boolean> scaleExplosion =
             register(new BooleanSetting("Scale-Explosion", false));
@@ -125,37 +176,6 @@ public class BlockLag extends DisablingModule
             register(new NumberSetting<>("Scale-Delay", 250, 0, 1000));
     protected final Setting<Double> scaleFactor =
             register(new NumberSetting<>("Scale-Factor", 1.0, 0.1, 10.0));
-
-    // --------------- MOTION --------------- //
-    protected final Setting<Float> motionAmount =
-            register(new NumberSetting<>("Motion-Amount", 60f, 0.1f, 1337.0f));
-    protected final Setting<Boolean> motionNegate =
-            register(new BooleanSetting("Motion-Negate", false));
-    protected final Setting<Float> negateAmount =
-            register(new NumberSetting<>("Negate-Amount", -120f, 0.1f, -1337.0f));
-    protected final Setting<Boolean> useBlink =
-            register(new BooleanSetting("UseBlink", true));
-    protected final Setting<Boolean> autoDisableBlink =
-            register(new BooleanSetting("AutoDisable", false));
-    protected final Setting<Integer> blinkDuration =
-            register(new NumberSetting<>("Blink-Duration", 650, 0, 5000));
-    protected final Setting<Boolean> useTimer =
-            register(new BooleanSetting("UseTimer", false));
-    protected final Setting<Float> timerAmount =
-            register(new NumberSetting<>("Timer-Speed", 6.0f, 0.1f, 30.0f));
-    // --------------- NEW SMART --------------- //
-    protected final Setting<Float> smartRange =
-            register(new NumberSetting<>("Range", 3.0f, 0.0f, 10.0f));
-    protected  final Setting<Boolean> turnoff =
-            register(new BooleanSetting("Auto-Off", false));
-    protected  final Setting<Boolean> holeOnly =
-            register(new BooleanSetting("OnlyHoles", false));
-    protected  final Setting<Boolean> onTeleport =
-            register(new BooleanSetting("OnTeleport", false));
-    protected  final Setting<Boolean> chorusDisable =
-            register(new BooleanSetting("DisableTP", false));
-    protected final Setting<Integer> smartDelay =
-            register(new NumberSetting<>("Delay", 100, 0, 1000));
 
 
     protected final StopWatch scaleTimer = new StopWatch();
@@ -192,39 +212,46 @@ public class BlockLag extends DisablingModule
             .addPage(v -> v == BlockLagPages.Misc, rotate, deltaY)
             .addPage(v -> v == BlockLagPages.Attack, attack, cooldown)
             .addPage(v -> v == BlockLagPages.Scale, scaleExplosion, scaleFactor)
-            .addPage(v -> v == BlockLagPages.Motion, motionAmount, timerAmount)
-            .addPage(v -> v == BlockLagPages.Smart, smartRange, smartDelay)
+//            .addPage(v -> v == BlockLagPages.Bypass, motionAmount, timerAmount)
+//            .addPage(v -> v == BlockLagPages.Smart, smartRange, smartDelay)
             .register(Visibilities.VISIBILITY_MANAGER);
     }
 
     @Override
     protected void onEnable()
     {
+        if (mc.world == null || mc.player == null)
+            return;
+
+
         if(offsetMode.getValue() == OffsetMode.SmartNew)
         {
-            delayTimer.setTime(0);
 
             if(mc.isSingleplayer()) {
-                Managers.CHAT.sendDeleteMessage("You cannot use BlockLag with mode SmartNew in local worlds. Sorry!", getName(), ChatIDs.MODULE);
+                Managers.CHAT.sendDeleteMessage("You cannot use BlockLag -> SmartNew in local worlds. Sorry!", getName(), ChatIDs.MODULE);
                 this.disable();
             }
+
+            delayTimer.setTime(0);
             target = null;
         }
 
 
         timer.setTime(0);
-        jumpTimer.reset();
-        blinkTimer.reset();
 
-        if(jumpTimer.passed(295))
+        if(offsetMode.getValue() == OffsetMode.Motion)
+        {
+            jumpTimer.reset();
             blinkTimer.reset();
 
-        if (useTimer.getValue())
-            Managers.TIMER.setTimer(timerAmount.getValue());
+            if(jumpTimer.passed(295))
+                blinkTimer.reset();
 
-        super.onEnable();
-        if (mc.world == null || mc.player == null)
-            return;
+            if (useTimer.getValue())
+                Managers.TIMER.setTimer(timerAmount.getValue());
+        }
+
+        super.onEnable(); // Ummmmmm this might not be necessary.
 
         startPos = getPlayerPos();
         if (singlePlayerCheck(startPos))
@@ -351,6 +378,17 @@ public class BlockLag extends DisablingModule
         return mc.world.getBlockState(new BlockPos(x, y, z)).getMaterial().blocksMovement() || !mc.player.collidedVertically;
     }
 
+    public BlockPos getNearestLagBack() {
+        List<BlockPos> positions = new ArrayList<>();
+
+        for (TileEntity ent : mc.world.loadedTileEntityList){
+            if(ent instanceof TileEntityEnderChest){
+                positions.add(ent.getPos());
+            }
+        }
+        return positions.size() > 0 ? positions.get(1) : new BlockPos(mc.player.posX, mc.player.posY + 1, mc.player.posZ);
+    }
+
     protected boolean singlePlayerCheck(BlockPos pos)
     {
         if (mc.isSingleplayer())
@@ -384,10 +422,11 @@ public class BlockLag extends DisablingModule
         super.onDisable();
         ateChorus = false;
         Managers.TIMER.setTimer(1);
+
         blinkTimer.reset();
         jumpTimer.reset();
+
         if(blinkTimer.passed(blinkDuration.getValue()) && autoDisableBlink.getValue())
             BLINK.disable();
-
     }
 }

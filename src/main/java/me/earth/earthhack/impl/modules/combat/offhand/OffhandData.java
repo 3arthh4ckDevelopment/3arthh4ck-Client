@@ -54,4 +54,9 @@ final class OffhandData extends DefaultData<Offhand>
         return "AutoTotem, OffhandCrystal, OffhandGapple, all in one.";
     }
 
+    @Override
+    public String[] getAliases() {
+        return new String[]{"AutoTotem"};
+    }
+
 }

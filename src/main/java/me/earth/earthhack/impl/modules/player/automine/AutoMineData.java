@@ -7,12 +7,21 @@ final class AutoMineData extends DefaultData<AutoMine>
     public AutoMineData(AutoMine module)
     {
         super(module);
-        register(module.mode, "-Combat will strategically mine enemies out." +
+        register(module.mode, "- Combat : Will strategically mine enemies out." +
                 " Uses Speedmine - Smart." +
-                "\n-AntiTrap will mine you out of traps.");
+                "\n- AntiTrap : Will mine you out of traps." +
+                "\n- Compatibility : Makes this module compatible with other clients' Speedmines.");
         register(module.range, "Range in which blocks will be mined.");
         register(module.head, "Mines the Block above the Target.");
         register(module.rotate, "Rotates to mine the block.");
+        register(module.rotateLimit, "For Mode - Compatibility: Waits" +
+                " this Setting's amount of time in milliseconds before" +
+                " rotating. Might be useful if you're having trouble breaking" +
+                " blocks.");
+        register(module.maxY, "Most practice servers don't allow you to mine" +
+                " blocks over a certain Y level. This settings makes AutoMine" +
+                " not target positions above a certain Y level, so you can fix" +
+                " it targeting blocks it can't actually mine.");
         register(module.self, "Touches Blocks in your own Surround so it can" +
                 " be mined quickly if an enemy jumps in.");
         register(module.prioSelf, "Prioritizes untrapping yourself.");
@@ -37,6 +46,9 @@ final class AutoMineData extends DefaultData<AutoMine>
         register(module.resetIfNotValid, "Doesn't keep invalid positions mined.");
         register(module.mineBurrow, "Will mine players burrow blocks.");
         register(module.checkPlayerState, "Checks if a player burrowed in the meantime.");
+        register(module.antiStuckComp, "For Mode: Compatibility: " +
+                "Resets the position AutoMine is mining if you click blocks" +
+                " nearby. (e.g. try to mine something else).");
     }
 
     @Override
@@ -49,6 +61,11 @@ final class AutoMineData extends DefaultData<AutoMine>
     public String getDescription()
     {
         return "Automatically mines Blocks.";
+    }
+
+    @Override
+    public String[] getAliases() {
+        return new String[]{"AutoCity"};
     }
 
 }

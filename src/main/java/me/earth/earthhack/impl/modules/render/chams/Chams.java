@@ -4,7 +4,9 @@ import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.*;
+import me.earth.earthhack.impl.event.events.misc.DeathEvent;
 import me.earth.earthhack.impl.event.events.render.ModelRenderEvent;
+import me.earth.earthhack.impl.event.listeners.LambdaListener;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.render.chams.mode.ChamsMode;
 import me.earth.earthhack.impl.modules.render.chams.mode.WireFrameMode;
@@ -17,9 +19,10 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityEnderCrystal;
+import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.EXTPackedDepthStencil;
 
@@ -94,6 +97,8 @@ public class Chams extends Module
             register(new NumberSetting<>("noClusterRange", 2.5f, 1.0f, 10.0f));
     protected final Setting<Float> noClusterMinA =
             register(new NumberSetting<>("noClusterMinAlpha", 30.0f, 1.0f, 180.0f));
+    private final Setting<Boolean> killEffect =
+            register(new BooleanSetting("KillEffect", false));
 
     protected boolean force;
     protected boolean hasImageChammed;
@@ -121,17 +126,26 @@ public class Chams extends Module
         this.listeners.add(new ListenerRenderLayers(this));
         this.setData(new ChamsData(this));
         mc.getTextureManager().loadTexture(Chams.GALAXY_LOCATION, new SimpleTexture(Chams.GALAXY_LOCATION));
+
         this.customShaderLocation.addObserver(e -> {
             if (!e.isCancelled() && !"None!".equalsIgnoreCase(e.getValue())) {
                 loadCustomShader(e.getValue());
             }
         });
+
         this.refreshCustomShader.addObserver(e -> {
             if (e.getValue()) {
                 e.setCancelled(true);
                 loadCustomShader(customShaderLocation.getValue());
             }
         });
+
+        this.listeners.add(new LambdaListener<>(DeathEvent.class, e -> {
+            if (mc.world != null && mc.player != null) {
+                BlockPos playerPos = e.getEntity().getPosition();
+                mc.world.spawnEntity(new EntityLightningBolt(mc.world, playerPos.getX(), playerPos.getY(), playerPos.getZ(), false));
+            }
+        }));
     }
 
     private void loadCustomShader(String location) {

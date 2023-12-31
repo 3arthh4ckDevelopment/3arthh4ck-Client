@@ -4,12 +4,10 @@ import com.mojang.authlib.GameProfile;
 import me.earth.earthhack.api.event.bus.instance.Bus;
 import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Category;
+import me.earth.earthhack.api.module.util.PluginsCategory;
 import me.earth.earthhack.api.setting.Complexity;
 import me.earth.earthhack.api.setting.Setting;
-import me.earth.earthhack.api.setting.settings.BooleanSetting;
-import me.earth.earthhack.api.setting.settings.ColorSetting;
-import me.earth.earthhack.api.setting.settings.EnumSetting;
-import me.earth.earthhack.api.setting.settings.NumberSetting;
+import me.earth.earthhack.api.setting.settings.*;
 import me.earth.earthhack.impl.event.events.render.Render2DEvent;
 import me.earth.earthhack.impl.event.listeners.LambdaListener;
 import me.earth.earthhack.impl.managers.Managers;
@@ -19,6 +17,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import org.lwjgl.opengl.Display;
 
 import java.awt.*;
+import java.util.Map;
 
 /**
  * {@link me.earth.earthhack.impl.core.mixins.util.MixinScreenShotHelper}
@@ -31,6 +30,8 @@ public class Management extends Module {
             register(new BooleanSetting("LogoutPops", false));
     protected final Setting<Boolean> friend =
             register(new BooleanSetting("SelfFriend", true));
+    public final Setting<Boolean> pluginSection =
+            register(new BooleanSetting("PluginSection", false));
     protected final Setting<Boolean> soundRemove =
             register(new BooleanSetting("SoundRemove", true));
     protected final Setting<Integer> deathTime =
@@ -52,16 +53,26 @@ public class Management extends Module {
             register(new BooleanSetting("CustomFogColor", false));
     protected final Setting<Color> fogColor =
             register(new ColorSetting("FogColor", new Color(255, 255, 255, 255)));
+    /*
     protected final Setting<Boolean> resourceDebug =
             register(new BooleanSetting("ResourceDebug", false)); // TODO:
+
+     */
     protected final Setting<Integer> unfocusedFps =
             register(new NumberSetting<>("UnfocusedFps", 30, 0, 300));
+    /*
     protected final Setting<CooldownBypass> globalCooldownBypass =
             register(new EnumSetting<>("Global-CD-Bypass", CooldownBypass.None));
+
+     */
     protected final Setting<CooldownBypass> manualCooldownBypass =
             register(new EnumSetting<>("Manual-CD-Bypass", CooldownBypass.None));
     public final Setting<Boolean> icon =
             register(new BooleanSetting("GameIcon", true));
+    protected final Setting<Boolean> toast =
+            register(new BooleanSetting("Toast", false));
+    public final Setting<String> toastText =
+            register(new StringSetting("ToastText", "| Looking up at Phobos"));
 
     protected GameProfile lastProfile;
     protected EntityPlayerSP player;
@@ -87,6 +98,7 @@ public class Management extends Module {
             .setComplexity(Complexity.Expert);
         register(new BooleanSetting("PB-FixChunks", false))
             .setComplexity(Complexity.Expert);
+        register(new BooleanSetting("1.19-Place", false));
         register(new BooleanSetting("IgnoreForgeRegistries", false));
 
         this.setData(new ManagementData(this));
@@ -114,6 +126,8 @@ public class Management extends Module {
                 }
             }));
         }
+
+        this.pluginSection.addObserver(e -> pluginsUpdate(e.getValue()));
     }
 
     @Override
@@ -124,6 +138,12 @@ public class Management extends Module {
             lastProfile = mc.getSession().getProfile();
             Managers.FRIENDS.add(lastProfile.getName(), lastProfile.getId());
         }
+        pluginsUpdate(pluginSection.getValue());
+    }
+
+    private void pluginsUpdate(boolean isSeparated) {
+        for (Map.Entry<Module, Category> entry : PluginsCategory.getInstance().getPluginsModuleList().entrySet())
+            entry.getKey().setCategory(isSeparated ? PluginsCategory.getInstance().getCategory() : entry.getValue());
     }
 
     public boolean isUsingCustomFogColor()

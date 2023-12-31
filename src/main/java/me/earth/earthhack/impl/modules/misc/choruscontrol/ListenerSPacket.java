@@ -10,7 +10,6 @@ public class ListenerSPacket extends ModuleListener<ChorusControl, PacketEvent.R
         super(module, PacketEvent.Receive.class, SPacketPlayerPosLook.class);
     }
 
-    @Override
     public void invoke(PacketEvent.Receive<SPacketPlayerPosLook> event)
     {
         SPacketPlayerPosLook packet = event.getPacket();

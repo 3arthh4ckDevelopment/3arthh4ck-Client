@@ -19,7 +19,7 @@ import java.io.IOException;
 public class CommandGui extends GuiScreen
 {
     private static final SettingCache<Boolean, BooleanSetting, Commands> BACK =
-     Caches.getSetting(Commands.class, BooleanSetting.class, "BackgroundGui", false);
+            Caches.getSetting(Commands.class, BooleanSetting.class, "BackgroundGui", false);
     private static final ResourceLocation BLACK_PNG =
             new ResourceLocation("earthhack:textures/gui/black.png");
 

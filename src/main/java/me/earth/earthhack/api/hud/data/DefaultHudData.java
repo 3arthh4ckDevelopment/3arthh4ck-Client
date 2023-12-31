@@ -3,9 +3,9 @@ package me.earth.earthhack.api.hud.data;
 import me.earth.earthhack.api.hud.HudElement;
 import me.earth.earthhack.api.util.AbstractData;
 
-public class DefaultHudData<M extends HudElement> extends AbstractData<M>
+public class DefaultHudData<E extends HudElement> extends AbstractData<E>
 {
-    public DefaultHudData(M module)
+    public DefaultHudData(E module)
     {
         super(module);
     }
@@ -22,12 +22,9 @@ public class DefaultHudData<M extends HudElement> extends AbstractData<M>
         return 0xeeeeeeee;
     }
 
-    /*
     @Override
     public String[] getAliases() {
         return new String[]{};
     }
-    it will be used with search
-     */
 
 }

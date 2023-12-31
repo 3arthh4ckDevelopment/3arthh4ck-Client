@@ -166,11 +166,11 @@ public class DiscordPresence implements Globals
 
     private String line2()
     {
-        return module.showIP.getValue()
-                ? module.showIP.getValue()
+        return mc.player != null
+                ? module.showIP.getValue() // second check cuz it crashed anyway??
                     ? "Playing on " + Objects.requireNonNull(mc.getCurrentServerData()).serverIP + "!"
                     : module.Line2.getValue()
-                : mc.player == null
+                : mc.world == null
                     ? "Not in-game."
                     : mc.isIntegratedServerRunning()
                         ? "Playing Singleplayer."

@@ -20,8 +20,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static net.minecraft.util.EnumFacing.HORIZONTALS;
 
@@ -468,12 +471,12 @@ public class BlockUtil implements Globals
 
     /**
      * @param pos the position.
-     * @return {@link BlockUtil#getFacing(BlockPos, IBlockAccess)}
+     * @return {@link BlockUtil#getFacing(BlockPos, IBlockAccess, boolean)}
      *          for the position and mc.world.
      */
     public static EnumFacing getFacing(BlockPos pos)
     {
-        return getFacing(pos, mc.world);
+        return getFacing(pos, mc.world, false);
     }
 
     /**
@@ -484,21 +487,74 @@ public class BlockUtil implements Globals
      *
      * @param pos the position to get a facing for.
      * @param provider provides the BlockStates.
+     * @param strict If the facing should be strict (for 2b2t).
      * @return a facing for the given position.
      */
-    public static EnumFacing getFacing(BlockPos pos, IBlockAccess provider)
+    public static EnumFacing getFacing(BlockPos pos, IBlockAccess provider, boolean strict)
     {
-        for (EnumFacing facing : EnumFacing.values())
-        {
-            if (!provider.getBlockState(pos.offset(facing))
-                         .getMaterial()
-                         .isReplaceable())
-            {
-                return facing;
+        if (strict) {
+            List<EnumFacing> validAxis = new ArrayList<>();
+            Vec3d eyePos = mc.player.getPositionEyes(1.0f);
+            Vec3d blockCenter = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+            IBlockState blockState = mc.world.getBlockState(pos);
+            boolean isFullBox = blockState.getBlock() == Blocks.AIR || blockState.isFullBlock();
+            validAxis.addAll(check(eyePos.x - blockCenter.x, EnumFacing.WEST, EnumFacing.EAST, !isFullBox));
+            validAxis.addAll(check(eyePos.y - blockCenter.y, EnumFacing.DOWN, EnumFacing.UP, true));
+            validAxis.addAll(check(eyePos.z - blockCenter.z, EnumFacing.NORTH, EnumFacing.SOUTH, !isFullBox));
+            validAxis = validAxis.stream().filter(facing -> mc.world.rayTraceBlocks(eyePos, new Vec3d(pos)
+                    .add(0.5, 0.5, 0.5)
+                    .add(new Vec3d(facing.getDirectionVec()).scale(0.5))) == null).collect(Collectors.toList());
+            if (validAxis.isEmpty()) {
+                validAxis.addAll(check(eyePos.x - blockCenter.x, EnumFacing.WEST, EnumFacing.EAST, !isFullBox));
+                validAxis.addAll(check(eyePos.y - blockCenter.y, EnumFacing.DOWN, EnumFacing.UP, true));
+                validAxis.addAll(check(eyePos.z - blockCenter.z, EnumFacing.NORTH, EnumFacing.SOUTH, !isFullBox));
             }
+            return validAxis.stream().min(Comparator.comparing(enumFacing -> new Vec3d(pos)
+                    .add(0.5, 0.5, 0.5)
+                    .add(new Vec3d(enumFacing.getDirectionVec()).scale(0.5)).distanceTo(eyePos))).orElse(null);
+        } else {
+            for (EnumFacing facing : EnumFacing.values())
+            {
+                if (!provider.getBlockState(pos.offset(facing))
+                        .getMaterial()
+                        .isReplaceable())
+                {
+                    return facing;
+                }
+            }
+
+        }
+        return null;
+    }
+
+    /**
+     * Checks if an axis is visible.
+     * @param diff difference.
+     * @param negative negative facing.
+     * @param positive positive facing
+     * @param bothIfInRange if both facings are in range.
+     * @return an ArrayList of EnumFacing containing the correct facing to place.
+     */
+    public static ArrayList<EnumFacing> check(double diff, EnumFacing negative, EnumFacing positive, boolean bothIfInRange) {
+        ArrayList<EnumFacing> valid = new ArrayList<>();
+        if (diff < -0.5) {
+            valid.add(negative);
+        }
+        if (diff > 0.5) {
+            valid.add(positive);
         }
 
-        return null;
+       // valid.add(diff > 0.5
+       //             ? positive
+       //             : diff < -0.5
+       //                 ? negative
+       //                 : null);
+
+        if (bothIfInRange) {
+            if (!valid.contains(negative)) valid.add(negative);
+            if (!valid.contains(positive)) valid.add(positive);
+        }
+        return valid;
     }
 
     /**

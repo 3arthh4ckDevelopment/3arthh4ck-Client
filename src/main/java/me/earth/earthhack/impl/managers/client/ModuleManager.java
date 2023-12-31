@@ -12,6 +12,7 @@ import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.client.accountspoof.AccountSpoof;
 import me.earth.earthhack.impl.modules.client.anticheat.AntiCheat;
 import me.earth.earthhack.impl.modules.client.autoconfig.AutoConfig;
+import me.earth.earthhack.impl.modules.client.capes.Capes;
 import me.earth.earthhack.impl.modules.client.clickgui.ClickGui;
 import me.earth.earthhack.impl.modules.client.colors.Colors;
 import me.earth.earthhack.impl.modules.client.commands.Commands;
@@ -49,7 +50,6 @@ import me.earth.earthhack.impl.modules.combat.killaura.KillAura;
 import me.earth.earthhack.impl.modules.combat.legswitch.LegSwitch;
 import me.earth.earthhack.impl.modules.combat.offhand.Offhand;
 import me.earth.earthhack.impl.modules.combat.pistonaura.PistonAura;
-import me.earth.earthhack.impl.modules.combat.quiver.Quiver;
 import me.earth.earthhack.impl.modules.combat.selftrap.SelfTrap;
 import me.earth.earthhack.impl.modules.combat.surround.Surround;
 import me.earth.earthhack.impl.modules.combat.webaura.WebAura;
@@ -61,10 +61,10 @@ import me.earth.earthhack.impl.modules.misc.antivanish.AntiVanish;
 import me.earth.earthhack.impl.modules.misc.autoeat.AutoEat;
 import me.earth.earthhack.impl.modules.misc.autolog.AutoLog;
 import me.earth.earthhack.impl.modules.misc.autoreconnect.AutoReconnect;
-import me.earth.earthhack.impl.modules.misc.autoregear.AutoRegear;
 import me.earth.earthhack.impl.modules.misc.autorespawn.AutoRespawn;
 import me.earth.earthhack.impl.modules.misc.buildheight.BuildHeight;
 import me.earth.earthhack.impl.modules.misc.chat.Chat;
+import me.earth.earthhack.impl.modules.misc.choruscontrol.ChorusControl;
 import me.earth.earthhack.impl.modules.misc.extratab.ExtraTab;
 import me.earth.earthhack.impl.modules.misc.logger.Logger;
 import me.earth.earthhack.impl.modules.misc.mcf.MCF;
@@ -111,6 +111,7 @@ import me.earth.earthhack.impl.modules.movement.stairs.Stairs;
 import me.earth.earthhack.impl.modules.movement.step.Step;
 import me.earth.earthhack.impl.modules.movement.tickshift.TickShift;
 import me.earth.earthhack.impl.modules.movement.velocity.Velocity;
+import me.earth.earthhack.impl.modules.player.arrows.Arrows;
 import me.earth.earthhack.impl.modules.player.automine.AutoMine;
 import me.earth.earthhack.impl.modules.player.autotool.AutoTool;
 import me.earth.earthhack.impl.modules.player.blink.Blink;
@@ -129,7 +130,7 @@ import me.earth.earthhack.impl.modules.player.noglitchblocks.NoGlitchBlocks;
 import me.earth.earthhack.impl.modules.player.nohunger.NoHunger;
 import me.earth.earthhack.impl.modules.player.norotate.NoRotate;
 import me.earth.earthhack.impl.modules.player.pearlphase.PearlPhase;
-import me.earth.earthhack.impl.modules.player.raytrace.RayTrace;
+import me.earth.earthhack.impl.modules.player.phasetrace.PhaseTrace;
 import me.earth.earthhack.impl.modules.player.reach.Reach;
 import me.earth.earthhack.impl.modules.player.replenish.Replenish;
 import me.earth.earthhack.impl.modules.player.scaffold.Scaffold;
@@ -145,10 +146,11 @@ import me.earth.earthhack.impl.modules.player.xcarry.XCarry;
 import me.earth.earthhack.impl.modules.render.ambience.Ambience;
 import me.earth.earthhack.impl.modules.render.blockhighlight.BlockHighlight;
 import me.earth.earthhack.impl.modules.render.breadcrumbs.BreadCrumbs;
+import me.earth.earthhack.impl.modules.render.breakesp.BreakESP;
+import me.earth.earthhack.impl.modules.render.cameraclip.CameraClip;
 import me.earth.earthhack.impl.modules.render.chams.Chams;
 import me.earth.earthhack.impl.modules.render.crosshair.CrossHair;
 import me.earth.earthhack.impl.modules.render.crystalchams.CrystalChams;
-import me.earth.earthhack.impl.modules.render.crystalscale.CrystalScale;
 import me.earth.earthhack.impl.modules.render.esp.ESP;
 import me.earth.earthhack.impl.modules.render.fullbright.Fullbright;
 import me.earth.earthhack.impl.modules.render.handchams.HandChams;
@@ -159,7 +161,6 @@ import me.earth.earthhack.impl.modules.render.logoutspots.LogoutSpots;
 import me.earth.earthhack.impl.modules.render.nametags.Nametags;
 import me.earth.earthhack.impl.modules.render.newchunks.NewChunks;
 import me.earth.earthhack.impl.modules.render.norender.NoRender;
-import me.earth.earthhack.impl.modules.render.penis.Penis;
 import me.earth.earthhack.impl.modules.render.popchams.PopChams;
 import me.earth.earthhack.impl.modules.render.rainbowenchant.RainbowEnchant;
 import me.earth.earthhack.impl.modules.render.search.Search;
@@ -168,7 +169,6 @@ import me.earth.earthhack.impl.modules.render.sounds.Sounds;
 import me.earth.earthhack.impl.modules.render.tracers.Tracers;
 import me.earth.earthhack.impl.modules.render.trails.Trails;
 import me.earth.earthhack.impl.modules.render.trajectories.Trajectories;
-import me.earth.earthhack.impl.modules.render.viewclip.CameraClip;
 import me.earth.earthhack.impl.modules.render.viewmodel.ViewModel;
 import me.earth.earthhack.impl.modules.render.voidesp.VoidESP;
 import me.earth.earthhack.impl.modules.render.waypoints.WayPoints;
@@ -187,12 +187,15 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new AccountSpoof());
         this.forceRegister(new AntiCheat());
         this.forceRegister(new AutoConfig());
+        this.forceRegister(new Capes());
         this.forceRegister(new ClickGui());
         this.forceRegister(new Colors());
         this.forceRegister(new Commands());
+        this.forceRegister(new SettingsModule());
         this.forceRegister(new ConfigModule());
         this.forceRegister(new Debug());
         this.forceRegister(new FontMod());
+        this.forceRegister(new RPC());
         this.forceRegister(new HudEditor());
         this.forceRegister(new Management());
         this.forceRegister(new NoSpoof());
@@ -202,7 +205,6 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new ServerModule());
         this.forceRegister(new PbGui());
         this.forceRegister(new PbTeleport());
-        this.forceRegister(new SettingsModule());
         this.forceRegister(new TabModule());
         this.forceRegister(new Media());
 
@@ -224,7 +226,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new LegSwitch());
         this.forceRegister(new Offhand());
         this.forceRegister(new PistonAura());
-        this.forceRegister(new Quiver());
+        this.forceRegister(new Arrows());
         this.forceRegister(new Surround());
         this.forceRegister(new SelfTrap());
         this.forceRegister(new WebAura());
@@ -241,7 +243,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new AutoRespawn());
         this.forceRegister(new BuildHeight());
         this.forceRegister(new Chat());
-        // this.forceRegister(new ChorusControl()); // TODO Rewrite
+        this.forceRegister(new ChorusControl());
         this.forceRegister(new ExtraTab());
         this.forceRegister(new Logger());
         this.forceRegister(new MCF());
@@ -262,9 +264,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new TpsSync());
         this.forceRegister(new Tracker());
         this.forceRegister(new TrueDurability());
-        this.forceRegister(new AutoRegear());
         this.forceRegister(new PacketDelay());
-        this.forceRegister(new RPC());
 
         //movement
         this.forceRegister(new Anchor());
@@ -313,7 +313,7 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new NoGlitchBlocks());
         this.forceRegister(new NoHunger());
         this.forceRegister(new NoRotate());
-        this.forceRegister(new RayTrace());
+        this.forceRegister(new PhaseTrace());
         this.forceRegister(new Reach());
         this.forceRegister(new Replenish());
         this.forceRegister(new Scaffold());
@@ -341,24 +341,23 @@ public class ModuleManager extends IterationRegister<Module>
         this.forceRegister(new NoRender());
         this.forceRegister(new Search());
         this.forceRegister(new Skeleton());
+        this.forceRegister(new BreakESP());
         this.forceRegister(new Sounds());
         this.forceRegister(new Tracers());
         this.forceRegister(new CameraClip());
-        this.forceRegister(new ViewModel());
         this.forceRegister(new XRay());
-        this.forceRegister(new CrystalScale());
+        this.forceRegister(new CrystalChams());
         this.forceRegister(new Trails());
         this.forceRegister(new Trajectories());
-        this.forceRegister(new Penis());
         this.forceRegister(new WayPoints());
         this.forceRegister(new Weather());
         this.forceRegister(new HandChams());
-        this.forceRegister(new CrystalChams());
         this.forceRegister(new RainbowEnchant());
         this.forceRegister(new CrossHair());
         this.forceRegister(new PopChams());
         this.forceRegister(new ItemChams());
         this.forceRegister(new Ambience());
+        this.forceRegister(new ViewModel());
 
         this.forceRegister(new PingBypassModule());
 
@@ -399,5 +398,6 @@ public class ModuleManager extends IterationRegister<Module>
         }
         return iModules;
     }
+
 }
 

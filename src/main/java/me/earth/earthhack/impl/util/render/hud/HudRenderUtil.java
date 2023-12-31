@@ -32,11 +32,12 @@ public class HudRenderUtil implements Globals {
     }
 
     public static void renderText(String text, float x, float y) {
+        renderText(text, x, y, 1.0f);
+    }
+
+    public static void renderText(String text, float x, float y, float scale) {
         String colorCode = HUD_EDITOR.get().colorMode.getValue().getColor();
-        if (HUD_EDITOR.get().shadow.getValue())
-            RENDERER.drawStringWithShadow(colorCode + text, x, y, textColor(y));
-        else
-            RENDERER.drawString(colorCode + text, x, y, textColor(y));
+        RENDERER.drawStringScaled(colorCode + text, x, y, textColor(y), HUD_EDITOR.get().shadow.getValue(), scale);
     }
 
     private static int textColor(float y) {

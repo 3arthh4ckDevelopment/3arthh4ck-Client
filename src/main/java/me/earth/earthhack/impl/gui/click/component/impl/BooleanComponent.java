@@ -25,7 +25,11 @@ public class BooleanComponent extends SettingComponent<Boolean, Setting<Boolean>
         super.drawScreen(mouseX, mouseY, partialTicks);
         final boolean hovered = RenderUtil.mouseWithinBounds(mouseX, mouseY, getFinishedX() + getWidth() - 17,getFinishedY() + 1,12,getHeight() - 2);
         Managers.TEXT.drawStringWithShadow(getLabel(), getFinishedX() + 5, getFinishedY() + getHeight() / 2 - (Managers.TEXT.getStringHeightI() >> 1), getBooleanSetting().getValue() ? 0xFFFFFFFF : 0xFFAAAAAA);
-        Render2DUtil.drawBorderedRect(getFinishedX() + getWidth() - 17,getFinishedY() + 1,getFinishedX() + getWidth() - 5,getFinishedY() + getHeight() - 1,0.5f,getBooleanSetting().getValue() ? ( hovered ? getColor().get().getModulesColor().brighter().getRGB():getColor().get().getModulesColor().getRGB()):(hovered ? 0x66333333:0),0xff000000);
+        if (getClickGui().get().getBoxes())
+            Render2DUtil.drawBorderedRect(getFinishedX() + getWidth() - 17,getFinishedY() + 1,getFinishedX() + getWidth() - 5,getFinishedY() + getHeight() - 1,0.5f, getBooleanSetting().getValue() ? ( hovered ? getClickGui().get().getModulesColor().brighter().getRGB():getClickGui().get().getModulesColor().getRGB()):(hovered ? 0x66333333:0),0xff000000);
+        else
+            Render2DUtil.drawBorderedRect(getFinishedX() + getWidth() - 17,getFinishedY() + 1.5f,getFinishedX() + getWidth() - 5.5f,getFinishedY() + getHeight() - 1,0.5f, getBooleanSetting().getValue() ? ( hovered ? getClickGui().get().getModulesColor().brighter().getRGB():getClickGui().get().getModulesColor().getRGB()):(hovered ? 0x66333333:0),0xff000000);
+
         if (getBooleanSetting().getValue())
             Render2DUtil.drawCheckMark(getFinishedX() + getWidth() - 11,getFinishedY() + 1,10,0xFFFFFFFF);
     }

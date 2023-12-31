@@ -1,7 +1,7 @@
 package me.earth.earthhack.impl.util.render.mutables;
 
 import com.google.common.annotations.VisibleForTesting;
-import me.earth.earthhack.installer.srg2notch.RemapFieldName;
+import me.earth.earthhack.impl.util.srg2notch.RemapFieldName;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;

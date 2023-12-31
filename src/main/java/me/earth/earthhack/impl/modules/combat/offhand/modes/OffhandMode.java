@@ -20,6 +20,8 @@ public class OffhandMode
     /** Offhand Mode for {@link Items#END_CRYSTAL}. */
     public static final OffhandMode CRYSTAL =
             new OffhandMode(Items.END_CRYSTAL, "Crystal");
+    public static final OffhandMode BED =
+            new OffhandMode(Items.BED, "Bed");
     /** Offhand Mode for {@link Blocks#OBSIDIAN}. */
     public static final OffhandMode OBSIDIAN =
             new OffhandMode(Blocks.OBSIDIAN, "Obsidian");

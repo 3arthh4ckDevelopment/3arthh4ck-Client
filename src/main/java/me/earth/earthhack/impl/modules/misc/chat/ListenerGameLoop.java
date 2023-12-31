@@ -5,7 +5,6 @@ import me.earth.earthhack.impl.event.events.misc.GameLoopEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.util.text.ChatIDs;
-import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.network.play.client.CPacketChatMessage;
 
 final class ListenerGameLoop extends ModuleListener<Chat, GameLoopEvent>
@@ -25,7 +24,7 @@ final class ListenerGameLoop extends ModuleListener<Chat, GameLoopEvent>
                 module.clearNoScroll();
         }
 
-        if (!mc.isGamePaused() && !(mc.currentScreen instanceof GuiGameOver) && module.needsKit) {
+        if (!mc.isGamePaused() && mc.currentScreen == null && module.needsKit) {
             module.needsKit = false;
             mc.player.connection.sendPacket(new CPacketChatMessage("/kit " + module.kitName.getValue()));
             Managers.CHAT.sendDeleteMessage(module.kitName.getValue(), module.getName(), ChatIDs.COMMAND);

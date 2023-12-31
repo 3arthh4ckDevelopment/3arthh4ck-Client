@@ -8,13 +8,12 @@ import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.event.events.misc.UpdateEvent;
 import me.earth.earthhack.impl.event.listeners.LambdaListener;
-import me.earth.earthhack.impl.modules.misc.logger.Logger;
 import me.earth.earthhack.impl.util.minecraft.MovementUtil;
 import me.earth.earthhack.impl.util.network.NetworkUtil;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 
 
 public class Clip extends Module {
@@ -50,18 +49,13 @@ public class Clip extends Module {
             switch (mode.getValue()) {
 
                 case AutoCenter:
-                    try
-                    {
-                        Vec3d setCenter = new Vec3d(pos.getX() + 0.5, mc.player.posY, pos.getZ() + 0.5);
+                    Vec3d setCenter = new Vec3d(pos.getX() + 0.5, mc.player.posY, pos.getZ() + 0.5);
 
-                        mc.player.motionX = 0;
-                        mc.player.motionZ = 0;
+                    mc.player.motionX = 0;
+                    mc.player.motionZ = 0;
 
-                        NetworkUtil.send(new CPacketPlayer.Position(setCenter.x, setCenter.y, setCenter.z, true));
-                        mc.player.setPosition(setCenter.x, setCenter.y, setCenter.z);
-                    } catch (Exception e2) {
-                        System.out.println(2);
-                    }
+                    NetworkUtil.send(new CPacketPlayer.Position(setCenter.x, setCenter.y, setCenter.z, true));
+                    mc.player.setPosition(setCenter.x, setCenter.y, setCenter.z);
                     break;
 
                 case Corner:

@@ -2,8 +2,8 @@ package me.earth.earthhack.impl.managers.client;
 
 import me.earth.earthhack.impl.core.Core;
 import me.earth.earthhack.impl.util.misc.URLUtil;
-import me.earth.earthhack.installer.service.Srg2NotchService;
-import me.earth.earthhack.installer.srg2notch.Mapping;
+import me.earth.earthhack.impl.util.srg2notch.Mapping;
+import me.earth.earthhack.impl.util.srg2notch.Srg2NotchService;
 
 import java.io.File;
 import java.io.IOException;

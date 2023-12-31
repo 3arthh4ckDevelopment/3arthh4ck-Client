@@ -3,10 +3,8 @@ package me.earth.earthhack.impl.modules.misc.chat;
 import io.netty.util.internal.ConcurrentSet;
 import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Category;
-import me.earth.earthhack.api.setting.Complexity;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.*;
-import me.earth.earthhack.impl.Earthhack;
 import me.earth.earthhack.impl.event.events.render.ChatEvent;
 import me.earth.earthhack.impl.managers.thread.scheduler.Scheduler;
 import me.earth.earthhack.impl.modules.misc.chat.util.LoggerMode;
@@ -51,15 +49,6 @@ public class Chat extends Module
             "\uB101\uB201\uB301\uB401\uB501\uB601\uB701\uB801\uB901" +
             "\uBA01\uBB01\uBC01\uBD01";
 
-    public static final String EARTH = "\u00B3\u1D00\u0280\u1D1B\u029C\u029C\u2074\u1D04\u1D0B";
-    public static final String CUTEEARTH = "(\u3063\u25D4\u25E1\u25D4)\u3063 \u2665 3arthh4ck " + Earthhack.VERSION + " \u2665";
-    public static final String PHOBOS = "\u1D18\u029C\u1D0F\u0299\u1D0F\uA731";
-    public static final String RUSHER = "\u02B3\u1D58\u02E2\u02B0\u1D49\u02B3\u02B0\u1D43\u1D9C\u1D4F";
-    public static final String FUTURE = "\uA730\u1D1C\u1D1B\u1D1C\u0280\u1D07";
-    public static final String KONAS = "Konas owns me and all \u2022\u1D17\u2022";
-    public static final String GAMESENSE = "\u0262\u1D00\u1D0D\u1D07\uA731\u1D07\u0274\uA731\u1D07";
-    public static final String KAMIBLUE = "\u1D0B\u1D00\u1D0D\u026A \u0299\u029F\u1D1C\u1D07";
-
     protected final Setting<Boolean> noScroll =
             register(new BooleanSetting("AntiScroll", true));
     protected final Setting<Boolean> timeStamps =
@@ -74,12 +63,10 @@ public class Chat extends Module
             register(new BooleanSetting("AutoKit", false));
     protected final Setting<String> kitName =
             register(new StringSetting("KitName", "1"));
-    public final Setting<Boolean> suffix =
-            register(new BooleanSetting("Suffix", false));
+    protected final EnumSetting<SuffixMode> suffixMode =
+            register(new EnumSetting<>("SuffixMode", SuffixMode.None));
     public final Setting<Boolean> suffixWhispers =
             register(new BooleanSetting("SuffixWhispers", false));
-    protected final EnumSetting<SuffixMode> mode =
-            register(new EnumSetting<>("Mode", SuffixMode.Earth));
     protected final StringSetting customSuffix =
             register(new StringSetting("CustomSuffix", "3arthh4ck"));
     protected final Setting<Integer> qDelay =

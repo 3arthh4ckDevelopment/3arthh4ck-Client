@@ -37,7 +37,6 @@ import me.earth.earthhack.impl.util.thread.SafeRunnable;
 import me.earth.earthhack.impl.util.thread.ThreadUtil;
 import me.earth.earthhack.pingbypass.PingBypass;
 import me.earth.earthhack.pingbypass.input.Mouse;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;

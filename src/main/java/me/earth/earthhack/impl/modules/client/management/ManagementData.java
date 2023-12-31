@@ -7,19 +7,19 @@ final class ManagementData extends DefaultData<Management>
     public ManagementData(Management management)
     {
         super(management);
-        this.descriptions.put(module.clear,
+        register(module.clear,
                 "Clears saved TotemPops for all players.");
-        this.descriptions.put(module.logout,
+        register(module.logout,
                 "If on: totempops get cleared when you log off.");
-        this.descriptions.put(module.friend, "If on: Friends you " +
+        register(module.friend, "If on: Friends you " +
                 "automatically.");
-        this.descriptions.put(module.deathTime, "DeathTime for Modules that " +
+        register(module.deathTime, "DeathTime for Modules that " +
                 "use SetDead and similar stuff.");
-        this.descriptions.put(module.time, "Sets the worlds time. A value" +
+        register(module.time, "Sets the worlds time. A value" +
                 " of 0 means that time is running normally.");
-        this.register(module.pooledScreenShots,
+        register(module.pooledScreenShots,
                 "Removes the Lag from Screenshots.");
-        this.register(management.soundRemove, "Allows you to disable" +
+        register(management.soundRemove, "Allows you to disable" +
                 " SoundRemove in the entire client." +
                 " If its off it overrides all SoundRemove" +
                 " settings in the client.");

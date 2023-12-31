@@ -39,9 +39,15 @@ public class Render2DUtil implements Globals {
     protected static final ResourceLocation shader = new ResourceLocation("earthhack:shaders/blur.json");
     protected static final StopWatch timer = new StopWatch();
 
-    public static int CGScale() {return Minecraft.getMinecraft().gameSettings.guiScale;}
-    public static int CSWidth() {return Minecraft.getMinecraft().displayWidth;}
-    public static int CSHeight() {return Minecraft.getMinecraft().displayHeight;}
+    public static int getScreenScale() {
+        return mc.gameSettings.guiScale;
+    }
+    public static int getScreenWidth() {
+        return mc.displayWidth;
+    }
+    public static int getScreenHeight() {
+        return mc.displayHeight;
+    }
 
 
     public static Vec3d to2D(double x, double y, double z) {
@@ -104,15 +110,15 @@ public class Render2DUtil implements Globals {
         float green = (float) (color >> 8 & 255) / 255.0F;
         float blue = (float) (color & 255) / 255.0F;
         final Tessellator tessellator = Tessellator.getInstance();
-        final BufferBuilder bufferbuilder = tessellator.getBuffer();
+        final BufferBuilder bufferBuilder = tessellator.getBuffer();
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        bufferbuilder.pos(startX, endY, 0.0D).color(red, green, blue, alpha).endVertex();
-        bufferbuilder.pos(endX, endY, 0.0D).color(red, green, blue, alpha).endVertex();
-        bufferbuilder.pos(endX, startY, 0.0D).color(red, green, blue, alpha).endVertex();
-        bufferbuilder.pos(startX, startY, 0.0D).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        bufferBuilder.pos(startX, endY, 0.0D).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(endX, endY, 0.0D).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(endX, startY, 0.0D).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(startX, startY, 0.0D).color(red, green, blue, alpha).endVertex();
         tessellator.draw();
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();

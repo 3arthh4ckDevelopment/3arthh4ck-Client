@@ -1,27 +1,30 @@
 package me.earth.earthhack.impl.modules.combat.blocker;
 
-import me.earth.earthhack.impl.util.helpers.blocks.data.BlockPlacingData;
+import me.earth.earthhack.api.module.data.DefaultData;
 
-public class BlockerData extends BlockPlacingData<Blocker> {
+public class BlockerData extends DefaultData<Blocker> {
+
     public BlockerData(Blocker module) {
         super(module);
-        this.register(module.antiCev, "Whether or not Blocker should account for CevBreak.");
-        this.register(module.range, "Range from position mined to closest enemy.");
-        this.register(module.fullExtend, "Full extension (diagonal, face & top)\nNeeds to be on for now or AntiCev won't work.");
-        this.register(module.extendxyz, "Diagonal and normal extension when FullExtend is off.");
-        this.register(module.mode, "The detection mode for surrounding blocks.");
-        this.register(module.modeCev, "The detection mode for the top block.");
-    }
+        register(module.pages, "Structures the Settings in the ClickGUI");
+        register(module.holeCheck, "Checks if you are in a Hole before placing blocks.");
+        register(module.onlyTarget, "Checks if you have enemies near you before placing blocks.");
+        register(module.placeDelay, "Delay between block placements.");
+        register(module.sides, "Places blocks on your sides.");
+        register(module.face, "Faces blocks around your head.");
+        register(module.modeSides, "Detection mode for Side blocks." +
+                "\n- Touch : Places blocks when they are touched." +
+                "\n- Break : Place blocks when they have been broken.");
 
-    @Override
-    public int getColor()
-    {
-        return 0xffffffff;
-    }
+        register(module.cev, "Prevents crystals being placed on top of you.");
+        register(module.modeCev, "Detection mode for Blocks above your Head." +
+                "\n- Touch : Places blocks on top of your Head when the block has been " +
+                "touched. (Recommended)" +
+                "\n- Break : Places blocks on top of your Head after the block has been broken." +
+                " Will likely allow the enemy to bomb you once, so Touch is better for most cases.");
+        register(module.stepCev, "Checks if the position above the Block over your head is" +
+                " blocked.");
+        register(module.detectTime, "Time for DetectionMode - Touch to count as a detection.");
 
-    @Override
-    public String getDescription()
-    {
-        return "Places extra blocks around your Surround to prevent it being broken.";
     }
 }

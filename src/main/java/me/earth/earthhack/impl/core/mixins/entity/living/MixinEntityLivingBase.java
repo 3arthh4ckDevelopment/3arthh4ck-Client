@@ -10,12 +10,12 @@ import me.earth.earthhack.impl.event.events.misc.DeathEvent;
 import me.earth.earthhack.impl.event.events.movement.LiquidJumpEvent;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.misc.nointerp.NoInterp;
-import me.earth.earthhack.impl.modules.player.swing.Swing;
 import me.earth.earthhack.impl.modules.movement.elytraflight.ElytraFlight;
 import me.earth.earthhack.impl.modules.movement.elytraflight.mode.ElytraMode;
 import me.earth.earthhack.impl.modules.player.fasteat.FastEat;
 import me.earth.earthhack.impl.modules.player.fasteat.mode.FastEatMode;
 import me.earth.earthhack.impl.modules.player.spectate.Spectate;
+import me.earth.earthhack.impl.modules.player.swing.Swing;
 import me.earth.earthhack.impl.modules.render.norender.NoRender;
 import me.earth.earthhack.impl.util.minecraft.ICachedDamage;
 import me.earth.earthhack.impl.util.minecraft.MotionTracker;
@@ -39,6 +39,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -116,6 +117,8 @@ public abstract class MixinEntityLivingBase extends MixinEntity
     @Shadow
     public abstract boolean isServerWorld();
 
+
+    @Shadow @Final public static Logger LOGGER;
 
     @Override
     @Accessor(value = "ticksSinceLastSwing")

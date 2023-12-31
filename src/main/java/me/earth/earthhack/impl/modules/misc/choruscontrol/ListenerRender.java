@@ -17,18 +17,13 @@ public class ListenerRender extends ModuleListener<ChorusControl, Render3DEvent>
     public ListenerRender(ChorusControl module){
         super(module, Render3DEvent.class);
     }
-    // TODO: Fix a few bugs
-    @Override
+    // TODO: Fix render bugs...
     public void invoke(Render3DEvent e)
     {
-        if(mc.player == null)
-            return;
-        if(mc.world == null)
-            return;
-        if(!module.cancelled)
-            return;
-        if(!module.esp.getValue())
-            return;
+        if(mc.player == null) return;
+        if(mc.world == null) return;
+        if(!module.cancelled) return;
+        if(!module.esp.getValue()) return;
 
         double x = module.tpX - mc.getRenderManager().viewerPosX;
         double y = module.tpY - mc.getRenderManager().viewerPosY;
@@ -62,7 +57,7 @@ public class ListenerRender extends ModuleListener<ChorusControl, Render3DEvent>
         if(module.espMode.getValue() == ESPMode.Chams)
         {
             GlStateManager.translate(x, y, z);
-            GlStateManager.rotate(90, 0, 1, 0);
+            GlStateManager.rotate(180 - 90, 0, 1, 0);
             GlStateManager.enableRescaleNormal();
             GlStateManager.scale(-1.0F, -1.0F, 1.0F);
 

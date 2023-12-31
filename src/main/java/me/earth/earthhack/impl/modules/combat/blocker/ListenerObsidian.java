@@ -1,7 +1,7 @@
 package me.earth.earthhack.impl.modules.combat.blocker;
 
-import me.earth.earthhack.impl.util.helpers.blocks.util.TargetResult;
 import me.earth.earthhack.impl.util.helpers.blocks.ObbyListener;
+import me.earth.earthhack.impl.util.helpers.blocks.util.TargetResult;
 
 public class ListenerObsidian extends ObbyListener<Blocker>
 {

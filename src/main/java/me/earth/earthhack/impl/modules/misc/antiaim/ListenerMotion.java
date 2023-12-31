@@ -4,11 +4,8 @@ import me.earth.earthhack.api.event.events.Stage;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 final class ListenerMotion extends ModuleListener<AntiAim, MotionUpdateEvent>
 {

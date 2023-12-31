@@ -6,6 +6,8 @@ import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
+import me.earth.earthhack.impl.event.events.network.PacketEvent;
+import me.earth.earthhack.impl.event.listeners.LambdaListener;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.player.automine.mode.AutoMineMode;
 import me.earth.earthhack.impl.modules.player.automine.util.BigConstellation;
@@ -23,6 +25,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Blocks;
+import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -31,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
+// extrapolation could work for this module?
 
 public class AutoMine extends BlockAddingModule implements IAutomine
 {
@@ -43,8 +47,12 @@ public class AutoMine extends BlockAddingModule implements IAutomine
         register(new NumberSetting<>("Range", 6.0f, 0.1f, 100.0f));
     protected final Setting<Boolean> head =
         register(new BooleanSetting("Head", false));
-    protected final Setting<Boolean> rotate = // TODO
+    protected final Setting<Boolean> rotate =
         register(new BooleanSetting("Rotate", false));
+    protected final Setting<Integer> rotateLimit =
+        register(new NumberSetting<>("Rotation-LimitComp", 1800, 0, 2200));
+    protected final Setting<Integer> maxY =
+            register(new NumberSetting<>("Max-Y", 256, 0, 320));
     protected final Setting<Boolean> self =
         register(new BooleanSetting("Self", true));
     protected final Setting<Boolean> prioSelf =
@@ -141,6 +149,8 @@ public class AutoMine extends BlockAddingModule implements IAutomine
         register(new BooleanSetting("SpeedmineCrystalDamageCheck", false));
     protected final Setting<Boolean> noSelfMine =
         register(new BooleanSetting("NoSelfMine", false));
+    protected final Setting<Boolean> antiStuckComp =
+        register(new BooleanSetting("AntiStuckCompatibility", false));
     protected final Setting<Boolean> resetOnPacket =
         register(new BooleanSetting("ResetOnPacket", false));
     public final Setting<Boolean> dependOnSMCheck =
@@ -151,9 +161,12 @@ public class AutoMine extends BlockAddingModule implements IAutomine
     protected final StopWatch terrainTimer = new StopWatch();
     protected final StopWatch downTimer = new StopWatch();
     protected final StopWatch timer = new StopWatch();
+    protected final StopWatch rotationTimer = new StopWatch();
     protected IConstellation constellation;
     protected Future<?> future;
     protected boolean attacking;
+    protected float[] rotations;
+    protected EnumFacing facing;
     protected BlockPos current;
     protected BlockPos last;
 
@@ -167,8 +180,30 @@ public class AutoMine extends BlockAddingModule implements IAutomine
         this.listeners.add(new ListenerMultiBlockChange(this));
         this.listeners.add(new ListenerWorldClient(this));
         this.listeners.add(new ListenerPlace(this));
+        this.listeners.add(new ListenerMotion(this));
         this.listType.setValue(ListType.BlackList);
         this.setData(new AutoMineData(this));
+
+        this.listeners.add(new LambdaListener<>(PacketEvent.Send.class, event -> {
+            CPacketPlayerDigging packet;
+
+            if(event.getPacket() instanceof CPacketPlayerDigging) {
+                packet = (CPacketPlayerDigging) event.getPacket();
+
+                if(current == packet.getPosition())
+                    return;
+
+                if(packet.getAction() == CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK) {
+                    if(mode.getValue() == AutoMineMode.Compatibility
+                            && antiStuckComp.getValue())
+                    {
+                        if(current != null){
+                            current = packet.getPosition();
+                        }
+                    }
+                }
+            }
+        }));
     }
 
     @Override
@@ -271,17 +306,22 @@ public class AutoMine extends BlockAddingModule implements IAutomine
     @Override
     public void attackPos(BlockPos pos)
     {
-        EnumFacing facing = RayTraceUtil.getFacing(
+        facing = RayTraceUtil.getFacing(
             RotationUtil.getRotationPlayer(), pos, true);
-
-        SPEED_MINE.get().getTimer().setTime(0);
-        this.current = pos;
-        // Prevents Reset from getting called by Speedmine.
-        this.attacking = true;
         assert facing != null;
-        mc.playerController.onPlayerDamageBlock(pos, facing);
-        this.attacking = false;
-        this.timer.reset();
+        this.current = pos;
+        if(mode.getValue() == AutoMineMode.Compatibility) {
+            rotationTimer.reset();
+            mc.playerController.onPlayerDamageBlock(pos, facing);
+            this.attacking = true;
+        } else {
+            SPEED_MINE.get().getTimer().setTime(0);
+            // Prevents Reset from getting called by Speedmine.
+            this.attacking = true;
+            mc.playerController.onPlayerDamageBlock(pos, facing);
+            this.attacking = false;
+            this.timer.reset();
+        }
     }
 
     @Override

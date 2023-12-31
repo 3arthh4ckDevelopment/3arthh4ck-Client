@@ -18,33 +18,23 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
         classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
-        classpath 'com.formdev:flatlaf:1.5'
     }
 }
 
-// project will not compile when set to true but we can see incompatibilities with vanilla mc.
-boolean TWEAKER = false
-
-// TODO: double check from time to time if there's forge methods we missed with vanilla source
-if (TWEAKER) {
-    apply plugin: 'net.minecraftforge.gradle.tweaker-client'
-} else {
-    apply plugin: 'net.minecraftforge.gradle.forge'
-}
-
+apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
+
 apply plugin: 'application'
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 
-mainClassName = 'me.earth.earthhack.installer.main.Main'
+mainClassName = 'me.earth.earthhack.Main'
 group project.modGroup //http://maven.apache.org/guides/mini/guide-naming-conventions.html
-project.version = '1.9.0'
+project.version = '2.0.0'
 
-boolean VANILLA = false
 //noinspection GroovyUnusedAssignment
 sourceCompatibility = targetCompatibility = '1.8'
 compileJava {
@@ -52,13 +42,7 @@ compileJava {
 }
 
 minecraft {
-    if (TWEAKER) {
-        version = '1.12.2'
-        tweakClass = 'me.earth.earthhack.tweaker.EarthhackTweaker'
-    } else {
-        version = project.forgeVersion
-    }
-
+    version = project.forgeVersion
     runDir = 'run'
     mappings = project.mcpVersion
     makeObfSourceJar = false
@@ -93,8 +77,7 @@ dependencies {
     }
     */
 
-    compile group: 'club.minnced', name: 'java-discord-rpc', version: '2.0.1'
-    compile group: 'com.formdev', name: 'flatlaf', version: '1.5'
+    compile group: 'club.minnced', name: 'java-discord-rpc', version: '2.0.2'
 }
 
 
@@ -131,12 +114,10 @@ shadowJar {
     finalizedBy(copyShadowJar)
     dependencies {
         include(dependency('org.spongepowered:mixin'))
-        include(dependency('club.minnced:java-discord-rpc:2.0.1'))
-        include(dependency('club.minnced:discord-rpc-release:v3.3.0'))
-        include(dependency('com.formdev:flatlaf:1.5'))
+        include(dependency('club.minnced:java-discord-rpc:2.0.2'))
+        include(dependency('club.minnced:discord-rpc-release:v3.4.0'))
     }
     exclude 'dummyThing'
-    exclude 'LICENSE.txt'
     exclude '**/*module-info.class'
     exclude '**/META-INF/versions/9/**'
     classifier = 'release'
@@ -150,7 +131,7 @@ mixin {
 
 reobf {
     shadowJar {
-        mappingType = VANILLA ? 'NOTCH' : 'SEARGE'
+        mappingType = 'SEARGE'
         classpath = sourceSets.main.compileClasspath
     }
 }

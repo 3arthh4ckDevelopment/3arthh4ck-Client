@@ -50,7 +50,7 @@ public class Thirty2kCommand extends AbstractStackCommand
         }
 
         if (Arrays.stream(args).anyMatch("slime"::equalsIgnoreCase)
-                || Arrays.stream(args).anyMatch("magma"::equalsIgnoreCase))
+            || Arrays.stream(args).anyMatch("magma"::equalsIgnoreCase))
         {
             return getSlime(args);
         }

@@ -36,7 +36,7 @@ public abstract class SettingComponent<T, S extends Setting<T>>
         super(setting.getName());
         this.setting = setting;
         this.setStyle(new Style()
-                       .setHoverEvent(ComponentFactory.getHoverEvent(setting)));
+                .setHoverEvent(ComponentFactory.getHoverEvent(setting)));
 
         ((ITextComponentBase) this)
                 .setFormattingHook(new SimpleTextFormatHook(this));
@@ -46,12 +46,12 @@ public abstract class SettingComponent<T, S extends Setting<T>>
         if (setting.getContainer() instanceof Module)
         {
             this.getStyle().setClickEvent(
-                new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                               Commands.getPrefix()
-                                + "hiddensetting "
-                                + ((Module) setting.getContainer()).getName()
-                                + " "
-                                + "\"" + setting.getName() + "\""));
+                    new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                            Commands.getPrefix()
+                                    + "hiddensetting "
+                                    + ((Module) setting.getContainer()).getName()
+                                    + " "
+                                    + "\"" + setting.getName() + "\""));
         }
     }
 

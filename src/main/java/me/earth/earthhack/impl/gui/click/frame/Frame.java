@@ -1,6 +1,9 @@
 package me.earth.earthhack.impl.gui.click.frame;
 
+import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.impl.gui.click.component.Component;
+import me.earth.earthhack.impl.modules.Caches;
+import me.earth.earthhack.impl.modules.client.clickgui.ClickGui;
 import me.earth.earthhack.impl.util.render.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -8,6 +11,8 @@ import net.minecraft.client.gui.ScaledResolution;
 import java.util.ArrayList;
 
 public class Frame {
+
+    public static final ModuleCache<ClickGui> CLICK_GUI = Caches.getModule(ClickGui.class);
     private final String label;
     private float posX;
     private float posY;
@@ -40,23 +45,23 @@ public class Frame {
         if (isDragging()) {
             setPosX(mouseX + getLastPosX());
             setPosY(mouseY + getLastPosY());
-            getComponents().forEach(component -> component.moved(getPosX(),getPosY()+ getScrollY()));
+            getComponents().forEach(component -> component.moved(getPosX(),getPosY() + getScrollY()));
         }
         if (getPosX() < 0) {
             setPosX(0);
-            getComponents().forEach(component -> component.moved(getPosX(),getPosY()+ getScrollY()));
+            getComponents().forEach(component -> component.moved(getPosX(),getPosY() + getScrollY()));
         }
         if (getPosX() + getWidth() > scaledResolution.getScaledWidth()) {
             setPosX(scaledResolution.getScaledWidth() - getWidth());
-            getComponents().forEach(component -> component.moved(getPosX(),getPosY()+ getScrollY()));
+            getComponents().forEach(component -> component.moved(getPosX(),getPosY() + getScrollY()));
         }
         if (getPosY() < 0) {
             setPosY(0);
-            getComponents().forEach(component -> component.moved(getPosX(),getPosY()+ getScrollY()));
+            getComponents().forEach(component -> component.moved(getPosX(),getPosY() + getScrollY()));
         }
         if (getPosY() + getHeight() > scaledResolution.getScaledHeight()) {
             setPosY(scaledResolution.getScaledHeight() - getHeight());
-            getComponents().forEach(component -> component.moved(getPosX(),getPosY()+ getScrollY()));
+            getComponents().forEach(component -> component.moved(getPosX(),getPosY() + getScrollY()));
         }
     }
 
@@ -65,13 +70,13 @@ public class Frame {
     }
 
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        final boolean hovered = RenderUtil.mouseWithinBounds(mouseX, mouseY, getPosX(),getPosY(),getWidth(),getHeight());
+        final boolean hovered = RenderUtil.mouseWithinBounds(mouseX, mouseY, getPosX(), getPosY(), getWidth(), getHeight());
         switch (mouseButton) {
             case 0:
                 if (hovered) {
                     setDragging(true);
-                    setLastPosX(getPosX() - mouseX);
-                    setLastPosY(getPosY() - mouseY);
+                    setLastPosX(getPosX() - mouseX * CLICK_GUI.get().guiScale.getValue());
+                    setLastPosY(getPosY() - mouseY * CLICK_GUI.get().guiScale.getValue());
                 }
                 break;
             case 1:
@@ -97,15 +102,15 @@ public class Frame {
     }
 
     public float getWidth() {
-        return width;
+        return width * CLICK_GUI.get().guiScale.getValue();
     }
 
     public float getHeight() {
-        return height;
+        return height * CLICK_GUI.get().guiScale.getValue();
     }
 
     public float getPosX() {
-        return posX;
+        return posX * CLICK_GUI.get().guiScale.getValue();
     }
 
     public void setPosX(float posX) {
@@ -113,7 +118,7 @@ public class Frame {
     }
 
     public float getPosY() {
-        return posY;
+        return posY * CLICK_GUI.get().guiScale.getValue();
     }
 
     public void setPosY(float posY) {

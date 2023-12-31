@@ -33,7 +33,11 @@ public class StringComponent extends SettingComponent<String, StringSetting> {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
         final boolean hovered = RenderUtil.mouseWithinBounds(mouseX, mouseY, getFinishedX() + 5, getFinishedY() + 1, getWidth() - 10, getHeight() - 2);
-        Render2DUtil.drawBorderedRect(getFinishedX() + 4.5f, getFinishedY() + 1.0f, getFinishedX() + getWidth() - 4.5f, getFinishedY() + getHeight() - 0.5f, 0.5f, hovered ? 0x66333333 : 0, 0xff000000);
+        if (getClickGui().get().getBoxes())
+            Render2DUtil.drawBorderedRect(getFinishedX() + 4.5f, getFinishedY() + 1.0f, getFinishedX() + getWidth() - 4.5f, getFinishedY() + getHeight() - 0.5f, 0.5f, hovered ? 0x66333333 : 0, 0xff000000);
+        else
+            Render2DUtil.drawBorderedRect(getFinishedX() + 5, getFinishedY() + 1.5f, getFinishedX() + getWidth() - 5.5f, getFinishedY() + getHeight() - 1, 0.5f, hovered ? 0x66333333 : 0, 0xff000000);
+
         String string = getStringSetting().isPassword() ? getStringSetting().censor() : isListening ? currentString.getString() : getStringSetting().getValue();
         if (isListening) {
             string += getIdleSign();

@@ -564,7 +564,7 @@ public abstract class ObbyModule extends BlockPlacingModule
             return false;
         }
 
-        EnumFacing initialFacing = BlockUtil.getFacing(pos, HELPER);
+        EnumFacing initialFacing = BlockUtil.getFacing(pos, HELPER, smartRay.getValue() == RayTraceMode.Direction);
         if (shouldHelp(initialFacing, pos))
         {
             BlockPos helpingPos = null;
@@ -572,7 +572,8 @@ public abstract class ObbyModule extends BlockPlacingModule
             {
                 helpingPos = pos.offset(facing);
                 EnumFacing helpingFacing = BlockUtil.getFacing(helpingPos,
-                                                               HELPER);
+                                                               HELPER,
+                                                         smartRay.getValue() == RayTraceMode.Direction);
                 if (helpingFacing != null)
                 {
                     if (entityCheck(helpingPos))

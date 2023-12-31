@@ -20,8 +20,8 @@ final class ListenerScreen extends ModuleListener<ClickGui, GuiScreenEvent<?>>
             module.fromEvent = true;
             module.disable();
 
-            if(!module.newBlur.getValue() && OpenGlHelper.areShadersSupported())
-                mc.entityRenderer.stopUseShader();
+            if(module.blur.getValue() != ClickGui.BlurStyle.Gaussian && OpenGlHelper.areShadersSupported())
+               mc.entityRenderer.stopUseShader();
         }
     }
 

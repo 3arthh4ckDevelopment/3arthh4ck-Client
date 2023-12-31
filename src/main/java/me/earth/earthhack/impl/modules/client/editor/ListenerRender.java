@@ -3,7 +3,7 @@ package me.earth.earthhack.impl.modules.client.editor;
 import me.earth.earthhack.api.hud.HudElement;
 import me.earth.earthhack.impl.event.events.render.Render2DEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
-import me.earth.earthhack.impl.gui.hud.rewrite.HudEditorGui;
+import me.earth.earthhack.impl.gui.hud.HudEditorGui;
 import me.earth.earthhack.impl.managers.Managers;
 
 final class ListenerRender extends ModuleListener<HudEditor, Render2DEvent> {

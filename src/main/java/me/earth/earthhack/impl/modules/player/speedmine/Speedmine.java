@@ -10,13 +10,18 @@ import me.earth.earthhack.api.setting.settings.*;
 import me.earth.earthhack.api.util.bind.Bind;
 import me.earth.earthhack.impl.core.ducks.network.ICPacketPlayerDigging;
 import me.earth.earthhack.impl.core.ducks.network.IPlayerControllerMP;
+import me.earth.earthhack.impl.gui.visibility.PageBuilder;
+import me.earth.earthhack.impl.gui.visibility.Visibilities;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.combat.autotrap.AutoTrap;
 import me.earth.earthhack.impl.modules.player.automine.AutoMine;
 import me.earth.earthhack.impl.modules.player.speedmine.mode.ESPMode;
 import me.earth.earthhack.impl.modules.player.speedmine.mode.MineMode;
+import me.earth.earthhack.impl.modules.player.speedmine.mode.SpeedminePages;
+import me.earth.earthhack.impl.util.client.ModuleUtil;
 import me.earth.earthhack.impl.util.math.MathUtil;
+import me.earth.earthhack.impl.util.math.RayTraceUtil;
 import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.math.rotation.RotationUtil;
 import me.earth.earthhack.impl.util.minecraft.CooldownBypass;
@@ -49,6 +54,7 @@ import static net.minecraft.network.play.client.CPacketPlayerDigging.Action.STOP
 
 // TODO Tps Sync
 // TODO Test around with multiple blocks
+// TODO: Rotations reset if Facing becomes invalid.
 // TODO: Rewrite!
 public class Speedmine extends Module
 {
@@ -57,164 +63,184 @@ public class Speedmine extends Module
     private static final ModuleCache<AutoTrap> AUTO_TRAP =
         Caches.getModule(AutoTrap.class);
 
+    /* -------------------- Pages ------------------- */
+    protected final Setting<SpeedminePages> pages =
+            register(new EnumSetting<>("Page", SpeedminePages.Break));
+
+    /* ---------------- Break Settings -------------- */
     protected final Setting<MineMode> mode     =
             register(new EnumSetting<>("Mode", MineMode.Smart));
-    protected final Setting<Boolean> noReset   =
-            register(new BooleanSetting("Reset", true));
     public final Setting<Float> limit       =
             register(new NumberSetting<>("Damage", 1.0f, 0.0f, 2.0f))
-                .setComplexity(Complexity.Medium);
+                    .setComplexity(Complexity.Medium);
     protected final Setting<Float> range       =
             register(new NumberSetting<>("Range", 7.0f, 0.1f, 100.0f));
+    protected final Setting<Boolean> normal     =
+            register(new BooleanSetting("Normal", false))
+                    .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> multiTask =
             register(new BooleanSetting("MultiTask", false));
     protected final Setting<Boolean> rotate    =
             register(new BooleanSetting("Rotate", false))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Boolean> event     =
-            register(new BooleanSetting("Event", false))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> display   =
-            register(new BooleanSetting("DisplayDamage", false))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Integer> delay     =
-            register(new NumberSetting<>("ClickDelay", 100, 0, 500))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<ESPMode> esp       =
-            register(new EnumSetting<>("ESP", ESPMode.Outline))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Integer> alpha     =
-            register(new NumberSetting<>("BlockAlpha", 100, 0, 255))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Integer> outlineA  =
-            register(new NumberSetting<>("OutlineAlpha", 100, 0, 255))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Integer> realDelay =
-            register(new NumberSetting<>("Delay", 50, 0, 500))
-                .setComplexity(Complexity.Medium);
-    public final Setting<Boolean> onGround  = // this should be true?
-            register(new BooleanSetting("OnGround", false))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> toAir     =
-            register(new BooleanSetting("ToAir", false))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Boolean> swap      =
-            register(new BooleanSetting("SilentSwitch", false))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<CooldownBypass> cooldownBypass =
-            register(new EnumSetting<>("CoolDownBypass", CooldownBypass.None))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Boolean> requireBreakSlot      =
-            register(new BooleanSetting("RequireBreakSlot", false))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> placeCrystal =
-            register(new BooleanSetting("PlaceCrystal", false))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Boolean> breakCrystal =
-            register(new BooleanSetting("BreakCrystal", false))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Boolean> breakInstant =
-            register(new BooleanSetting("BreakSpawningCrystals", false))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Boolean> offhandPlace =
-            register(new BooleanSetting("OffhandPlace", false))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> offhandSilent =
-            register(new BooleanSetting("OffhandSilent", false))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> megaSilent =
-            register(new BooleanSetting("MegaSilent", false))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> antiAntiSilentSwitch =
-            register(new BooleanSetting("AntiAntiSilentSwitch", false))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> prePlace =
-            register(new BooleanSetting("PrePlace", false))
-                .setComplexity(Complexity.Medium);
-    public final Setting<Float> prePlaceLimit       =
-            register(new NumberSetting<>("PrePlaceLimit", 0.95f, 0.0f, 2.0f))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Bind> breakBind =
-            register(new BindSetting("BreakBind", Bind.none()))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Boolean> normal     =
-            register(new BooleanSetting("Normal", false))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> resetAfterPacket =
-            register(new BooleanSetting("ResetAfterPacket", true))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> checkPacket =
-            register(new BooleanSetting("CheckPacket", true))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> swingStop =
-            register(new BooleanSetting("Swing-Stop", true))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> limitRotations =
-            register(new BooleanSetting("Limit-Rotations", true))
-                .setComplexity(Complexity.Expert);
+                    .setComplexity(Complexity.Medium);
     protected final Setting<Integer> confirm =
             register(new NumberSetting<>("Confirm", 500, 0, 1000))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Double> crystalRange =
-            register(new NumberSetting<>("CrystalRange", 6.0, 0.0, 10.0))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Double> crystalTrace =
-            register(new NumberSetting<>("CrystalTrace", 6.0, 0.0, 10.0))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Double> crystalBreakTrace =
-            register(new NumberSetting<>("CrystalTrace", 3.0, 0.0, 10.0))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Double> minDmg =
-            register(new NumberSetting<>("MinDamage", 10.0, 0.0, 36.0))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Double> maxSelfDmg =
-            register(new NumberSetting<>("MaxSelfDamage", 10.0, 0.0, 36.0))
-                .setComplexity(Complexity.Expert);
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> limitRotations =
+            register(new BooleanSetting("Limit-Rotations", true))
+                    .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> newVer =
             register(new BooleanSetting("1.13", false))
-                .setComplexity(Complexity.Medium);
+                    .setComplexity(Complexity.Medium);
     protected final Setting<Boolean> newVerEntities =
             register(new BooleanSetting("1.13-Entities", false))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> growRender =
-            register(new BooleanSetting("GrowRender", false))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Color> pbColor  =
-            register(new ColorSetting("PB-Color", new Color(0, 255, 0, 240)))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Color> pbOutline  =
-            register(new ColorSetting("PB-Outline", new Color(0, 255, 0, 120)))
-                .setComplexity(Complexity.Expert);
+                    .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> down =
             register(new BooleanSetting("Down", false))
-                .setComplexity(Complexity.Expert);
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> requireBreakSlot      =
+            register(new BooleanSetting("RequireBreakSlot", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Bind> breakBind =
+            register(new BindSetting("BreakBind", Bind.none()))
+                    .setComplexity(Complexity.Medium);
     protected final Setting<Boolean> tpsSync =
             register(new BooleanSetting("TpsSync", false))
-                .setComplexity(Complexity.Medium);
-    protected final Setting<Boolean> abortNextTick =
-            register(new BooleanSetting("AbortNextTick", false))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> cancelNormalPackets =
-            register(new BooleanSetting("CancelNormalPackets", false))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> cancelClick =
-            register(new BooleanSetting("CancelClick", true))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Boolean> cancelEvent =
-            register(new BooleanSetting("CancelEvent", true))
-                .setComplexity(Complexity.Expert);
-    protected final Setting<Integer> aASSwitchTime =
-            register(new NumberSetting<>("AASSwitchTime", 500, 0, 1000))
-                .setComplexity(Complexity.Medium);
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> noReset   =
+            register(new BooleanSetting("Reset", true));
     protected final Setting<Boolean> resetFastOnAir     =
             register(new BooleanSetting("ResetFastOnAir", false))
-                .setComplexity(Complexity.Expert);
+                    .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> resetFastOnNonAir     =
             register(new BooleanSetting("ResetFastOnNonAir", false))
-                .setComplexity(Complexity.Expert);
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> resetSwap     =
+            register(new BooleanSetting("ResetOnItemSwap", true))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> abortNextTick =
+            register(new BooleanSetting("AbortNextTick", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> event     =
+            register(new BooleanSetting("Event", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> cancelEvent =
+            register(new BooleanSetting("CancelEvent", true))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> toAir     =
+            register(new BooleanSetting("ToAir", false))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Integer> delay     =
+            register(new NumberSetting<>("ClickDelay", 100, 0, 500))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> cancelClick =
+            register(new BooleanSetting("CancelClick", true))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> cancelNormalPackets =
+            register(new BooleanSetting("CancelNormalPackets", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> resetAfterPacket =
+            register(new BooleanSetting("ResetAfterPacket", true))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> checkPacket =
+            register(new BooleanSetting("CheckPacket", true))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> swingStop =
+            register(new BooleanSetting("Swing-Stop", true))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Integer> realDelay =
+            register(new NumberSetting<>("Delay", 50, 0, 500))
+                    .setComplexity(Complexity.Medium);
+    public final Setting<Boolean> onGround  =
+            register(new BooleanSetting("OnGround", true))
+                    .setComplexity(Complexity.Expert);
     protected final Setting<Integer> tickTime  =
             register(new NumberSetting<>("TickTime", 50, 0, 200))
-                .setComplexity(Complexity.Expert);
+                    .setComplexity(Complexity.Expert);
+
+    /* ---------------- Swap Settings -------------- */
+    protected final Setting<Boolean> swap      =
+            register(new BooleanSetting("SilentSwitch", false))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> offhandSilent =
+            register(new BooleanSetting("OffhandSilent", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> megaSilent =
+            register(new BooleanSetting("MegaSilent", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> antiAntiSilentSwitch =
+            register(new BooleanSetting("AntiAntiSilentSwitch", false))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Integer> aASSwitchTime =
+            register(new NumberSetting<>("AASSwitchTime", 500, 0, 1000))
+                    .setComplexity(Complexity.Expert);
+
+    /* ---------------- Crystal Settings -------------- */
+    protected final Setting<Boolean> prePlace =
+            register(new BooleanSetting("PrePlace", false))
+                    .setComplexity(Complexity.Medium);
+    public final Setting<Float> prePlaceLimit       =
+            register(new NumberSetting<>("PrePlaceLimit", 0.95f, 0.0f, 2.0f))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> placeCrystal =
+            register(new BooleanSetting("PlaceCrystal", false))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> breakCrystal =
+            register(new BooleanSetting("BreakCrystal", false))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> breakInstant =
+            register(new BooleanSetting("BreakSpawningCrystals", false))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Double> crystalRange =
+            register(new NumberSetting<>("CrystalRange", 6.0, 0.0, 10.0))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Double> crystalTrace =
+            register(new NumberSetting<>("CrystalTrace", 6.0, 0.0, 10.0))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Double> crystalBreakTrace =
+            register(new NumberSetting<>("CrystalBreakTrace", 3.0, 0.0, 10.0))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Double> minDmg =
+            register(new NumberSetting<>("MinDamage", 10.0, 0.0, 36.0))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Double> maxSelfDmg =
+            register(new NumberSetting<>("MaxSelfDamage", 10.0, 0.0, 36.0))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<CooldownBypass> cooldownBypass =
+            register(new EnumSetting<>("CoolDownBypass", CooldownBypass.None))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> offhandPlace =
+            register(new BooleanSetting("OffhandPlace", false))
+                    .setComplexity(Complexity.Expert);
+
+    /* ---------------- Render Settings -------------- */
+    protected final Setting<ESPMode> esp       =
+            register(new EnumSetting<>("ESP", ESPMode.Outline))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> display   =
+            register(new BooleanSetting("DisplayDamage", false))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Integer> alpha     =
+            register(new NumberSetting<>("BlockAlpha", 100, 0, 255))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Integer> outlineA  =
+            register(new NumberSetting<>("OutlineAlpha", 100, 0, 255))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> airFastRender =
+            register(new BooleanSetting("NoFastOnAir", true))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Boolean> growRender =
+            register(new BooleanSetting("GrowRender", false))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Boolean> smoothenRender =
+            register(new BooleanSetting("Smoothen", false))
+                    .setComplexity(Complexity.Medium);
+    protected final Setting<Color> pbColor  =
+            register(new ColorSetting("PB-Color", new Color(0, 255, 0, 240)))
+                    .setComplexity(Complexity.Expert);
+    protected final Setting<Color> pbOutline  =
+            register(new ColorSetting("PB-Outline", new Color(0, 255, 0, 120)))
+                    .setComplexity(Complexity.Expert);
 
     protected final FastHelper fastHelper = new FastHelper(this);
     public final CrystalHelper crystalHelper = new CrystalHelper(this);
@@ -291,6 +317,7 @@ public class Speedmine extends Module
         this.listeners.add(new ListenerUpdate(this));
         this.listeners.add(new ListenerBlockChange(this));
         this.listeners.add(new ListenerMultiBlockChange(this));
+        this.listeners.add(new ListenerHeldItemChange(this));
         this.listeners.add(new ListenerDeath(this));
         this.listeners.add(new ListenerLogout(this));
         this.listeners.add(new ListenerMotion(this));
@@ -298,6 +325,13 @@ public class Speedmine extends Module
         this.listeners.add(new ListenerKeyPress(this));
         this.listeners.add(new ListenerSpawnObject(this));
         this.setData(new SpeedMineData(this));
+
+        new PageBuilder<>(this, pages)
+                .addPage(p -> p == SpeedminePages.Break, mode, tickTime)
+                .addPage(p -> p == SpeedminePages.Swap, swap, aASSwitchTime)
+                .addPage(p -> p == SpeedminePages.Crystal, prePlace, offhandPlace)
+                .addPage(p -> p == SpeedminePages.Render, esp, pbOutline)
+                .register(Visibilities.VISIBILITY_MANAGER);
     }
 
     @Override
@@ -361,6 +395,23 @@ public class Speedmine extends Module
         }
     }
 
+    public void retry() {
+        BlockPos cachedPos = getPos();
+        EnumFacing facing = RayTraceUtil.getFacing(mc.player, cachedPos, true);
+        if (facing == null) {
+            ModuleUtil.sendMessage(this, "Mining failure; facing is null.");
+            return;
+        }
+
+        reset();
+
+        mc.playerController.onPlayerDamageBlock(cachedPos, facing);
+        mc.player.connection.sendPacket(new CPacketPlayerDigging(
+                CPacketPlayerDigging.Action.START_DESTROY_BLOCK,
+                cachedPos,
+                facing));
+    }
+
     /**
      * Returns the current mode.
      *
@@ -393,6 +444,10 @@ public class Speedmine extends Module
     public int getOutlineAlpha() {
         return outlineA.getValue();
     }
+    public EnumFacing getFacing() {
+        return this.facing;
+    }
+
 
     public boolean isPausing() {
         return pausing;

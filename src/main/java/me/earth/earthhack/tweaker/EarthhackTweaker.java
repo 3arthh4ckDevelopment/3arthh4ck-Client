@@ -13,8 +13,6 @@ import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.launch.MixinTweaker;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +20,6 @@ import java.util.Map;
 
 /**
  * Loads {@link Core}.
- *
- * --tweakClass me.earth.earthhack.tweaker.EarthhackTweaker
  */
 public class EarthhackTweaker implements ITweaker
 {
@@ -41,22 +37,6 @@ public class EarthhackTweaker implements ITweaker
                               File assetsDir,
                               String profile)
     {
-        try
-        {
-            String className = "me.earth.earthhack.vanilla.Environment";
-            Class<?> env = Class.forName(className, true, Launch.classLoader);
-            Method load = env.getDeclaredMethod("loadEnvironment");
-            load.setAccessible(true);
-            load.invoke(null);
-        }
-        catch (ClassNotFoundException
-                | NoSuchMethodException
-                | InvocationTargetException
-                | IllegalAccessException e)
-        {
-            throw new RuntimeException(e);
-        }
-
         Object obj = Launch.blackboard.get("launchArgs");
         if (obj == null)
         {
@@ -120,13 +100,13 @@ public class EarthhackTweaker implements ITweaker
 
         try
         {
-            String className = "me.earth.earthhack.impl.core.Core";
+            String className = Core.class.getName();
             classLoader.addTransformerExclusion(className);
             Class<?> coreClass = Class.forName(className, true, classLoader);
             // this is kinda a mess idk...
             TweakerCore core = (TweakerCore) coreClass.newInstance();
             Logger logger = LogManager.getLogger("3arthh4ck-Core");
-            logger.info("\n\n");
+            logger.info("\n\n ------------------ Initializing 3arthh4ck Core. ------------------ \n");
 
             loadDevArguments();
             core.init(classLoader);
@@ -136,7 +116,7 @@ public class EarthhackTweaker implements ITweaker
                 classLoader.registerTransformer(transformer);
             }
 
-            logger.info("\n\n");
+            logger.info("\n\n ------------------ 3arthh4ck Core initialized ------------------ \n");
         }
         catch (ClassNotFoundException
                 | IllegalAccessException

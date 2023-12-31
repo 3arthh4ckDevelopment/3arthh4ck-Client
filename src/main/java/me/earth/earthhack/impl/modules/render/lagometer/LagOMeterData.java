@@ -34,4 +34,9 @@ final class LagOMeterData extends BlockESPModuleData<LagOMeter>
         return "Shows lag and the server position.";
     }
 
+    @Override
+    public String[] getAliases() {
+        return new String[]{null};
+    }
+
 }

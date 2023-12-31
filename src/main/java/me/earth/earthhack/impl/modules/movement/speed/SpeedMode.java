@@ -18,8 +18,14 @@ public enum SpeedMode implements Globals
 
             if (module.sneakCheck.getValue())
                if(mc.player.isSneaking() || KeyBoardUtil.isKeyDown(mc.gameSettings.keyBindSneak)) return;
-            if (mc.player.isElytraFlying()) return;
-            if (module.LONG_JUMP.isEnabled()) return;
+            if (mc.player.isElytraFlying())
+                return;
+            if (module.LONG_JUMP.isEnabled())
+                return;
+            if (module.noCollisionInstant.getValue() && mc.player.collidedHorizontally)
+                return;
+            // ^^ Normally I'd add this to the if() statement below, but due to me being tired I won't risk readability lol
+
             if (!module.noWaterInstant.getValue()
                     || (!mc.player.isInWater() && !mc.player.isInLava()))
             {

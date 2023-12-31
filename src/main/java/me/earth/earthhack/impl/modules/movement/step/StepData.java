@@ -36,4 +36,9 @@ final class StepData extends BlockESPModuleData<Step>
         return "Allows you to step up blocks.";
     }
 
+    @Override
+    public String[] getAliases() {
+        return new String[]{"Spider"};
+    }
+
 }

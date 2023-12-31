@@ -204,7 +204,7 @@ public class Logger extends RegisteringModule<Boolean, SimpleRemovingSetting>
                             }
 
                             outPut.append("     ")
-                                  .append(getName(clazz, field))
+                                  .append(getName(field))
                                   .append(" : ")
                                   .append(objToString)
                                   .append("\n");
@@ -240,11 +240,11 @@ public class Logger extends RegisteringModule<Boolean, SimpleRemovingSetting>
         }
     }
 
-    private String getName(Class<?> c, Field field)
+    private String getName(Field field)
     {
         if (deobfuscate.getValue())
         {
-            String name = MappingProvider.field(c, field.getName());
+            String name = MappingProvider.field(field.getName());
             if (name != null)
             {
                 return name;

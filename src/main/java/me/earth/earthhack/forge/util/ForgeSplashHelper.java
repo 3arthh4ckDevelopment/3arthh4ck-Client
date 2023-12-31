@@ -14,8 +14,8 @@ public class ForgeSplashHelper {
 
     public static void push(String message, int steps) {
         if (!(boolean) DevArguments.getInstance()
-                                   .getArgument("splash")
-                                   .getValue()) {
+                            .getArgument("splash")
+                            .getValue()) {
             return;
         }
 

@@ -8,7 +8,6 @@ import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.managers.minecraft.combat.util.SimpleSoundObserver;
 import me.earth.earthhack.impl.managers.minecraft.combat.util.SoundObserver;
-import me.earth.earthhack.impl.util.client.SimpleData;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.SoundEvent;
 
@@ -16,7 +15,7 @@ import java.util.Set;
 
 public class NoSoundLag extends Module
 {
-    protected static final Set<SoundEvent> SOUNDS = Sets.newHashSet
+    protected static final Set<SoundEvent> ARMOR_SOUNDS = Sets.newHashSet
     (
         SoundEvents.ITEM_ARMOR_EQUIP_GENERIC,
         SoundEvents.ITEM_ARMOR_EQIIP_ELYTRA,
@@ -27,10 +26,23 @@ public class NoSoundLag extends Module
         SoundEvents.ITEM_ARMOR_EQUIP_LEATHER
     );
 
-    protected final Setting<Boolean> sounds =
-            register(new BooleanSetting("Sounds", true));
+    protected static final Set<SoundEvent> WITHER_SOUNDS = Sets.newHashSet
+    (
+            SoundEvents.ENTITY_WITHER_AMBIENT,
+            SoundEvents.ENTITY_WITHER_DEATH,
+            SoundEvents.ENTITY_WITHER_BREAK_BLOCK,
+            SoundEvents.ENTITY_WITHER_HURT,
+            SoundEvents.ENTITY_WITHER_SPAWN,
+            SoundEvents.ENTITY_WITHER_SHOOT
+    );
+
+    protected final Setting<Boolean> armor =
+            register(new BooleanSetting("Armor", true));
     protected final Setting<Boolean> crystals =
             register(new BooleanSetting("Crystals", false));
+    protected final Setting<Boolean> withers =
+            register(new BooleanSetting("Withers", true));
+
 
     protected final SoundObserver observer =
             new SimpleSoundObserver(crystals::getValue);
@@ -39,8 +51,7 @@ public class NoSoundLag extends Module
     {
         super("NoSoundLag", Category.Misc);
         this.listeners.add(new ListenerSound(this));
-        this.setData(new SimpleData(this,
-                "Prevents lag caused by spamming certain sounds."));
+        this.setData(new NoSoundLagData(this));
     }
 
     @Override

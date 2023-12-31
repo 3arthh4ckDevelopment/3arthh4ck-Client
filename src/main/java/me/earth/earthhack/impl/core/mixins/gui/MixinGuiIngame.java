@@ -1,11 +1,9 @@
 package me.earth.earthhack.impl.core.mixins.gui;
 
-import me.earth.earthhack.api.cache.HudCache;
 import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.event.bus.instance.Bus;
 import me.earth.earthhack.impl.event.events.render.CrosshairEvent;
-import me.earth.earthhack.impl.hud.HudCaches;
-import me.earth.earthhack.impl.hud.potions.Potions;
+import me.earth.earthhack.impl.hud.text.potions.Potions;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.player.sorter.Sorter;
 import me.earth.earthhack.impl.modules.render.norender.NoRender;
@@ -26,8 +24,6 @@ public abstract class MixinGuiIngame
 {
     private static final ModuleCache<Sorter> SORTER =
      Caches.getModule(Sorter.class);
-    private static final HudCache<Potions> POTS =
-            HudCaches.getModule(Potions.class);
     private static final ModuleCache<NoRender> NO_RENDER =
      Caches.getModule(NoRender.class);
 
@@ -65,7 +61,7 @@ public abstract class MixinGuiIngame
     protected void renderPotionEffectsHook(ScaledResolution scaledRes,
                                            CallbackInfo info)
     {
-        if (POTS.isEnabled())
+        if (Potions.getInstance().isEnabled() || NO_RENDER.get().potionSymbols.getValue())
         {
             info.cancel();
         }

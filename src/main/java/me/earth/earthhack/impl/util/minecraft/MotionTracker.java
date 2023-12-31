@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import me.earth.earthhack.api.util.interfaces.Globals;
 import me.earth.earthhack.impl.modules.player.spectate.EntityPlayerNoInterp;
 import me.earth.earthhack.impl.modules.render.nametags.IEntityNoNametag;
-import net.minecraft.block.BlockFalling;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
@@ -105,7 +104,7 @@ public class MotionTracker extends EntityPlayerNoInterp
             }
         }
 
-        if (motionY != 0.0D)
+        if (motionZ != 0.0D)
         {
             int k5 = 0;
 

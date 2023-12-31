@@ -10,15 +10,15 @@ public class DefaultData<M extends Module> extends AbstractData<M>
     {
         super(module);
         this.presets.add(new DefaultPreset<>(module));
-        this.descriptions.put(module.getSetting("Enabled"),
+        register(module.getSetting("Enabled"),
                 "Enables this module.");
-        this.descriptions.put(module.getSetting("Name"),
+        register(module.getSetting("Name"),
                 "Name shown in the Arraylist.");
-        this.descriptions.put(module.getSetting("Hidden"),
+        register(module.getSetting("Hidden"),
                 "Decides if this module should show up in the Arraylist.");
-        this.descriptions.put(module.getSetting("Bind"),
+        register(module.getSetting("Bind"),
                 "Keybind to toggle this module.");
-        this.descriptions.put(module.getSetting("Toggle"),
+        register(module.getSetting("Toggle"),
                 "<Normal>: Toggle when you press the bind.\n" +
                 "<Hold>: Toggle when you press or release.\n"   +
                 "<Disable>: Toggle when pressed, disable when released.");
@@ -34,6 +34,11 @@ public class DefaultData<M extends Module> extends AbstractData<M>
     public String getDescription()
     {
         return "A " + module.getCategory().toString() + " module.";
+    }
+
+    @Override
+    public String[] getAliases() {
+        return new String[]{};
     }
 
 }

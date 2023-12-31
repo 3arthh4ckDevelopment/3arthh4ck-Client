@@ -57,6 +57,7 @@ public class PlayerUtil implements Globals {
         fakePlayer.setSneaking(mc.player.isSneaking());
         fakePlayer.setHealth(mc.player.getHealth());
         fakePlayer.setAbsorptionAmount(mc.player.getAbsorptionAmount());
+        fakePlayer.getLocationSkin();
 
         for (PotionEffect effect : mc.player.getActivePotionEffects())
         {
@@ -114,6 +115,10 @@ public class PlayerUtil implements Globals {
 
     public static boolean isFakePlayer(Entity entity) {
         return entity != null && FAKE_PLAYERS.containsKey(entity.getEntityId());
+    }
+
+    public static boolean isFakePlayer(int entityID) {
+        return FAKE_PLAYERS.containsKey(entityID);
     }
 
     public static boolean isOtherFakePlayer(Entity entity) {

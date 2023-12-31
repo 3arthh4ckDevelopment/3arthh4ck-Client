@@ -1,11 +1,13 @@
 package me.earth.earthhack.impl.modules.client.management;
 
 import me.earth.earthhack.api.cache.ModuleCache;
+import me.earth.earthhack.impl.Earthhack;
 import me.earth.earthhack.impl.event.events.misc.TickEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.client.media.Media;
+import org.lwjgl.opengl.Display;
 
 final class ListenerTick extends ModuleListener<Management, TickEvent>
 {
@@ -20,6 +22,10 @@ final class ListenerTick extends ModuleListener<Management, TickEvent>
     @Override
     public void invoke(TickEvent event)
     {
+        if (module.toast.getValue()){
+            Display.setTitle(Earthhack.NAME + " " + Earthhack.VERSION + " " + module.toastText.getValue());
+        }
+
         if (module.friend.getValue()) {
             if (mc.player != module.player) {
                 module.player = mc.player;

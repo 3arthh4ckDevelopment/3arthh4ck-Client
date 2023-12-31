@@ -16,7 +16,9 @@ import me.earth.earthhack.impl.modules.client.media.Media;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import org.apache.commons.io.IOUtils;
 
+import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
+import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,11 +27,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
+// TODO: Mojang removed the official API for getting an
+//  Account's username history, so this should be either
+//  removed or then another API should be used for this.
 public class LookUpUtil implements Globals
 {
-    private static final ModuleCache<Media> MEDIA = Caches.getModule(
-        Media.class);
+    private static final ModuleCache<Media> MEDIA = Caches.getModule(Media.class);
     private static final BiMap<String, UUID> CACHE = HashBiMap.create();
     private static final JsonParser PARSER = new JsonParser();
 
@@ -183,7 +186,7 @@ public class LookUpUtil implements Globals
     public static Map<Date, String> getNameHistory(UUID id)
     {
         Map<Date, String> result = new TreeMap<>(Collections.reverseOrder());
-
+        //TODO: switch to https://laby.net/api/v2/user/%uuid%/get-profile
         try
         {
             JsonArray array = getResources(
@@ -287,6 +290,63 @@ public class LookUpUtil implements Globals
     {
         Scanner s = new Scanner(is).useDelimiter("\\A");
         return s.hasNext() ? s.next() : "/";
+    }
+
+    public static String getPlayerSession(UUID uuid) {
+        HttpURLConnection conn = null;
+        try {
+            URL url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.toString());
+            conn = (HttpURLConnection) url.openConnection();
+            InputStream in = new BufferedInputStream(conn.getInputStream());
+            String res = convertStreamToString(in);
+            in.close();
+            conn.disconnect();
+            return res;
+        } catch (Exception ignored) {
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+        return null;
+    }
+
+    public static BufferedImage getSkin(UUID uuid) {
+        if (uuid == null) {
+            return null;
+        }
+        String session = getPlayerSession(uuid);
+        if (session == null) {
+            return null;
+        }
+        JsonElement element = PARSER.parse(session);
+        JsonArray array = element.getAsJsonObject().get("properties").getAsJsonArray();
+        String base64url = null;
+        for (JsonElement e : array) {
+            JsonObject o = e.getAsJsonObject();
+            if (o.get("name").getAsString().equals("textures")) {
+                base64url = o.get("value").getAsString();
+            }
+        }
+        if (base64url == null) {
+            return null;
+        }
+        String decoded = new String(Base64.getDecoder().decode(base64url), StandardCharsets.UTF_8);
+        JsonElement e = PARSER.parse(decoded);
+        String textureUrl = e.getAsJsonObject().get("textures").getAsJsonObject().get("SKIN").getAsJsonObject().get("url").getAsString();
+        HttpURLConnection conn = null;
+        try {
+            URL url = new URL(textureUrl);
+            conn = (HttpURLConnection) url.openConnection();
+            InputStream in = new BufferedInputStream(conn.getInputStream());
+            return ImageIO.read(in);
+        } catch (Exception ignored) {
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+        return null;
     }
 
 }

@@ -9,9 +9,10 @@ import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.ColorSetting;
 import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.StringSetting;
-import me.earth.earthhack.impl.gui.hud.rewrite.HudEditorGui;
+import me.earth.earthhack.impl.gui.hud.HudEditorGui;
 import me.earth.earthhack.impl.util.render.hud.HudRainbow;
 import me.earth.earthhack.impl.util.text.TextColor;
+import net.minecraft.util.ChatAllowedCharacters;
 
 import java.awt.*;
 
@@ -26,7 +27,8 @@ public class HudEditor extends Module {
     public final Setting<Boolean> shadow =
             register(new BooleanSetting("Text-Shadow", true));
     public final Setting<Boolean> testShadow =
-            register(new BooleanSetting("testShadow", false)).setComplexity(Complexity.Dev);
+            register(new BooleanSetting("OffsetShadow", true))
+                    .setComplexity(Complexity.Expert);
     public final Setting<TextColor> bracketsColor =
             register(new EnumSetting<>("BracketsColor", TextColor.None));
     public final Setting<TextColor> insideText =
@@ -40,7 +42,7 @@ public class HudEditor extends Module {
         this.setData(new HudEditorData(this));
 
         brackets.addObserver(e -> {
-            String b = brackets.getValue();
+            String b = ChatAllowedCharacters.filterAllowedCharacters(brackets.getValue());
             String start, end;
             if (b != null && b.contains(":")) {
                 start = brackets.getValue().substring(0, brackets.getValue().indexOf(":"));
@@ -63,11 +65,17 @@ public class HudEditor extends Module {
     }
 
     @Override
+    public void onLoad() {
+        this.disable();
+    }
+
+    @Override
     public void onEnable() {
-        HudEditorGui gui = new HudEditorGui();
-        gui.init();
-        mc.displayGuiScreen(gui);
-        toggle();
+        this.toggle();
+        HudEditorGui hud = new HudEditorGui();
+        hud.init();
+        hud.onGuiOpened();
+        mc.displayGuiScreen(hud);
     }
 
 }

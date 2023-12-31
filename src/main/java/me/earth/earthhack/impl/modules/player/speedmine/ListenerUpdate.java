@@ -4,7 +4,6 @@ import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.cache.SettingCache;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.impl.core.ducks.network.IPlayerControllerMP;
-import me.earth.earthhack.impl.core.mixins.util.MixinOptions;
 import me.earth.earthhack.impl.event.events.misc.UpdateEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.managers.Managers;
@@ -21,7 +20,6 @@ import me.earth.earthhack.impl.util.minecraft.ArmUtil;
 import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
 import me.earth.earthhack.impl.util.minecraft.PlayerUtil;
 import me.earth.earthhack.impl.util.minecraft.blocks.BlockUtil;
-import me.earth.earthhack.impl.util.minecraft.blocks.mine.MineUtil;
 import me.earth.earthhack.impl.util.network.NetworkUtil;
 import me.earth.earthhack.impl.util.thread.Locks;
 import me.earth.earthhack.pingbypass.PingBypass;
@@ -37,8 +35,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-
-import java.util.Arrays;
 
 //TODO: maybe account for Tps?
 final class ListenerUpdate extends ModuleListener<Speedmine, UpdateEvent>

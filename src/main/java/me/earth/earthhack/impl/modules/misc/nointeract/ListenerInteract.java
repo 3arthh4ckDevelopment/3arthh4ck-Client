@@ -3,6 +3,8 @@ package me.earth.earthhack.impl.modules.misc.nointeract;
 import me.earth.earthhack.impl.event.events.misc.ClickBlockEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.managers.Managers;
+import net.minecraft.block.BlockAnvil;
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 
 final class ListenerInteract extends
@@ -22,9 +24,19 @@ final class ListenerInteract extends
         }
 
         IBlockState state = mc.world.getBlockState(event.getPos());
-        if (module.isValid(state.getBlock().getLocalizedName()))
+
+        if(module.tileOnly.getValue()
+                && state.getBlock().getClass().isAssignableFrom(ITileEntityProvider.class)
+                || state.getBlock() instanceof BlockAnvil)
         {
             event.setCancelled(true);
+        }
+        else
+        {
+            if (module.isValid(state.getBlock().getLocalizedName()))
+            {
+                event.setCancelled(true);
+            }
         }
     }
 

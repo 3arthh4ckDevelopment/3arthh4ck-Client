@@ -5,5 +5,6 @@ public enum OffsetMode
     Constant,
     Smart,
     Motion,
-    SmartNew
+    SmartNew,
+    NewBypass
 }

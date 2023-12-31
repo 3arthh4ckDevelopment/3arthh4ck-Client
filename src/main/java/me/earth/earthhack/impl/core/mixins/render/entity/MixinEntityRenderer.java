@@ -14,13 +14,13 @@ import me.earth.earthhack.impl.event.events.render.*;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.client.management.Management;
 import me.earth.earthhack.impl.modules.player.blocktweaks.BlockTweaks;
-import me.earth.earthhack.impl.modules.player.raytrace.RayTrace;
+import me.earth.earthhack.impl.modules.player.phasetrace.PhaseTrace;
 import me.earth.earthhack.impl.modules.player.spectate.Spectate;
 import me.earth.earthhack.impl.modules.render.ambience.Ambience;
 import me.earth.earthhack.impl.modules.render.blockhighlight.BlockHighlight;
+import me.earth.earthhack.impl.modules.render.cameraclip.CameraClip;
 import me.earth.earthhack.impl.modules.render.esp.ESP;
 import me.earth.earthhack.impl.modules.render.norender.NoRender;
-import me.earth.earthhack.impl.modules.render.viewclip.CameraClip;
 import me.earth.earthhack.impl.modules.render.weather.Weather;
 import me.earth.earthhack.impl.util.math.MathUtil;
 import me.earth.earthhack.impl.util.math.Vector3f;
@@ -75,8 +75,8 @@ public abstract class MixinEntityRenderer implements IEntityRenderer {
             CAMERA_CLIP = Caches.getModule(CameraClip.class);
     private static final ModuleCache<Weather>
             WEATHER = Caches.getModule(Weather.class);
-    private static final ModuleCache<RayTrace>
-            RAYTRACE = Caches.getModule(RayTrace.class);
+    private static final ModuleCache<PhaseTrace>
+            RAYTRACE = Caches.getModule(PhaseTrace.class);
     private static final ModuleCache<Spectate>
             SPECTATE = Caches.getModule(Spectate.class);
     private static final ModuleCache<Management>
@@ -415,14 +415,14 @@ public abstract class MixinEntityRenderer implements IEntityRenderer {
     private RayTraceResult getMouseOverHook(Entity entity,
                                             double blockReachDistance,
                                             float partialTicks) {
-        if (RAYTRACE.returnIfPresent(RayTrace::isActive, false)) {
+        if (RAYTRACE.returnIfPresent(PhaseTrace::isActive, false)) {
             Vec3d start = entity.getPositionEyes(partialTicks);
             Vec3d look = entity.getLook(partialTicks);
             Vec3d end = start.add(look.x * blockReachDistance,
                     look.y * blockReachDistance,
                     look.z * blockReachDistance);
             // TODO: make this better!
-            if (RAYTRACE.returnIfPresent(RayTrace::liquidCrystalPlace, false)
+            if (RAYTRACE.returnIfPresent(PhaseTrace::liquidCrystalPlace, false)
                     && (mc.player.isInsideOfMaterial(Material.WATER)
                     || mc.player.isInsideOfMaterial(Material.LAVA))
                     && InventoryUtil.isHolding(Blocks.OBSIDIAN))
@@ -453,7 +453,7 @@ public abstract class MixinEntityRenderer implements IEntityRenderer {
                 }
             }
 
-            if (RAYTRACE.returnIfPresent(RayTrace::phaseCheck, false)) {
+            if (RAYTRACE.returnIfPresent(PhaseTrace::phaseCheck, false)) {
                 // TODO: trace to first Air Block!
                 return RayTracer.traceTri(
                         mc.world, mc.world, start, end, false, false, true,

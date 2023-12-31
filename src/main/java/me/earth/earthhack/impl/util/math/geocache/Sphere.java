@@ -10,8 +10,10 @@ import org.apache.logging.log4j.Logger;
 import java.util.Set;
 import java.util.TreeSet;
 
+//TODO: make a little simple script/algorithm to calculate the SPHERE size given the radius
+
 /**
- * Caches a Sphere of radius 100 and indices required
+ * Caches a Sphere of radius 45 and indices required
  * to get Sub-Spheres with smaller radii. The sphere is
  * sorted by distance to the middle.
  *
@@ -22,8 +24,8 @@ import java.util.TreeSet;
  */
 public class Sphere
 {
-    private static final Vec3i[] SPHERE = new Vec3i[4187707];
-    private static final int[] INDICES = new int[101];
+    private static final Vec3i[] SPHERE = new Vec3i[381_405];
+    private static final int[] INDICES = new int[46];
 
     static
     {
@@ -77,85 +79,78 @@ public class Sphere
      */
     public static void cacheSphere(Logger logger)
     {
-        logger.info("Caching Sphere...");
-        long time = System.currentTimeMillis();
+        try {
+            logger.info("Caching Sphere...");
+            long time = System.currentTimeMillis();
 
-        BlockPos pos = BlockPos.ORIGIN;
-        Set<BlockPos> positions = new TreeSet<>((o, p) ->
-        {
-            if (o.equals(p))
+            BlockPos pos = BlockPos.ORIGIN;
+            Set<BlockPos> positions = new TreeSet<>((o, p) ->
             {
-                return 0;
-            }
+                if (o.equals(p)) {
+                    return 0;
+                }
 
-            int compare = Double.compare(pos.distanceSq(o), pos.distanceSq(p));
-            if (compare == 0)
-            {
-                // This prioritizes positions closer to an axis
-                compare = Integer.compare(Math.abs(o.getX())
-                                + Math.abs(o.getY())
-                                + Math.abs(o.getZ()),
-                        Math.abs(p.getX())
-                                + Math.abs(p.getY())
-                                + Math.abs(p.getZ()));
-            }
+                int compare = Double.compare(pos.distanceSq(o), pos.distanceSq(p));
+                if (compare == 0) {
+                    // This prioritizes positions closer to an axis
+                    compare = Integer.compare(Math.abs(o.getX())
+                                    + Math.abs(o.getY())
+                                    + Math.abs(o.getZ()),
+                            Math.abs(p.getX())
+                                    + Math.abs(p.getY())
+                                    + Math.abs(p.getZ()));
+                }
 
-            return compare == 0 ? 1 : compare;
-        });
+                return compare == 0 ? 1 : compare;
+            });
 
-        double r = 100.0;
-        double rSquare = r * r;
-        for (int x = pos.getX() - (int) r; x <= pos.getX() + r; x++)
-        {
-            for (int z = pos.getZ() - (int) r; z <= pos.getZ() + r; z++)
-            {
-                for (int y = pos.getY() - (int) r; y < pos.getY() + r; y++)
-                {
-                    double dist = (pos.getX() - x) * (pos.getX() - x)
-                            + (pos.getZ() - z) * (pos.getZ() - z)
-                            + (pos.getY() - y) * (pos.getY() - y);
-                    if (dist < rSquare)
-                    {
-                        positions.add(new BlockPos(x, y, z));
+            double r = 45;
+            double rSquare = r * r;
+            for (int x = pos.getX() - (int) r; x <= pos.getX() + r; x++) {
+                for (int z = pos.getZ() - (int) r; z <= pos.getZ() + r; z++) {
+                    for (int y = pos.getY() - (int) r; y < pos.getY() + r; y++) {
+                        double dist = (pos.getX() - x) * (pos.getX() - x)
+                                + (pos.getZ() - z) * (pos.getZ() - z)
+                                + (pos.getY() - y) * (pos.getY() - y);
+                        if (dist < rSquare) {
+                            positions.add(new BlockPos(x, y, z));
+                        }
                     }
                 }
             }
-        }
 
-        if (positions.size() != SPHERE.length)
-        {
-            throw new IllegalStateException("Unexpected Size for Sphere: "
-                    + positions.size()
-                    + ", expected "
-                    + SPHERE.length
-                    + "!");
-        }
-
-        int i = 0;
-        int currentDistance = 0;
-        for (BlockPos off : positions)
-        {
-            if (Math.sqrt(pos.distanceSq(off)) > currentDistance)
-            {
-                INDICES[currentDistance++] = i;
+            if (positions.size() != SPHERE.length) {
+                throw new IllegalStateException("Unexpected Size for Sphere: "
+                        + positions.size()
+                        + ", expected "
+                        + SPHERE.length
+                        + "!");
             }
 
-            SPHERE[i++] = off;
-        }
+            int i = 0;
+            int currentDistance = 0;
+            for (BlockPos off : positions) {
+                if (Math.sqrt(pos.distanceSq(off)) > currentDistance) {
+                    INDICES[currentDistance++] = i;
+                }
 
-        if (currentDistance != INDICES.length - 1)
-        {
-            throw new IllegalStateException("Sphere Indices not initialized!");
-        }
+                SPHERE[i++] = off;
+            }
 
-        INDICES[INDICES.length - 1] = SPHERE.length;
-        if (SPHERE[SPHERE.length - 1].getX() == Integer.MAX_VALUE)
-        {
-            throw new IllegalStateException("Sphere wasn't filled!");
-        }
+            if (currentDistance != INDICES.length - 1) {
+                throw new IllegalStateException("Sphere Indices not initialized!");
+            }
 
-        time = System.currentTimeMillis() - time;
-        logger.info("Cached sphere in " + time + "ms.");
+            INDICES[INDICES.length - 1] = SPHERE.length;
+            if (SPHERE[SPHERE.length - 1].getX() == Integer.MAX_VALUE) {
+                throw new IllegalStateException("Sphere wasn't filled!");
+            }
+
+            time = System.currentTimeMillis() - time;
+            logger.info("Cached sphere in " + time + "ms.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

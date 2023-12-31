@@ -13,6 +13,7 @@ import me.earth.earthhack.impl.modules.movement.longjump.LongJump;
 import me.earth.earthhack.impl.modules.movement.packetfly.PacketFly;
 import me.earth.earthhack.impl.modules.movement.speed.Speed;
 import me.earth.earthhack.impl.modules.movement.speed.SpeedMode;
+import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.math.position.PositionUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -37,24 +38,32 @@ final class ListenerMotion extends ModuleListener<ReverseStep, MotionUpdateEvent
                     Speed.class, Setting.class, "Mode", SpeedMode.Instant);
 
     private boolean reset = false;
-
+    private final StopWatch speedTimer = new StopWatch();
     public ListenerMotion(ReverseStep module) {
         super(module, MotionUpdateEvent.class);
     }
 
     @Override
     public void invoke(MotionUpdateEvent event) {
+
         if (event.getStage() == Stage.POST) {
             if (PositionUtil.inLiquid(true)
                     || PositionUtil.inLiquid(false)
                     || PACKET_FLY.isEnabled()
                     || BLOCK_LAG.isEnabled()
-                    || LONGJUMP.isEnabled()
-                    || SPEED.isEnabled()
-                        && SPEED_MODE.getValue() != SpeedMode.Instant) {
+                    || LONGJUMP.isEnabled()) {
                 reset = true;
                 return;
             }
+
+            if(SPEED.isEnabled()
+              && SPEED_MODE.getValue() != SpeedMode.Instant)
+            {
+                speedTimer.reset();
+            }
+
+            if(!speedTimer.passed(300)) return;
+
             final List<EntityEnderPearl> pearls = mc.world.loadedEntityList.stream()
                     .filter(EntityEnderPearl.class::isInstance)
                     .map(EntityEnderPearl.class::cast)

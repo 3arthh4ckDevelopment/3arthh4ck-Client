@@ -7,34 +7,34 @@ final class RPCData extends DefaultData<RPC>
     public RPCData(RPC module)
     {
         super(module);
-        this.descriptions.put(module.logoBig,
+        register(module.logoBig,
                 "The large image.");
-        this.descriptions.put(module.logoSmall,
+        register(module.logoSmall,
                 "The small image.");
-        this.descriptions.put(module.Line1,
+        register(module.Line1,
                 "Text in the first line.");
-        this.descriptions.put(module.Line2,
+        register(module.Line2,
                 "Text in the second line.");
-        this.descriptions.put(module.showIP,
+        register(module.showIP,
                 "Shows the server ip you're playing on.");
-        this.descriptions.put(module.join,
+        register(module.join,
                 "Discord join button.");
-        this.descriptions.put(module.partyMax,
+        register(module.partyMax,
                 "The party size.");
-        this.descriptions.put(module.custom,
+        register(module.custom,
                 "Your application ID.");
-        this.descriptions.put(module.assetLarge,
+        register(module.assetLarge,
                 "The name of the large image.");
-        this.descriptions.put(module.assetLargeText,
+        register(module.assetLargeText,
                 "The displayed text of the large image.");
-        this.descriptions.put(module.smallImage,
+        register(module.smallImage,
                 "Select if you want the small image or no.");
-        this.descriptions.put(module.assetSmall,
+        register(module.assetSmall,
                 "The name of the small image.");
-        this.descriptions.put(module.assetSmallText,
+        register(module.assetSmallText,
                 "The displayed text of the small image.");
 
-        this.descriptions.put(module.custom, "Your application ID.\n" +
+        register(module.custom, "Your application ID.\n" +
                 "---------------------------------------\n" +
                 "How to setup this:                     \n" +
                 "1) Go to the Discord Developer Portal: \n" +

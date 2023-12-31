@@ -4,7 +4,10 @@ import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Complexity;
 import me.earth.earthhack.api.setting.Setting;
-import me.earth.earthhack.api.setting.settings.*;
+import me.earth.earthhack.api.setting.settings.BooleanSetting;
+import me.earth.earthhack.api.setting.settings.ColorSetting;
+import me.earth.earthhack.api.setting.settings.EnumSetting;
+import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.minecraft.PushMode;
@@ -33,10 +36,10 @@ public class Nametags extends Module
             register(new BooleanSetting("Durability", true));
     protected final Setting<Boolean> max =
             register(new BooleanSetting("EnchantMax", false));
-    protected final Setting<String> maxText =
-            register(new StringSetting("MaxText", "Max"));
     protected final Setting<Boolean> gameMode =
             register(new BooleanSetting("GameMode", false));
+    protected final Setting<Boolean> illegalEffects =
+            register(new BooleanSetting("IllegalEffects", false));
     protected final Setting<Boolean> invisibles =
             register(new BooleanSetting("Invisibles", false));
     protected final Setting<Boolean> pops =
@@ -47,12 +50,12 @@ public class Nametags extends Module
             register(new BooleanSetting("Fov", true));
     protected final Setting<Boolean> sneak =
             register(new BooleanSetting("Sneak", true));
-    protected final Setting<Float> scale =
-            register(new NumberSetting<>("Scale", 0.3f, 0.1f, 1.0f));
+    protected final Setting<Float> scale = // TODO: divide by 100
+            register(new NumberSetting<>("Scale", 0.003f, 0.001f, 0.01f));
     protected final Setting<Integer> delay =
             register(new NumberSetting<>("Delay", 16, 0, 100));
     protected final Setting<Color> outlineColor =
-            register(new ColorSetting("Outline-Color", new Color(135, 135, 135, 135)));
+            register(new ColorSetting("Outline-Color", new Color(135, 135, 135, 0)));
     protected final Setting<Float> outlineWidth =
             register(new NumberSetting<>("Outline-Width", 1.8f, 0.2f, 10.0f));
     protected final Setting<Boolean> media =
@@ -81,7 +84,7 @@ public class Nametags extends Module
                 .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> debug =
             register(new BooleanSetting("Debug", false))
-                    .setComplexity(Complexity.Dev);
+                .setComplexity(Complexity.Dev);
 
     protected List<Nametag> nametags = new ArrayList<>();
     protected final StopWatch timer = new StopWatch();

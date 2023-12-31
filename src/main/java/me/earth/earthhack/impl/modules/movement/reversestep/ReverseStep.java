@@ -18,12 +18,16 @@ public class ReverseStep extends Module
             register(new NumberSetting<>("Speed", 4.0, 0.1, 10.0));
     protected final Setting<Double> distance =
             register(new NumberSetting<>("Distance", 3.0, 0.1, 10.0));
+    protected final Setting<Boolean> voidCheck =
+            register(new BooleanSetting("VoidCheck", false));
+
     protected final Setting<Boolean> strictLiquid =
             register(new BooleanSetting("StrictLiquid", false));
 
     public ReverseStep()
     {
         super("ReverseStep", Category.Movement);
+        this.setData(new ReverseStepData(this));
         this.listeners.add(new ListenerMotion(this));
     }
 

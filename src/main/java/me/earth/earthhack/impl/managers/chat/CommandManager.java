@@ -85,6 +85,7 @@ public class CommandManager extends SubscriberImpl
         commands.add(new EnemyCommand());
         commands.add(new HelpCommand());
         commands.add(new HexCommand());
+        commands.add(new HideCommand());
         commands.add(new HistoryCommand());
         commands.add(new MacroCommand());
         commands.add(new LastCommand());
@@ -113,14 +114,17 @@ public class CommandManager extends SubscriberImpl
         commands.add(new GiveCommand());
         commands.add(new DumpStackCommand());
         commands.add(new EnchantCommand());
+        commands.add(new ShowCommand());
         commands.add(new ShrugCommand());
         commands.add(new EntityDesyncCommand());
         commands.add(new SoundCommand());
         commands.add(new FolderCommand());
+        commands.add(new PhobosDotConfirmCommand());
         commands.add(new PacketCommandImpl());
         commands.add(new PresetCommand());
         commands.add(new BookCommand());
         commands.add(new ReloadResourceCommand());
+        commands.add(new GcCommand());
 
         hidden.add(new HListSettingCommand());
         hidden.add(new HModulesCommand());

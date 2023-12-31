@@ -68,17 +68,12 @@ public class InventoryUtil implements Globals
      */
     public static void switchToBypassAlt(int slot)
     {
-        Locks.acquire(Locks.WINDOW_CLICK_LOCK, () ->
-        {
-            if (mc.player.inventory.currentItem != slot
-                && slot > -1 && slot < 9)
-            {
-                Locks.acquire(Locks.WINDOW_CLICK_LOCK, () ->
+        if (slot != -1) {
+            Locks.acquire(Locks.WINDOW_CLICK_LOCK, () ->
                     mc.playerController
-                        .windowClick(0, slot, mc.player.inventory.currentItem,
-                                     ClickType.SWAP, mc.player));
-            }
-        });
+                            .windowClick(0, slot, mc.player.inventory.currentItem,
+                                    ClickType.SWAP, mc.player));
+        }
     }
 
     /**

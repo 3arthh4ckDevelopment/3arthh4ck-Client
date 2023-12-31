@@ -12,21 +12,14 @@ import java.util.List;
 
 public enum Environment
 {
-    VANILLA,
     SEARGE,
     MCP;
 
     private static Environment environment;
-    private static boolean forge;
 
     public static Environment getEnvironment()
     {
         return environment;
-    }
-
-    public static boolean hasForge()
-    {
-        return forge;
     }
 
     /**
@@ -36,24 +29,6 @@ public enum Environment
     public static void loadEnvironment()
     {
         Environment env = SEARGE;
-
-        try
-        {
-            String fml = "net.minecraftforge.common.ForgeHooks";
-            byte[] forgeBytes = Launch.classLoader.getClassBytes(fml);
-            if (forgeBytes != null)
-            {
-                forge = true;
-            }
-            else
-            {
-                env = VANILLA;
-            }
-        }
-        catch (IOException e)
-        {
-            env = VANILLA;
-        }
 
         String world = "net.minecraft.world.World";
         byte[] bs = null;

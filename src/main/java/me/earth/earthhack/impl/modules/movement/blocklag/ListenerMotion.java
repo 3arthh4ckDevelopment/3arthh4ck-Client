@@ -1,13 +1,11 @@
 package me.earth.earthhack.impl.modules.movement.blocklag;
 
-import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.event.events.Stage;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.modules.Caches;
+import me.earth.earthhack.impl.modules.movement.blocklag.mode.BlockLagRotate;
 import me.earth.earthhack.impl.modules.movement.blocklag.mode.OffsetMode;
-import me.earth.earthhack.impl.modules.player.blink.Blink;
 import me.earth.earthhack.impl.util.client.ModuleUtil;
 import me.earth.earthhack.impl.util.math.RayTraceUtil;
 import me.earth.earthhack.impl.util.math.position.PositionUtil;
@@ -17,6 +15,7 @@ import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
 import me.earth.earthhack.impl.util.minecraft.blocks.BlockUtil;
 import me.earth.earthhack.impl.util.minecraft.blocks.SpecialBlocks;
 import me.earth.earthhack.impl.util.minecraft.entity.EntityUtil;
+import me.earth.earthhack.impl.util.network.NetworkUtil;
 import me.earth.earthhack.impl.util.network.PacketUtil;
 import me.earth.earthhack.impl.util.thread.Locks;
 import me.earth.earthhack.pingbypass.PingBypass;
@@ -26,6 +25,7 @@ import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.play.client.CPacketEntityAction;
+import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -38,8 +38,6 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
         super(module, MotionUpdateEvent.class);
     }
 
-    static final ModuleCache<Blink> BLINK =
-            Caches.getModule(Blink.class);
     @Override
     public void invoke(MotionUpdateEvent event) {
         if (event.getStage() == Stage.PRE
@@ -162,19 +160,19 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
 
             if (module.useBlink.getValue()) {
 
-                if (module.jumpTimer.passed(295))
-                {
+                if (module.jumpTimer.passed(295)) {
                     mc.player.jump();
-                    BLINK.enable();
+                    BlockLag.BLINK.enable();
+                    module.blinkTimer.reset();
                     mc.player.motionY = module.motionAmount.getValue();
                 }
 
                 if(module.blinkTimer.passed(module.blinkDuration.getValue())
                         && module.autoDisableBlink.getValue())
-                    BLINK.disable();
-
+                    BlockLag.BLINK.disable();
             }
         }
+
 
         if (!module.allowUp.getValue()) {
             BlockPos upUp = pos.up(2);
@@ -187,6 +185,18 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
 
                 return;
             }
+        }
+
+        if(module.offsetMode.getValue() == OffsetMode.NewBypass) {
+            mc.player.jump();
+            event.setOnGround(true);
+            BlockLag.BLINK.enable();
+            for(int i = 0; i < 20; i++) {
+                event.setY(event.getY() + 0.2);
+                NetworkUtil.sendPacketNoEvent(new CPacketPlayer.Position(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, event.isOnGround()));
+            }
+            BlockLag.BLINK.disable();
+            event.setY(mc.player.posY - module.vClip.getValue());
         }
 
         int slot = module.anvil.getValue()
@@ -248,8 +258,8 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
                 module.attack(finalAttacking, finalWeaknessSlot);
             }
 
-            if (module.conflict.getValue() || module.rotate.getValue()) {
-                if (module.rotate.getValue()) {
+            if (module.conflict.getValue() || module.rotate.getValue() != BlockLagRotate.None) {
+                if (module.rotate.getValue() == BlockLagRotate.Packet) {
                     if (finalREntity.getPositionVector()
                             .equals(Managers.POSITION.getVec())) {
                         PacketUtil.doRotation(r[0], r[1], true);
@@ -259,6 +269,19 @@ final class ListenerMotion extends ModuleListener<BlockLag, MotionUpdateEvent> {
                                 finalREntity.posZ,
                                 r[0],
                                 r[1],
+                                true);
+                    }
+                } else if (module.rotate.getValue() == BlockLagRotate.Motion){
+                    if (finalREntity.getPositionVector()
+                            .equals(Managers.POSITION.getVec())) {
+                        event.setYaw(r[0]);
+                        event.setPitch(r[1]);
+                    } else {
+                        event.setYaw(r[0]);
+                        event.setPitch(r[1]);
+                        PacketUtil.doPosition(finalREntity.posX,
+                                finalREntity.posY,
+                                finalREntity.posZ,
                                 true);
                     }
                 } else {

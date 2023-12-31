@@ -2,8 +2,7 @@ package me.earth.earthhack.impl.util.misc;
 
 import me.earth.earthhack.api.hud.HudElement;
 import me.earth.earthhack.impl.gui.click.frame.Frame;
-import me.earth.earthhack.impl.gui.hud.AbstractGuiElement;
-import me.earth.earthhack.impl.gui.hud.rewrite.SnapPoint;
+import me.earth.earthhack.impl.gui.hud.SnapPoint;
 
 public class GuiUtil {
 
@@ -14,10 +13,6 @@ public class GuiUtil {
 
     public static boolean isHovered(float x, float y, float width, float height, float mouseX, float mouseY) {
         return (mouseX >= x) && (mouseX <= x + width) && (mouseY >= y) && (mouseY < y + height);
-    }
-
-    public static boolean isHovered(AbstractGuiElement element, int mouseX, int mouseY) {
-        return isHovered(element.getX(), element.getY(), element.getWidth(), element.getHeight(), mouseX, mouseY);
     }
 
     public static boolean isHovered(HudElement element, int mouseX, int mouseY) {
@@ -118,14 +113,6 @@ public class GuiUtil {
             return Edge.BOTTOM;
         }
         return null;
-    }
-
-    public static Edge getHoveredEdgeNoTop(AbstractGuiElement element, int mouseX, int mouseY, int edge) {
-        return getHoveredEdgeNoTop((int) element.getX(), (int) element.getY(), (int) element.getWidth(), (int) element.getHeight(), mouseX, mouseY, edge);
-    }
-
-    public static Edge getHoveredEdge(AbstractGuiElement element, int mouseX, int mouseY, int edge) {
-        return getHoveredEdge((int) element.getX(), (int) element.getY(), (int) element.getWidth(), (int) element.getHeight(), mouseX, mouseY, edge);
     }
 
     public static Edge getHoveredEdge(HudElement element, int mouseX, int mouseY, int edge) {

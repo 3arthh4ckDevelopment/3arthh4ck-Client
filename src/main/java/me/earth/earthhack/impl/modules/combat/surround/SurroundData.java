@@ -35,7 +35,7 @@ final class SurroundData extends ObbyData<Surround>
         register(module.holeC, "Will center you even if you" +
                 " are already in a 1x1 hole.");
         register(module.instant, "Analyzes packets to" +
-                " surround as early as possible.");
+                " surround as early as possible. THIS MIGHT CRASH YOUR GAME");
         register(module.sound, "Analyzes Sound packets.");
         register(module.playerExtend,
                 "Extends around players that block your surround. If you want" +
@@ -67,6 +67,11 @@ final class SurroundData extends ObbyData<Surround>
     public String getDescription()
     {
         return "Surrounds you legs with Obsidian.";
+    }
+
+    @Override
+    public String[] getAliases() {
+        return new String[]{"FeetTrap", "FeetPlace"};
     }
 }
 

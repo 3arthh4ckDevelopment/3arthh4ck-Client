@@ -7,7 +7,7 @@ import me.earth.earthhack.api.util.interfaces.Globals;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.client.pbteleport.PbTeleport;
 import me.earth.earthhack.impl.modules.misc.autoreconnect.AutoReconnect;
-import me.earth.earthhack.impl.util.render.SplashScreenHelper;
+import me.earth.earthhack.impl.util.render.loadingscreen.SplashScreenHelper;
 import me.earth.earthhack.pingbypass.input.ClientInputService;
 import me.earth.earthhack.pingbypass.input.ServerInputService;
 import me.earth.earthhack.pingbypass.listeners.*;

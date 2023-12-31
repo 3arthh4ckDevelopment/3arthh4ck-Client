@@ -55,6 +55,10 @@ public class Tracker extends DisablingModule implements CustomCommandModule
         this.setData(data);
     }
 
+    public EntityPlayer getTrackedPlayer() {
+        return trackedPlayer;
+    }
+
     @Override
     protected void onEnable()
     {

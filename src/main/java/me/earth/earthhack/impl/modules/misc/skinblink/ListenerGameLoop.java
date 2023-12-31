@@ -2,9 +2,7 @@ package me.earth.earthhack.impl.modules.misc.skinblink;
 
 import me.earth.earthhack.impl.event.events.misc.GameLoopEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
-import me.earth.earthhack.impl.util.network.NetworkUtil;
 import net.minecraft.entity.player.EnumPlayerModelParts;
-import net.minecraft.network.play.client.CPacketPlayer;
 
 final class ListenerGameLoop extends ModuleListener<SkinBlink, GameLoopEvent>
 {

@@ -1,10 +1,11 @@
 package me.earth.earthhack.impl.modules.combat.blocker;
 
-import java.util.ArrayList;
 import me.earth.earthhack.impl.event.events.misc.UpdateEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.util.math.StopWatch;
 import net.minecraft.util.math.BlockPos;
+
+import java.util.ArrayList;
 
 public class ListenerUpdate extends ModuleListener<Blocker, UpdateEvent> {
     protected static ArrayList<BlockPos> scheduledPlacements = new ArrayList<>();
@@ -16,7 +17,7 @@ public class ListenerUpdate extends ModuleListener<Blocker, UpdateEvent> {
 
     @Override
     public void invoke(UpdateEvent event) {
-        if (timer.passed(module.surroundDelay.getValue())) {
+        if (timer.passed(module.placeDelay.getValue())) {
             timer.reset();
             scheduledPlacements.clear();
         }

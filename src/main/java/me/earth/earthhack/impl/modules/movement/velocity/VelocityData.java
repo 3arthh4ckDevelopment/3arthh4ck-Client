@@ -7,23 +7,23 @@ final class VelocityData extends DefaultData<Velocity>
     public VelocityData(Velocity velocity)
     {
         super(velocity);
-        this.descriptions.put(module.knockBack,
+        register(module.knockBack,
             "Block the knockback you take from Hits.");
-        this.descriptions.put(module.horizontal,
+        register(module.horizontal,
             "The factor of the horizontal knockback you receive.");
-        this.descriptions.put(module.vertical,
+        register(module.vertical,
             "The factor of the vertical knockback you receive.");
-        this.descriptions.put(module.noPush,
+        register(module.noPush,
             "Prevent getting pushed by other entities.");
-        this.descriptions.put(module.explosions,
+        register(module.explosions,
             "Block knockback received from explosions.");
-        this.descriptions.put(module.bobbers,
+        register(module.bobbers,
             "Block fishing rod bobbers from moving you.");
-        this.descriptions.put(module.water,
+        register(module.water,
             "Prevent water from pushing you.");
-        this.descriptions.put(module.blocks,
+        register(module.blocks,
             "Prevent Blocks from pushing you out e.g. if you phased into one.");
-        this.descriptions.put(module.shulkers,
+        register(module.shulkers,
             "Prevents Shulkers from pushing you.");
     }
 
@@ -37,6 +37,11 @@ final class VelocityData extends DefaultData<Velocity>
     public String getDescription()
     {
         return "Stops knockback from various sources.";
+    }
+
+    @Override
+    public String[] getAliases() {
+        return new String[]{"Anti-KnockBack"};
     }
 
 }

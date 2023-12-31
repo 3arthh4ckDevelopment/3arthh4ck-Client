@@ -73,11 +73,6 @@ public abstract class MixinFontRenderer
                                 int color,
                                 boolean dropShadow)
     {
-        if (dropShadow && HUD_EDITOR.get().testShadow.getValue())
-        {
-            return this.renderString(text, x - 0.4f, y - 0.4f, color, true);
-        }
-
         return this.renderString(text, x, y, color, dropShadow);
     }
 

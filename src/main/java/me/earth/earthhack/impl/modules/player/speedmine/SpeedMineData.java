@@ -19,6 +19,8 @@ final class SpeedMineData extends DefaultData<Speedmine>
                 "instantly after the damage specified by the Damage Setting" +
                 " is reached.");
         register(module.noReset, "Doesn't reset blocks after mining them.");
+        register(module.resetSwap, "Resets the position if you swap hotbar " +
+                "items. Needed for most servers.");
         register(module.limit, "After this amount of damage has been dealt" +
                 " to the block it will be mined.");
         register(module.range, "If the currently mined block is outside " +
@@ -57,6 +59,7 @@ final class SpeedMineData extends DefaultData<Speedmine>
         register(module.resetAfterPacket,
                  "Only for Mode - Smart with Normal on.");
         register(module.tpsSync, "Syncs mode Smart and Fast with the TPS.");
+        register(module.smoothenRender, "Smoothens the SpeedMine rendering.");
     }
 
     @Override
@@ -69,6 +72,11 @@ final class SpeedMineData extends DefaultData<Speedmine>
     public String getDescription()
     {
         return "All kinds of tweaks around mining blocks.";
+    }
+
+    @Override
+    public String[] getAliases() {
+        return new String[]{"PacketMine", "InstantMine"};
     }
 
 }

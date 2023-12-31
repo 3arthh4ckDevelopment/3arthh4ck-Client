@@ -51,4 +51,11 @@ public interface ModuleData<M extends SettingContainer>
      */
     Collection<ModulePreset<M>> getPresets();
 
+    /**
+     * Returns a String array of the module aliases
+     *
+     * @return the module's aliases.
+     */
+    String[] getAliases();
+
 }

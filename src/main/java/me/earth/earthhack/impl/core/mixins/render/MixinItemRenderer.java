@@ -44,12 +44,12 @@ public abstract class MixinItemRenderer
     private static final ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
     private static final ResourceLocation ENCHANTED_ITEM_GLINT_RES = new ResourceLocation("textures/misc/enchanted_item_glint.png");
 
-    private static final ModuleCache<ViewModel> VIEW_MODEL =
-            Caches.getModule(ViewModel.class);
     private static final ModuleCache<NoRender> NO_RENDER =
             Caches.getModule(NoRender.class);
     private static final ModuleCache<HandChams> HAND_CHAMS =
             Caches.getModule(HandChams.class);
+    private static final ModuleCache<ViewModel> VIEW_MODEL_REWRITE =
+            Caches.getModule(ViewModel.class);
 
     @Inject(
         method = "renderFireInFirstPerson",
@@ -82,24 +82,40 @@ public abstract class MixinItemRenderer
                                              ItemStack stack,
                                              float y)
     {
-        float xOffset = VIEW_MODEL.isPresent()
-                            ? VIEW_MODEL.get().getX(hand)
-                            : 0;
 
-        float yOffset = VIEW_MODEL.isPresent()
-                            ? VIEW_MODEL.get().getY(hand)
-                            : 0;
+        if (VIEW_MODEL_REWRITE.isEnabled()) {
 
-        itemRenderer.renderItemInFirstPerson(player,
-                                             drinkOffset,
-                                             mapAngle,
-                                             hand,
-                                             x + xOffset,
-                                             stack,
-                                             y + yOffset);
+            final Minecraft mc = Minecraft.getMinecraft();
 
+            if (VIEW_MODEL_REWRITE.get().isHand()) {
+                VIEW_MODEL_REWRITE.get().doTransform(hand == EnumHand.MAIN_HAND ? mc.player.getPrimaryHand() : mc.player.getPrimaryHand().opposite());
+            }
+
+            itemRenderer.renderItemInFirstPerson(
+                    player,
+                    drinkOffset,
+                    mapAngle,
+                    hand,
+                    x + VIEW_MODEL_REWRITE.get().getSwing(hand),
+                    stack,
+                    y
+            );
+
+            return;
+        }
+
+        itemRenderer.renderItemInFirstPerson(
+                player,
+                drinkOffset,
+                mapAngle,
+                hand,
+                x,
+                stack,
+                y
+        );
     }
 
+    /*
     @Inject(
         method = "renderItemInFirstPerson(" +
                 "Lnet/minecraft/client/entity/AbstractClientPlayer;" +
@@ -231,7 +247,7 @@ public abstract class MixinItemRenderer
             at = @At("HEAD"),
             cancellable = true)
     public void rotateArmHook(float p_187458_1_, CallbackInfo ci) {
-        if (VIEW_MODEL.isEnabled() && VIEW_MODEL.get().noSway.getValue()) {
+        if (VIEW_MODEL_REWRITE.isEnabled() && VIEW_MODEL_REWRITE.get().noSway.getValue()) {
             ci.cancel();
         }
     }
@@ -317,4 +333,11 @@ public abstract class MixinItemRenderer
         GlStateManager.disableBlend();
     }*/
 
+    @Inject(method = "renderItemInFirstPerson(Lnet/minecraft/client/entity/AbstractClientPlayer;FFLnet/minecraft/util/EnumHand;FLnet/minecraft/item/ItemStack;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GlStateManager;pushMatrix()V", shift = At.Shift.AFTER))
+    public void onTransformSideFirstPerson(AbstractClientPlayer player, float p_187457_2_, float p_187457_3_, EnumHand hand, float p_187457_5_, ItemStack stack, float p_187457_7_, CallbackInfo ci) {
+        final Minecraft mc = Minecraft.getMinecraft();
+        if (VIEW_MODEL_REWRITE.isEnabled() && VIEW_MODEL_REWRITE.get().isItems()) {
+            VIEW_MODEL_REWRITE.get().doTransform(hand == EnumHand.MAIN_HAND ? mc.player.getPrimaryHand() : mc.player.getPrimaryHand().opposite());
+        }
+    }
 }

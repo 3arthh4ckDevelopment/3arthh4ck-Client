@@ -44,25 +44,47 @@ public class Anchor extends Module
     private static final SettingCache<SpeedMode, EnumSetting<SpeedMode>, Speed> SPEED_MODE =
             Caches.getSetting(Speed.class, Setting.class, "Mode", SpeedMode.Instant);
 
-    private final Setting<InputMode> inputMode = register(new EnumSetting<>("Input-Mode", InputMode.Keys));
-    private final Setting<Float> pitch = register(new NumberSetting<>("Pitch", 90f, -90f, 90f));
-    private final Setting<Integer> delay = register(new NumberSetting<>("Delay", 400, 0, 5000));
-    private final Setting<Mode> yMode = register(new EnumSetting<>("Y-Mode", Mode.Off));
-    private final Setting<Double> y = register(new NumberSetting<>("Y-Speed", 0.0, -10.0, 10.0));
-    private final Setting<Mode> xzMode = register(new EnumSetting<>("XZ-Mode", Mode.Constant));
-    private final Setting<Double> xz = register(new NumberSetting<>("XZ-Speed", 0.2, 0.0, 10.0));
-    private final Setting<Double> yOffset = register(new NumberSetting<>("Y-Offset", 1.0, 0.0, 1.0));
-    private final Setting<Integer> lagTime = register(new NumberSetting<>("Lag-Time", 1000, 0, 10_000));
-    private final Setting<Boolean> sneaking = register(new BooleanSetting("Sneaking", false));
-    private final Setting<Boolean> withSpeed = register(new BooleanSetting("UseWithSpeed", false));
-    private final Setting<Boolean> withSpeedInstant = register(new BooleanSetting("UseWithSpeedInstant", true));
-    private final Setting<Boolean> withStep = register(new BooleanSetting("UseWithStep", false));
-    private final Setting<Boolean> withRStep = register(new BooleanSetting("UseWithReverseStep", true));
-    private final Setting<Boolean> movingTowardsCheck = register(new BooleanSetting("MovingTowardsCheck", false));
-    private final Setting<Boolean> movingTowardsWithoutKeys = register(new BooleanSetting("MovingTowardsWithoutKeys", false));
-    private final Setting<Boolean> holeCheck = register(new BooleanSetting("HoleCheck", true)).setComplexity(Complexity.Expert);
-    private final Setting<Boolean> oldCheck = register(new BooleanSetting("HoleCheck", false)).setComplexity(Complexity.Expert);
-    private final Setting<Boolean> filterByY = register(new BooleanSetting("FilterByY", true)).setComplexity(Complexity.Expert);
+    private final Setting<InputMode> inputMode =
+            register(new EnumSetting<>("Input-Mode", InputMode.Keys));
+    private final Setting<Float> pitch =
+            register(new NumberSetting<>("Pitch", 90f, -90f, 90f));
+    private final Setting<Integer> delay =
+            register(new NumberSetting<>("Delay", 400, 0, 5000));
+    private final Setting<Mode> yMode =
+            register(new EnumSetting<>("Y-Mode", Mode.Off));
+    private final Setting<Double> y =
+            register(new NumberSetting<>("Y-Speed", 0.0, -10.0, 10.0));
+    private final Setting<Mode> xzMode =
+            register(new EnumSetting<>("XZ-Mode", Mode.Constant));
+    private final Setting<Double> xz =
+            register(new NumberSetting<>("XZ-Speed", 0.2, 0.0, 10.0));
+    private final Setting<Double> yOffset =
+            register(new NumberSetting<>("Y-Offset", 1.0, 0.0, 1.0));
+    private final Setting<Integer> lagTime =
+            register(new NumberSetting<>("Lag-Time", 1000, 0, 10_000));
+    private final Setting<Boolean> sneaking =
+            register(new BooleanSetting("Sneaking", false));
+    private final Setting<Boolean> withSpeed =
+            register(new BooleanSetting("UseWithSpeed", false));
+    private final Setting<Boolean> withSpeedInstant =
+            register(new BooleanSetting("UseWithSpeedInstant", true));
+    private final Setting<Boolean> withStep =
+            register(new BooleanSetting("UseWithStep", false));
+    private final Setting<Boolean> withRStep =
+            register(new BooleanSetting("UseWithReverseStep", true));
+    private final Setting<Boolean> movingTowardsCheck =
+            register(new BooleanSetting("MovingTowardsCheck", false));
+    private final Setting<Boolean> movingTowardsWithoutKeys =
+            register(new BooleanSetting("MovingTowardsWithoutKeys", false));
+    private final Setting<Boolean> holeCheck =
+            register(new BooleanSetting("HoleCheck", true))
+                    .setComplexity(Complexity.Expert);
+    private final Setting<Boolean> oldCheck =
+            register(new BooleanSetting("OldHoleCheck", false))
+                    .setComplexity(Complexity.Expert);
+    private final Setting<Boolean> filterByY =
+            register(new BooleanSetting("FilterByY", true))
+                    .setComplexity(Complexity.Expert);
 
     // TODO: higher distance for 2x1 and 2x2
     // TODO: check if we are going to get pulled through a wall

@@ -1,6 +1,7 @@
 package me.earth.earthhack.impl.modules.render.logoutspots.util;
 
 import me.earth.earthhack.api.util.interfaces.Globals;
+import me.earth.earthhack.impl.commands.packet.util.DummyPlayer;
 import me.earth.earthhack.impl.modules.combat.autocrystal.util.TimeStamp;
 import me.earth.earthhack.impl.util.math.MathUtil;
 import me.earth.earthhack.impl.util.minecraft.PlayerUtil;
@@ -15,9 +16,7 @@ public class LogoutSpot extends TimeStamp implements Globals
     private final String name;
     private final StaticModelPlayer model;
     private final AxisAlignedBB boundingBox;
-    private final double x;
-    private final double y;
-    private final double z;
+    private final double x, y, z;
 
     public LogoutSpot(EntityPlayer player)
     {
@@ -26,7 +25,14 @@ public class LogoutSpot extends TimeStamp implements Globals
                 player instanceof AbstractClientPlayer && ((AbstractClientPlayer)player).getSkinType().equals("slim"),
                 0);
         this.model.disableArmorLayers();
-        this.boundingBox = player.getEntityBoundingBox();
+
+        // To solve server issues (?) it's just better to simulate a standing player
+        DummyPlayer dummy = new DummyPlayer(mc.world);
+        dummy.setPosition(player.posX, player.posY, player.posZ);
+        AxisAlignedBB bb = dummy.getEntityBoundingBox();
+        this.boundingBox = new AxisAlignedBB(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.maxY, bb.maxZ);
+        dummy.setDead();
+
         this.x = player.posX;
         this.y = player.posY;
         this.z = player.posZ;

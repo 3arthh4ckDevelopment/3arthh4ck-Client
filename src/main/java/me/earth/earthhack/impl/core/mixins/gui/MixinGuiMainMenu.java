@@ -6,7 +6,9 @@ import me.earth.earthhack.pingbypass.PingBypass;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.util.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -15,6 +17,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinGuiMainMenu extends GuiScreen
 {
     private EarthhackButton earthhackButton;
+
+    @Shadow
+    private static final ResourceLocation SPLASH_TEXTS = new ResourceLocation("minecraft:splashes.txt");
+
+    @Shadow
+    private static final ResourceLocation MINECRAFT_TITLE_TEXTURES = new ResourceLocation("minecraft:textures/minecraft.png"); // https://www.textstudio.com/logo/minecraft-3d-text-41
 
     @Inject(
         method = "initGui",

@@ -175,6 +175,8 @@ public class AntiSurround extends ObbyListenerModule<ListenerObby>
                         .withOutlineColor(outline)
                         .withLineWidth(lineWidth)
                         .build();
+
+        this.setData(new AntiSurroundData(this));
     }
 
     @Override

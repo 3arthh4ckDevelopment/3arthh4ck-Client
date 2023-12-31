@@ -13,6 +13,8 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
@@ -42,7 +44,7 @@ final class ListenerRender extends ModuleListener<Nametags, Render3DEvent>
                             && renderEntity.getDistanceSq(nametag.player)
                                 > MathUtil.square(module.distance.getValue())
                         || module.fov.getValue()
-                            && !RotationUtil.inFov(nametag.player) // Frustum?
+                            && !(RotationUtil.inFov(nametag.player) || mc.player.getPosition() == nametag.player.getPosition()) // Frustum?
                             && (!module.close.getValue() || renderEntity.getDistanceSq(nametag.player) > 1.0))
                 {
                     continue;
@@ -74,7 +76,7 @@ final class ListenerRender extends ModuleListener<Nametags, Render3DEvent>
                     Vec3d i = Interpolation.interpolateEntity(entity);
                     RenderUtil.drawNametag(entity.getEntityId() + "",
                             i.x, i.y, i.z,
-                            module.scale.getValue() / 100.0f,
+                            module.scale.getValue(),
                             0xffffffff,
                             false);
                 }
@@ -96,7 +98,7 @@ final class ListenerRender extends ModuleListener<Nametags, Render3DEvent>
         y = MathHelper.sqrt(xDist * xDist + yDist * yDist + zDist * zDist);
 
         int nameWidth = nametag.nameWidth / 2;
-        double scaling = 0.0018 + module.scale.getValue() / 100.0f * y;
+        double scaling = 0.0018 + module.scale.getValue() * y;
 
         if (y <= 8.0)
         {
@@ -128,12 +130,12 @@ final class ListenerRender extends ModuleListener<Nametags, Render3DEvent>
 
         if (module.outlineColor.getValue().getAlpha() > 0) {
             RenderUtil.prepare(-nameWidth - 1,
-                               -Managers.TEXT.getStringHeightI(),
-                               nameWidth + 2,
-                               1.0f,
-                                module.outlineWidth.getValue(),
-                                0x55000000,
-                                module.outlineColor.getValue().getRGB());
+                    -Managers.TEXT.getStringHeightI(),
+                    nameWidth + 2,
+                    1.0f,
+                    module.outlineWidth.getValue(),
+                    0x55000000,
+                    module.outlineColor.getValue().getRGB());
         }
 
         GlStateManager.disableBlend();
@@ -145,7 +147,7 @@ final class ListenerRender extends ModuleListener<Nametags, Render3DEvent>
                 nametag.nameColor);
 
         xOffset = -nametag.stacks.size() * 8
-                - (nametag.mainHand == null ? 0 : 8);
+                    - (nametag.mainHand == null ? 0 : 8);
         maxEnchHeight = nametag.maxEnchHeight;
         renderDurability = nametag.renderDura;
         GlStateManager.pushMatrix();
@@ -158,6 +160,21 @@ final class ListenerRender extends ModuleListener<Nametags, Render3DEvent>
         for (StackRenderer sr : nametag.stacks)
         {
             renderStackRenderer(sr, false);
+        }
+
+        if (module.illegalEffects.getValue()) {
+            int counter = 40;
+            for (PotionEffect effect : player.getActivePotionEffects()) {
+
+                if ((effect.getAmplifier() > 2 && effect.getPotion() != MobEffects.ABSORPTION) || effect.getAmplifier() > 4) { // is it possible to get the default max amplifier?!?!
+                    Managers.TEXT.drawStringWithShadow(
+                            effect.getEffectName().replace("effect.", "") + " " + effect.getAmplifier(),
+                            -(Managers.TEXT.getStringWidth(effect.getEffectName() + " " + effect.getAmplifier()) / 2.0f),
+                            -(Managers.TEXT.getStringHeightI() + counter),
+                            effect.getPotion().getLiquidColor());
+                    counter += Managers.TEXT.getStringHeightI();
+                }
+            }
         }
 
         GlStateManager.popMatrix();

@@ -1,6 +1,5 @@
 package me.earth.earthhack.impl.util.math.rotation;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
 import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.util.interfaces.Globals;
 import me.earth.earthhack.impl.managers.Managers;
@@ -9,7 +8,6 @@ import me.earth.earthhack.impl.modules.player.freecam.Freecam;
 import me.earth.earthhack.impl.util.math.MathUtil;
 import me.earth.earthhack.impl.util.math.raytrace.RayTracer;
 import me.earth.earthhack.impl.util.render.Interpolation;
-import me.earth.earthhack.impl.util.text.TextColor;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -436,31 +434,6 @@ public class RotationUtil implements Globals
     {
         return MathHelper.floor(
                 (mc.player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-    }
-
-    public static String getDirection4D(boolean northRed)
-    {
-        switch (getDirection4D())
-        {
-            case 0:
-                return "South "
-                        + TextColor.GRAY
-                        + "[" + TextColor.WHITE + "+Z" + TextColor.GRAY + "]";
-            case 1:
-                return "West "
-                        + TextColor.GRAY
-                        + "[" + TextColor.WHITE + "-X" + TextColor.GRAY + "]";
-            case 2:
-                return (northRed ? ChatFormatting.RED : "")
-                        + "North " + TextColor.GRAY + "[" + TextColor.WHITE
-                        + "-Z" + TextColor.GRAY + "]";
-            case 3:
-            default:
-                return "East "
-                        +TextColor.GRAY
-                        + "[" + TextColor.WHITE + "+X" + TextColor.GRAY + "]";
-
-        }
     }
 
 }

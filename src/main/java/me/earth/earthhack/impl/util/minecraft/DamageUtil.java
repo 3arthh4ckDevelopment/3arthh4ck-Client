@@ -332,6 +332,9 @@ public class DamageUtil implements Globals
                                   boolean anvils,
                                   float power)
     {
+        if (bb == null || base == null || world == null) {
+            return 0.0F;
+        }
         double bX = bb.minX + (bb.maxX - bb.minX) * 0.5;
         double bZ = bb.minZ + (bb.maxZ - bb.minZ) * 0.5;
         double distance =

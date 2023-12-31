@@ -5,8 +5,7 @@ public class AmbienceData extends DefaultData<Ambience> {
     public AmbienceData(Ambience ambience){
         super(ambience);
         register(ambience.color, "Sets a color to apply to the whole world.");
-        register(ambience.fogModulation, "When enabled, enables fog modulation, " +
-                "which just means that there will be custom fog in the world.");
+        register(ambience.customFogColor, "If you want to have a custom fog color.");
         register(ambience.fogColor, "Set a custom fog color to use when applying fog modulation.");
         register(ambience.fogDensity, "Set a density for fog modulation. " +
                 "\nHigher values mean there will be more fog." +

@@ -4,7 +4,7 @@ import me.earth.earthhack.api.event.bus.api.Listener;
 import me.earth.earthhack.api.event.bus.api.Subscriber;
 import me.earth.earthhack.api.event.bus.instance.Bus;
 import me.earth.earthhack.api.hud.data.DefaultHudData;
-import me.earth.earthhack.api.hud.data.HudData;
+import me.earth.earthhack.api.module.data.ModuleData;
 import me.earth.earthhack.api.setting.Complexity;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.SettingContainer;
@@ -20,7 +20,6 @@ import me.earth.earthhack.impl.util.render.Render2DUtil;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.math.MathHelper;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -41,28 +40,32 @@ public abstract class HudElement extends SettingContainer
      * These should really not be accessed directly for the time being.
      */
     private final Setting<Float> x =
-            register(new NumberSetting<>("X", 2.0f, -2000.0f, 2000.0f))
+            register(new NumberSetting<>("X", 2.0f, -20.0f, 2000.0f))
                     .setComplexity(Complexity.Dev);
     private final Setting<Float> y =
-            register(new NumberSetting<>("Y", 2.0f, -2000.0f, 2000.0f))
+            register(new NumberSetting<>("Y", 2.0f, -20.0f, 2000.0f))
                     .setComplexity(Complexity.Dev);
     private final Setting<Integer> z =
             register(new NumberSetting<>("Z", 0, -2000, 2000))
                     .setComplexity(Complexity.Dev); // Z level determines rendering order.
+    private final Setting<Float> textScale =
+            register(new NumberSetting<>("Scale", 1.0f, 0.1f, 3.0f))
+                    .setComplexity(Complexity.Dev);
 
 
+    protected static final TextRenderer RENDERER = Managers.TEXT;
     protected final List<Listener<?>> listeners = new ArrayList<>();
     private final AtomicBoolean enableCheck = new AtomicBoolean();
     private final AtomicBoolean inOnEnable  = new AtomicBoolean();
     private HudElement snappedTo;
     private SnapAxis axis = SnapAxis.NONE;
-    private HudData<?> data;
+    private ModuleData<?> data;
 
-    private final String name; // Name will not be changeable for now, no point.
+    private final String name;
+    private final HudCategory category;
+    private float width  = 100;
+    private float height = 100;
 
-    // These have to be set appropriately, and ideally should be done in the constructor.
-    protected float width  = 100;
-    protected float height = 100;
     // private float scale  = 1.0f;
 
     // private final boolean scalable; // TODO: hud element scaling AFTER everything else works!
@@ -72,8 +75,6 @@ public abstract class HudElement extends SettingContainer
     private boolean dragging;
     private float draggingX;
     private float draggingY;
-
-    protected static final TextRenderer RENDERER = Managers.TEXT;
     protected float animationY = 0;
 
     /**
@@ -81,14 +82,19 @@ public abstract class HudElement extends SettingContainer
      * does not contain any whitespaces and that no hud elements with the
      * same name exist. A hud element's name is its unique identifier.
      *
-     * If this constructor is used, the width and height of the element must be set manually!
      *
-     * @param name the name for the new hud element.
+     * @param name name of the hud element
+     * @param x x of the element
+     * @param y y of the element
      */
-    public HudElement(String name) {
+
+    public HudElement(String name, HudCategory category, float x, float y) {
         this.name = name;
+        this.category = category;
         this.data = new DefaultHudData<>(this);
         this.enabled.addObserver(this::onEnabledEvent);
+        this.x.setValue(x);
+        this.y.setValue(y);
     }
 
     protected void onEnabledEvent(SettingEvent<Boolean> event) {
@@ -110,19 +116,6 @@ public abstract class HudElement extends SettingContainer
             Bus.EVENT_BUS.unsubscribe(this);
             onDisable();
         }
-    }
-
-    /**
-     * Same as above :P
-     *
-     * @param name name of the hud element
-     * @param x x of the element
-     * @param y y of the element
-     */
-    public HudElement(String name, float x, float y) {
-        this(name);
-        this.x.setValue(x);
-        this.y.setValue(y);
     }
 
     // TODO: maybe a bit of abstraction with these?
@@ -170,12 +163,16 @@ public abstract class HudElement extends SettingContainer
         /* Implemented by the module */
     }
 
-    public HudData<?> getData()
+    public HudCategory getCategory() {
+        return category;
+    }
+
+    public ModuleData<?> getData()
     {
         return data;
     }
 
-    public void setData(HudData<?> data) {
+    public void setData(ModuleData<?> data) {
         if (data != null)
             this.data = data;
     }
@@ -188,7 +185,7 @@ public abstract class HudElement extends SettingContainer
     }
 
     public void guiDraw(int mouseX, int mouseY, float partialTicks) {
-        Render2DUtil.drawRect(x.getValue(), y.getValue(), x.getValue() + width, y.getValue() + height, new Color(40, 40, 40, 255).getRGB());
+        Render2DUtil.drawBorderedRect(x.getValue(), y.getValue(), x.getValue() + width, y.getValue() + height, 1.0f, 0x00000000, 0xaa000000);
     }
 
     public void guiKeyPressed(char eventChar, int key) {}
@@ -282,6 +279,14 @@ public abstract class HudElement extends SettingContainer
 
     public void setZ(int z) {
         this.z.setValue(z);
+    }
+
+    public float getScale() {
+        return textScale.getValue();
+    }
+
+    public void setScale(float scale) {
+        this.textScale.setValue(scale);
     }
 
     public float getWidth() {

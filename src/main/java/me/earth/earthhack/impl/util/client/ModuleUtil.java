@@ -1,7 +1,6 @@
 package me.earth.earthhack.impl.util.client;
 
 import me.earth.earthhack.api.module.Module;
-import me.earth.earthhack.api.module.util.Hidden;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.managers.chat.ChatManager;
 import me.earth.earthhack.impl.util.text.ChatIDs;
@@ -9,17 +8,6 @@ import me.earth.earthhack.impl.util.text.TextColor;
 
 public class ModuleUtil
 {
-    public static String getHudName(Module module)
-    {
-        return module.getDisplayName()
-                + (module.getDisplayInfo() == null
-                    || module.isHidden() == Hidden.Info
-                        ? ""
-                        : TextColor.GRAY
-                            + " [" + TextColor.WHITE
-                            + module.getDisplayInfo()
-                            + TextColor.GRAY + "]");
-    }
 
     public static void disableRed(Module module, String message)
     {

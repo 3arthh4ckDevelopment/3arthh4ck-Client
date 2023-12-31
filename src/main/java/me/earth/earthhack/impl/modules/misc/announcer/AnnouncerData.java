@@ -32,12 +32,6 @@ final class AnnouncerData extends DefaultData<Announcer>
     }
 
     @Override
-    public int getColor()
-    {
-        return 0xffffffff;
-    }
-
-    @Override
     public String getDescription()
     {
         return "When you want to be really annoying." +

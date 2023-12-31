@@ -6,10 +6,7 @@ import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.EnumSetting;
-import me.earth.earthhack.impl.commands.packet.arguments.NBTTagCompoundArgument;
-import me.earth.earthhack.impl.commands.packet.exception.ArgParseException;
 import me.earth.earthhack.impl.core.ducks.network.ICPacketUseEntity;
-import me.earth.earthhack.impl.event.events.misc.RightClickItemEvent;
 import me.earth.earthhack.impl.event.events.misc.TickEvent;
 import me.earth.earthhack.impl.event.events.misc.UpdateEntitiesEvent;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
@@ -24,27 +21,21 @@ import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.util.client.DebugUtil;
 import me.earth.earthhack.impl.util.client.SimpleData;
 import me.earth.earthhack.impl.util.render.Render2DUtil;
+import me.earth.earthhack.impl.util.text.ChatIDs;
 import me.earth.earthhack.impl.util.text.ChatUtil;
 import me.earth.earthhack.impl.util.text.TextColor;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.network.play.server.SPacketSpawnObject;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,8 +57,8 @@ public class Debug extends Module
         register(new BooleanSetting("DebugBreakPing", false));
     private final Setting<Boolean> glGrid =
             register(new BooleanSetting("GlGrid", false));
-    private final Setting<Boolean> nbt =
-            register(new BooleanSetting("NBT-Reader", false));
+    private final Setting<Boolean> positionLogger =
+            register(new BooleanSetting("PositionLogger", false));
 
     private final Map<BlockPos, Long> times  = new ConcurrentHashMap<>();
     private final Map<BlockPos, Long> attack = new ConcurrentHashMap<>();
@@ -76,6 +67,7 @@ public class Debug extends Module
     public Debug()
     {
         super("Debug", Category.Client);
+        setShown(false);
         register(new EnumSetting<>("ConsoleColors", ConsoleColors.Unformatted));
         SimpleData data =
             new SimpleData(this, "An empty module for debugging.");
@@ -91,6 +83,9 @@ public class Debug extends Module
             public void invoke(TickEvent event)
             {
                 // DEBUG
+
+                if (positionLogger.getValue())
+                    Managers.CHAT.sendDeleteMessage(mc.player.getPosition().toString(), getName(), ChatIDs.MODULE);
             }
         });
 
@@ -176,6 +171,7 @@ public class Debug extends Module
                 times.put(e.getPacket().getPos(), System.currentTimeMillis());
             }
         }));
+
         this.listeners.add(new ReceiveListener<>(SPacketSpawnObject.class,
                                                  Integer.MAX_VALUE,
                                                  e ->
@@ -240,44 +236,6 @@ public class Debug extends Module
                     Managers.TEXT.drawString(String.valueOf(y), 20, y, 0x2300ff00);
                     y += 50;
                 }
-            }
-        }));
-
-        this.listeners.add(new LambdaListener<>(RightClickItemEvent.class, e -> {
-            if (mc.player != null && mc.world != null) {
-                NBTTagCompoundArgument nbtArg = new NBTTagCompoundArgument();
-                String m = "";
-                ItemStack heldItem = mc.player.getHeldItemMainhand();
-                if (heldItem.getTagCompound() == null) {
-                    m = TextColor.RED + "This item doesn't have any NBT data!";
-                } else if (heldItem.isEmpty()) {
-                    BlockPos blockPos = new BlockPos(mc.player.posX, mc.player.posY - 1, mc.player.posZ);
-                    IBlockState blockState = mc.world.getBlockState(blockPos);
-                    if (blockState.getBlock() == Blocks.AIR) {
-                        m = TextColor.RED + "You're standing in the void!";
-                    } else {
-                        ItemStack blockStack = blockState.getBlock().getPickBlock(blockState, new RayTraceResult(new Vec3d(mc.player.posX, mc.player.posY - 1, mc.player.posZ), EnumFacing.UP, blockPos), mc.world, blockPos, mc.player);
-                        if (blockStack == null || blockStack.isEmpty()) {
-                            m = TextColor.RED + "This block doesn't have any NBT data!";
-                        } else {
-                            try {
-                                NBTTagCompound blockNbt = nbtArg.fromString(blockStack.getTagCompound().toString());
-                                m = "Block NBT: " + blockNbt;
-                            } catch (ArgParseException e2) {
-                                m = "This block doesn't have any NBT data!";
-                            }
-                        }
-                    }
-                }
-                else {
-                    try {
-                        NBTTagCompound itemNbt = nbtArg.fromString(heldItem.getTagCompound().toString());
-                        m = "Item NBT: " + itemNbt;
-                    } catch (ArgParseException e2) {
-                        m = "This item doesn't have any NBT data!";
-                    }
-                }
-                Managers.CHAT.sendDeleteMessage(m, "NBT", 9630);
             }
         }));
 

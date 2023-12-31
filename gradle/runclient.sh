@@ -27,7 +27,7 @@ else
 fi
 
 #Moving the builded file
-mv "${dir_origin}/3arthh4ck-1.9.0-release.jar" "${dir_destination}"
+mv "${dir_origin}/3arthh4ck-2.0.0-release.jar" "${dir_destination}"
 echo -e "\e[35m[3arthh4ck] The file is in the mods folder, Starting the game!\e[37m"
 
 #Starting the game

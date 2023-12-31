@@ -1,27 +1,17 @@
 package me.earth.earthhack.impl.gui.click.frame.impl;
 
 import me.earth.earthhack.api.cache.ModuleCache;
-import me.earth.earthhack.impl.gui.click.Click;
 import me.earth.earthhack.impl.gui.click.frame.Frame;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
-import me.earth.earthhack.impl.modules.client.colors.Colors;
+import me.earth.earthhack.impl.modules.client.clickgui.ClickGui;
 import me.earth.earthhack.impl.util.render.Render2DUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 
-import java.awt.*;
 import java.util.List;
 
 public class DescriptionFrame extends Frame
 {
-    public static final ModuleCache<Colors> COLOR_MODULE = Caches.getModule(Colors.class);
-    private static final ResourceLocation LEFT_EAR = new ResourceLocation("earthhack:textures/gui/left_ear.png");
-    private static final ResourceLocation RIGHT_EAR = new ResourceLocation("earthhack:textures/gui/right_ear.png");
-
-
+    public static final ModuleCache<ClickGui> CLICK_GUI = Caches.getModule(ClickGui.class);
     private String description;
 
     public DescriptionFrame(float posX, float posY, float width, float height)
@@ -37,25 +27,18 @@ public class DescriptionFrame extends Frame
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        if (description == null || !Click.CLICK_GUI.get().description.getValue())
+        if (description == null || !CLICK_GUI.get().description.getValue())
         {
             return;
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
-        final Color clr = Click.COLOR_MODULE.get().getCatEars();
-        if (Click.CLICK_GUI.get().catEars.getValue())
-        {
-            Minecraft.getMinecraft().getTextureManager().bindTexture(LEFT_EAR);
-            GlStateManager.color(clr.getRed() / 255.f, clr.getGreen() / 255.f, clr.getBlue() / 255.f, 1.0F);
-            Gui.drawScaledCustomSizeModalRect((int) getPosX() - 7, (int) getPosY() - 8, 0, 0, 20, 20, 20, 20, 20, 20);
-            Minecraft.getMinecraft().getTextureManager().bindTexture(RIGHT_EAR);
-            GlStateManager.color(clr.getRed() / 255.f, clr.getGreen() / 255.f, clr.getBlue() / 255.f, 1.0F);
-            Gui.drawScaledCustomSizeModalRect((int) (getPosX() + getWidth()) - 14, (int) getPosY() - 8, 0, 0, 20, 20, 20, 20, 20, 20);
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        if (CLICK_GUI.get().catEars.getValue()) {
+            CategoryFrame.catEarsRender(getPosX(), getPosY(), getWidth());
         }
-        Render2DUtil.drawRect(getPosX(), getPosY(), getPosX() + getWidth(), getPosY() + getHeight(), Click.COLOR_MODULE.get().getTopBgColor().getRGB());
-        Render2DUtil.drawBorderedRect(getPosX(), getPosY(), getPosX() + getWidth(), getPosY() + getHeight(), 0.5f, 0, Click.COLOR_MODULE.get().getTopColor().getRGB());
+        Render2DUtil.drawRect(getPosX(), getPosY(), getPosX() + getWidth(), getPosY() + getHeight(), CLICK_GUI.get().getTopBgColor().getRGB());
+        if (CLICK_GUI.get().getBoxes())
+            Render2DUtil.drawBorderedRect(getPosX(), getPosY(), getPosX() + getWidth(), getPosY() + getHeight(), 0.5f, 0, CLICK_GUI.get().getTopColor().getRGB());
         Managers.TEXT.drawStringWithShadow(getLabel(), getPosX() + 3, getPosY() + getHeight() / 2 - (Managers.TEXT.getStringHeightI() >> 1), 0xFFFFFFFF);
 
 
@@ -66,7 +49,7 @@ public class DescriptionFrame extends Frame
 
         for (String string : strings)
         {
-            Managers.TEXT.drawStringWithShadow(string, this.getPosX() + 3, y, COLOR_MODULE.get().getTextColorDesc().getRGB());
+            Managers.TEXT.drawStringWithShadow(string, this.getPosX() + 3, y, CLICK_GUI.get().getTextColorDesc().getRGB());
             y += Managers.TEXT.getStringHeightI() + 1;
         }
     }
@@ -74,6 +57,8 @@ public class DescriptionFrame extends Frame
     @Override
     public void mouseReleased(int mouseX, int mouseY, int mouseButton) {
         super.mouseReleased(mouseX, mouseY, mouseButton);
+        CLICK_GUI.get().descPosX.setValue(getPosX());
+        CLICK_GUI.get().descPosY.setValue(getPosY());
     }
 
     public String getDescription()

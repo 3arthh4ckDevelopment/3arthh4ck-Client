@@ -7,9 +7,8 @@ final class CriticalsData extends DefaultData<Criticals>
     public CriticalsData(Criticals module)
     {
         super(module);
-        register(module.mode, "-Packet will deal criticals silently." +
+        register(module.delay, "-Packet will deal criticals silently." +
                 " \n-Bypass is like packet but works on 2b2t." +
-                " \n-NCP packet bypass like NoCheatPlus servers." +
                 " \n-Jump will automatically jump." +
                 " (Only use this on your client, not on the PingBypass)" +
                 " \n -MiniJump will jump as well but less." +

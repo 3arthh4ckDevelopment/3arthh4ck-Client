@@ -4,7 +4,7 @@ import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.event.bus.instance.Bus;
 import me.earth.earthhack.impl.event.events.render.CrystalRenderEvent;
 import me.earth.earthhack.impl.modules.Caches;
-import me.earth.earthhack.impl.modules.render.crystalscale.CrystalScale;
+import me.earth.earthhack.impl.modules.render.crystalchams.CrystalChams;
 import me.earth.earthhack.impl.util.animation.TimeAnimation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
@@ -26,8 +26,8 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(RenderEnderCrystal.class)
 public abstract class MixinRenderEnderCrystal
     extends Render<EntityEnderCrystal> {
-    private static final ModuleCache<CrystalScale> SCALE =
-        Caches.getModule(CrystalScale.class);
+    private static final ModuleCache<CrystalChams> CRYSTAL_CHAMS =
+        Caches.getModule(CrystalChams.class);
     @Shadow
     @Final
     private ModelBase modelEnderCrystal;
@@ -55,15 +55,13 @@ public abstract class MixinRenderEnderCrystal
                                float partialTicks,
                                CallbackInfo ci, float f,
                                float f1) {
-        if (SCALE.isEnabled()) {
-            scale = SCALE.get().animate.getValue()
-                ? (float) (SCALE.get().scaleMap.containsKey(
-                entity.getEntityId())
-                ? SCALE.get().scaleMap.get(entity.getEntityId()).getCurrent()
-                : 0.1f)
-                : SCALE.get().scale.getValue();
+        if (CRYSTAL_CHAMS.isEnabled()) {
+            scale = CRYSTAL_CHAMS.get().animate.getValue() && CRYSTAL_CHAMS.get().scaleMap.containsKey(entity.getEntityId())
+                    ? (float) CRYSTAL_CHAMS.get().scaleMap.get(entity.getEntityId()).getCurrent()
+                    : CRYSTAL_CHAMS.get().scale.getValue();
 
-            TimeAnimation animation = SCALE.get().scaleMap.get(
+
+            TimeAnimation animation = CRYSTAL_CHAMS.get().scaleMap.get(
                 entity.getEntityId());
             if (animation != null) {
                 animation.add(Minecraft.getMinecraft().getRenderPartialTicks());
@@ -79,8 +77,10 @@ public abstract class MixinRenderEnderCrystal
         float headPitch = 0.0F;
         float scale = 0.0625F;
 
-        ModelBase modelBase = entity.shouldShowBottom()
-            ? modelEnderCrystal : modelEnderCrystalNoBase;
+        ModelBase modelBase = modelEnderCrystalNoBase;
+        if (Minecraft.getMinecraft().player.dimension == 1 && entity.shouldShowBottom())
+            modelBase = modelEnderCrystal;
+
         RenderEnderCrystal renderLiving = RenderEnderCrystal.class.cast(this);
         CrystalRenderEvent.Pre pre = new CrystalRenderEvent.Pre(renderLiving,
                                                                 entity,
@@ -116,10 +116,11 @@ public abstract class MixinRenderEnderCrystal
         float entityYaw, float partialTicks, CallbackInfo ci,
         float f, float f1) {
 
-        float limbSwingAmount = f * 3.0F;
-        float ageInTicks = f1 * 0.2F;
-        ModelBase modelBase = entity.shouldShowBottom()
-            ? modelEnderCrystal : modelEnderCrystalNoBase;
+        float limbSwingAmount = f * CRYSTAL_CHAMS.get().spinSpeed.getValue();
+        float ageInTicks = f1 * CRYSTAL_CHAMS.get().bounceFactor.getValue();
+        ModelBase modelBase = modelEnderCrystalNoBase;
+        if (Minecraft.getMinecraft().player.dimension == 1 && entity.shouldShowBottom())
+            modelBase = modelEnderCrystal;
         RenderEnderCrystal renderLiving = RenderEnderCrystal.class.cast(this);
 
         CrystalRenderEvent.Post post = new CrystalRenderEvent.Post(
@@ -128,7 +129,7 @@ public abstract class MixinRenderEnderCrystal
 
         Bus.EVENT_BUS.post(post);
 
-        if (SCALE.isEnabled()) {
+        if (CRYSTAL_CHAMS.isEnabled()) {
             GlStateManager.scale(1 / scale, 1 / scale, 1 / scale);
         }
     }
@@ -136,7 +137,7 @@ public abstract class MixinRenderEnderCrystal
     private void exitDoRender(EntityEnderCrystal entity, double x, double y,
                               double z, float entityYaw, float partialTicks,
                               float f1) {
-        if (SCALE.isEnabled()) {
+        if (CRYSTAL_CHAMS.isEnabled()) {
             GlStateManager.scale(1 / scale, 1 / scale, 1 / scale);
         }
 

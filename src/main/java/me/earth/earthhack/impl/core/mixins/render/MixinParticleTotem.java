@@ -3,16 +3,15 @@ package me.earth.earthhack.impl.core.mixins.render;
 import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.render.popchams.PopChams;
+import net.minecraft.client.particle.ParticleSimpleAnimated;
 import net.minecraft.client.particle.ParticleTotem;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import net.minecraft.client.particle.ParticleSimpleAnimated;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 @Mixin(ParticleTotem.class)
@@ -31,9 +30,9 @@ public abstract class MixinParticleTotem extends ParticleSimpleAnimated {
     public void onInit(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, CallbackInfo info) {
         if (POPCHAMS.get().particles.getValue() && POPCHAMS.isEnabled()) {
             if (POPCHAMS.get().particlesRandom.getValue() && POPCHAMS.isEnabled())
-                this.setRBGColorF(this.rand.nextInt(255), this.rand.nextInt(255), this.rand.nextInt(255));
+                this.setRBGColorF(this.rand.nextInt(255) / 255f, this.rand.nextInt(255) / 255f, this.rand.nextInt(255) / 255f);
             else
-                this.setRBGColorF(POPCHAMS.get().particlesColor.getValue().getBlue(), POPCHAMS.get().particlesColor.getValue().getGreen(),POPCHAMS.get().particlesColor.getValue().getRed());
+                this.setRBGColorF(POPCHAMS.get().particlesColor.getValue().getRed() / 255f, POPCHAMS.get().particlesColor.getValue().getGreen() / 255f, POPCHAMS.get().particlesColor.getValue().getBlue() / 255f);
 
             this.setBaseAirFriction(POPCHAMS.get().particleFriction.getValue());
 

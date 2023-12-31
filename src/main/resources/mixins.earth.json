@@ -59,7 +59,7 @@
     "gui.util.MixinContainer",
     "headlessmc.MixinCommandContext",
     "init.MixinBootstrap",
-    "item.IITemFood",
+    "item.IItemFood",
     "item.IItemTool",
     "item.MixinItemBlock",
     "item.MixinItemEnderCrystal",
@@ -146,6 +146,7 @@
   "client": [
     "gui.MixinGuiConnecting",
     "gui.MixinGuiIngameMenu",
+    "render.IRenderGlobal",
     "render.MixinFramebuffer",
     "render.MixinParticleTotem",
     "render.MixinProfile",

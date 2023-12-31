@@ -51,9 +51,9 @@ public class KillAura extends EntityTypeModule
     protected final Setting<Boolean> prioEnemies =
         register(new BooleanSetting("Enemies", true));
     protected final Setting<Double> range =
-        register(new NumberSetting<>("Range", 6.0, 0.0, 6.0));
+        register(new NumberSetting<>("Range", 6.0, 0.0, 7.0));
     protected final Setting<Double> wallRange =
-        register(new NumberSetting<>("WallRange", 3.0, 0.0, 6.0));
+        register(new NumberSetting<>("WallRange", 3.0, 0.0, 7.0));
     protected final Setting<Boolean> swordOnly =
         register(new BooleanSetting("Sword/Axe", true));
     protected final Setting<Boolean> delay =

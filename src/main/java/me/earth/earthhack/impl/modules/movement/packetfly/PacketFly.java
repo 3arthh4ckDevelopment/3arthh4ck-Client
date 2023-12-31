@@ -1,7 +1,6 @@
 package me.earth.earthhack.impl.modules.movement.packetfly;
 
 import io.netty.util.internal.ConcurrentSet;
-import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Complexity;
 import me.earth.earthhack.api.setting.Setting;
@@ -15,6 +14,7 @@ import me.earth.earthhack.impl.modules.movement.packetfly.util.Mode;
 import me.earth.earthhack.impl.modules.movement.packetfly.util.Phase;
 import me.earth.earthhack.impl.modules.movement.packetfly.util.TimeVec;
 import me.earth.earthhack.impl.modules.movement.packetfly.util.Type;
+import me.earth.earthhack.impl.util.helpers.disabling.DisablingModule;
 import me.earth.earthhack.impl.util.network.PacketUtil;
 import me.earth.earthhack.pingbypass.protocol.c2s.C2SNoRotation;
 import net.minecraft.network.Packet;
@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PacketFly extends Module
+public class PacketFly extends DisablingModule
 {
     protected final Setting<Mode> mode        =
             register(new EnumSetting<>("Mode", Mode.Factor));

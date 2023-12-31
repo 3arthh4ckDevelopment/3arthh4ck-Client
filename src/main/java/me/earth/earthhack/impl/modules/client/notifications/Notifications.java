@@ -37,9 +37,9 @@ public class Notifications extends Module
     protected final Setting<Double> duration =
             register(new NumberSetting<>("Duration", 1.0, 0.5, 3.0));
     protected final Setting<Float> posX =
-            register(new NumberSetting<>("PosX", 680.0f, 0.0f, (float) Render2DUtil.CSWidth()));
+            register(new NumberSetting<>("PosX", 680.0f, 0.0f, (float) Render2DUtil.getScreenWidth()));
     protected final Setting<Float> posY =
-            register(new NumberSetting<>("posY", 380.0f, 0.0f, (float) Render2DUtil.CSWidth() / 2));
+            register(new NumberSetting<>("posY", 380.0f, 0.0f, (float) Render2DUtil.getScreenHeight()));
 
     protected final Setting<Boolean> modules     =
             register(new BooleanSetting("Modules", true));
@@ -77,13 +77,13 @@ public class Notifications extends Module
         }));
 
         Bus.EVENT_BUS.register(
-                new EventListener<PostInitEvent>(PostInitEvent.class) {
-                    @Override
-                    public void invoke(PostInitEvent event)
-                    {
-                        createSettings();
-                    }
+            new EventListener<PostInitEvent>(PostInitEvent.class) {
+                @Override
+                public void invoke(PostInitEvent event)
+                {
+                    createSettings();
                 }
+            }
         );
     }
 
@@ -100,7 +100,7 @@ public class Notifications extends Module
         for (Module module : Managers.MODULES.getRegistered())
         {
             Setting<Boolean> enabled = module.getSetting("Enabled",
-                    BooleanSetting.class);
+                                                    BooleanSetting.class);
             if (enabled == null)
             {
                 continue;
@@ -114,7 +114,7 @@ public class Notifications extends Module
                         && announceMap.get(module).getValue())
                 {
                     onToggleModule((Module) event.getSetting().getContainer(),
-                            event.getValue());
+                                            event.getValue());
                 }
             });
 
@@ -128,11 +128,11 @@ public class Notifications extends Module
 
             Visibilities.VISIBILITY_MANAGER.registerVisibility(setting,
                     () -> configure.getValue()
-                            && categories.getValue().toValue() == module.getCategory());
+                        && categories.getValue().toValue() == module.getCategory());
 
             this.getData()
-                    .settingDescriptions()
-                    .put(setting, "Announce Toggling of " + name + "?");
+                .settingDescriptions()
+                .put(setting, "Announce Toggling of " + name + "?");
         }
     }
 

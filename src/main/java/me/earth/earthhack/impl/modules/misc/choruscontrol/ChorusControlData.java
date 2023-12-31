@@ -22,7 +22,7 @@ public class ChorusControlData extends DefaultData<ChorusControl> {
         register(module.autoOffDelay, "The delay after which ChorusControl will" +
                 " be disabled. Leave at 0 to disable.");
     }
-    @Override
+
     public String getDescription(){
         return "Allows for ignoring or postponing the Chorus Fruit teleport. " +
                 "In development!!!!";

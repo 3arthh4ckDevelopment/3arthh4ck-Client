@@ -3,9 +3,12 @@ package me.earth.earthhack.impl.modules.player.pearlphase;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
+import me.earth.earthhack.api.setting.settings.EnumSetting;
+import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.util.client.ModuleUtil;
 import me.earth.earthhack.impl.util.client.SimpleData;
 import me.earth.earthhack.impl.util.helpers.disabling.DisablingModule;
+import me.earth.earthhack.impl.util.minecraft.CooldownBypass;
 import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
 import me.earth.earthhack.impl.util.text.TextColor;
 import me.earth.earthhack.impl.util.thread.Locks;
@@ -23,10 +26,12 @@ import net.minecraft.util.math.BlockPos;
 public class PearlPhase extends DisablingModule
 {
 
-
-    protected final Setting<Boolean> bypass =
-            register(new BooleanSetting("Bypass", true));
-
+    protected final Setting<CooldownBypass> cooldownBypass =
+            register(new EnumSetting<>("CoolDownBypass", CooldownBypass.None));
+    protected final Setting<Boolean> obby =
+            register(new BooleanSetting("Obsidian", false));
+    protected final Setting<Integer> pitch =
+            register(new NumberSetting<>("Pitch", 80, -90, 90));
 
 
     public PearlPhase()
@@ -43,15 +48,15 @@ public class PearlPhase extends DisablingModule
         super.onEnable();
         if (mc.player == null || mc.world == null)
         {
-            this.toggle();
+            toggle();
             return;
         }
 
-        int slot = InventoryUtil.findHotbarItem(Items.ENDER_PEARL);
-        int slot2 = InventoryUtil.findHotbarBlock(Blocks.OBSIDIAN);
+        int pearlSlot = InventoryUtil.findHotbarItem(Items.ENDER_PEARL);
+        int obbySlot = InventoryUtil.findHotbarBlock(Blocks.OBSIDIAN);
 
-        if (slot != -1)  {
-            if (slot2 == -1 && bypass.getValue()) {
+        if (pearlSlot != -1)  {
+            if (obbySlot == -1 && obby.getValue()) {
                 ModuleUtil.disable(this, TextColor.RED + "Disabled, no Obsidian.");
             } else {
                 Locks.acquire(Locks.PLACE_SWITCH_LOCK, () ->
@@ -59,12 +64,12 @@ public class PearlPhase extends DisablingModule
                     int lastSlot = mc.player.inventory.currentItem;
 
                     float aimYaw = mc.player.rotationYaw;
-                    float aimPitch = 80;
+                    float aimPitch = pitch.getValue();
 
 
 
-                    if (bypass.getValue()) {
-                        InventoryUtil.switchTo(slot2);
+                    if (obby.getValue()) {
+                        cooldownBypass.getValue().switchTo(obbySlot);
 
 
                         int x = (int) Math.floor(mc.player.posX);
@@ -74,25 +79,24 @@ public class PearlPhase extends DisablingModule
                                 x, -1, z));
 
 
-                        InventoryUtil.switchTo(lastSlot);
+                        cooldownBypass.getValue().switchTo(lastSlot);
                     }
 
-                    InventoryUtil.switchTo(slot);
+                    cooldownBypass.getValue().switchTo(pearlSlot);
                     // rotate
                     mc.player.connection.sendPacket(new CPacketPlayer.Rotation(aimYaw, aimPitch, mc.player.onGround));
 
-                    mc.playerController.processRightClick(
-                            mc.player, mc.world, InventoryUtil.getHand(slot));
+                    mc.playerController.processRightClick(mc.player, mc.world, InventoryUtil.getHand(pearlSlot));
 
-                    InventoryUtil.switchTo(lastSlot);
-                    this.toggle();
+                    cooldownBypass.getValue().switchTo(lastSlot);
+                    toggle();
                 });
             }
 
         } else {
 
-            if (slot == -1) {
-                if (slot2 == -1 && bypass.getValue()) {
+            if (pearlSlot == -1) {
+                if (obbySlot == -1 && obby.getValue()) {
                     ModuleUtil.disable(this, TextColor.RED + "Disabled, no Obsidian and Ender Pearl.");
                 } else {
                     ModuleUtil.disable(this, TextColor.RED + "Disabled, no Ender Pearl.");

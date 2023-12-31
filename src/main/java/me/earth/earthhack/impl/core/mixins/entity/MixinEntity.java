@@ -149,6 +149,8 @@ public abstract class MixinEntity implements IEntity, Globals
     @Shadow
     public abstract String getName();
 
+    @Shadow public abstract int getEntityId();
+
     @Override
     @Accessor(value = "isInWeb")
     public abstract boolean inWeb();

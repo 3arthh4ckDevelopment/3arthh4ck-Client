@@ -7,7 +7,6 @@ import me.earth.earthhack.impl.Earthhack;
 import me.earth.earthhack.impl.core.Core;
 import me.earth.earthhack.impl.managers.client.exception.BadPluginException;
 import me.earth.earthhack.impl.util.misc.ReflectionUtil;
-import me.earth.earthhack.vanilla.Environment;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -26,7 +25,7 @@ import java.util.jar.Manifest;
 public class PluginManager
 {
     private static final PluginManager INSTANCE = new PluginManager();
-    private static final String PATH = "earthhack/plugins";
+    private static final String EARTH_PATH = "earthhack/plugins";
 
     private final Map<PluginConfig, Plugin> plugins = new HashMap<>();
     private final Map<String, PluginConfig> configs = new HashMap<>();
@@ -45,10 +44,10 @@ public class PluginManager
     /**
      * Used by {@link Core#init(ClassLoader)}.
      *
-     * Scans the "earthhack/plugins" directory for Plugins.
+     * Scans the "earthhack/plugins" folder for Plugins.
      * If it can find jarFiles whose Manifest contain a
      * "3arthh4ckConfig" the jar will be added to the classPath
-     * and a {@link PluginConfig} will be created. If we the PluginConfig
+     * and a {@link PluginConfig} will be created. If the PluginConfig
      * contains a "mixinConfig" entry that MixinConfig will be added by
      * the CoreMod.
      *
@@ -66,7 +65,7 @@ public class PluginManager
         this.classLoader = pluginClassLoader;
         Core.LOGGER.info("PluginManager: Scanning for PluginConfigs.");
 
-        File d = new File(PATH);
+        File d = new File(EARTH_PATH);
         Map<String, File> remap = scanPlugins(d.listFiles(), pluginClassLoader);
         remap.keySet().removeAll(configs.keySet());
 
@@ -96,7 +95,7 @@ public class PluginManager
                             + file.getName());
                     try
                     {
-                        scanJarFile(file, pluginClassLoader, remap);
+                        scanJarFile(file, pluginClassLoader);
                     }
                     catch (Exception e)
                     {
@@ -153,8 +152,7 @@ public class PluginManager
     }
 
     private void scanJarFile(File file,
-                             ClassLoader pluginClassLoader,
-                             Map<String, File> remap)
+                             ClassLoader pluginClassLoader)
             throws Exception
     {
         try (JarFile jarFile = new JarFile(file)) {
@@ -164,28 +162,7 @@ public class PluginManager
             String configName = attributes.getValue("3arthh4ckConfig");
 
             if (configName == null) {
-                throw new BadPluginException(jarFile.getName()
-                        + ": Manifest doesn't provide a 3arthh4ckConfig!");
-            }
-
-            String vanilla = attributes.getValue("3arthh4ckVanilla");
-            switch (Environment.getEnvironment()) {
-                case VANILLA:
-                    if (vanilla == null || vanilla.equals("false")) {
-                        Core.LOGGER.info("Found Plugin to remap!");
-                        remap.put(configName, file);
-                        return;
-                    }
-
-                    break;
-                case SEARGE:
-                case MCP:
-                    if (vanilla != null && vanilla.equals("true")) {
-                        return;
-                    }
-
-                    break;
-                default:
+                throw new BadPluginException(jarFile.getName() + ": Manifest doesn't provide a 3arthh4ckConfig!");
             }
 
             // ._.
@@ -214,7 +191,7 @@ public class PluginManager
     }
 
     /**
-     * @return a set of all found PluginConfigs.
+     * @return a map of all found PluginConfigs.
      */
     public Map<String, PluginConfig> getConfigs()
     {

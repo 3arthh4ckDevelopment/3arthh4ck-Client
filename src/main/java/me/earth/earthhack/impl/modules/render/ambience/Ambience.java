@@ -8,8 +8,8 @@ import me.earth.earthhack.api.setting.settings.ColorSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.core.ducks.entity.IEntityRenderer;
 import me.earth.earthhack.impl.util.render.WorldRenderUtil;
-import me.earth.earthhack.vanilla.Environment;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.awt.*;
@@ -24,8 +24,8 @@ public class Ambience extends Module
             register(new BooleanSetting("UseSaturation", false));
     protected final Setting<Float> saturation =
             register(new NumberSetting<>("Saturation", 0.5f, 0.0f, 1.0f));
-    protected final Setting<Boolean> fogModulation =
-            register(new BooleanSetting("Fog", false));
+    protected final Setting<Boolean> customFogColor =
+            register(new BooleanSetting("CustomFogColor", false));
     protected final Setting<Float> fogDensity =
             register(new NumberSetting<>("FogDensity", 0.6f, 0.0f, 1.0f));
     protected final Setting<Color> fogColor =
@@ -37,24 +37,21 @@ public class Ambience extends Module
         super("Ambience", Category.Render);
         this.setData(new AmbienceData(this));
         this.color.addObserver(setting -> loadRenderers());
-        if (Environment.hasForge())
+        try
         {
-            try
-            {
-                Field field = Class
-                        .forName("net.minecraftforge.common.ForgeModContainer",
-                                true, this.getClass().getClassLoader())
-                        .getDeclaredField("forgeLightPipelineEnabled");
+            Field field = Class
+                    .forName(ForgeModContainer.class.getName(),
+                            true, this.getClass().getClassLoader())
+                    .getDeclaredField("forgeLightPipelineEnabled");
 
-                boolean accessible = field.isAccessible();
-                field.setAccessible(true);
-                this.lightPipeLine = field.getBoolean(null);
-                field.setAccessible(accessible);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+            boolean accessible = field.isAccessible();
+            field.setAccessible(true);
+            this.lightPipeLine = field.getBoolean(null);
+            field.setAccessible(accessible);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -76,25 +73,22 @@ public class Ambience extends Module
     @Override
     protected void onEnable()
     {
-        if (Environment.hasForge())
+        try
         {
-            try
-            {
-                Field field = Class
-                        .forName("net.minecraftforge.common.ForgeModContainer",
-                                true, this.getClass().getClassLoader())
-                        .getDeclaredField("forgeLightPipelineEnabled");
+            Field field = Class
+                    .forName(ForgeModContainer.class.getName(),
+                            true, this.getClass().getClassLoader())
+                    .getDeclaredField("forgeLightPipelineEnabled");
 
-                boolean accessible = field.isAccessible();
-                field.setAccessible(true);
-                this.lightPipeLine = field.getBoolean(null);
-                field.set(null, false);
-                field.setAccessible(accessible);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+            boolean accessible = field.isAccessible();
+            field.setAccessible(true);
+            this.lightPipeLine = field.getBoolean(null);
+            field.set(null, false);
+            field.setAccessible(accessible);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
 
         loadRenderers();
@@ -104,24 +98,21 @@ public class Ambience extends Module
     @Override
     public void onDisable()
     {
-        if (Environment.hasForge())
+        try
         {
-            try
-            {
-                Field field = Class
-                        .forName("net.minecraftforge.common.ForgeModContainer",
-                                true, this.getClass().getClassLoader())
-                        .getDeclaredField("forgeLightPipelineEnabled");
+            Field field = Class
+                    .forName(ForgeModContainer.class.getName(),
+                            true, this.getClass().getClassLoader())
+                    .getDeclaredField("forgeLightPipelineEnabled");
 
-                boolean accessible = field.isAccessible();
-                field.setAccessible(true);
-                field.set(null, this.lightPipeLine);
-                field.setAccessible(accessible);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+            boolean accessible = field.isAccessible();
+            field.setAccessible(true);
+            field.set(null, this.lightPipeLine);
+            field.setAccessible(accessible);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
 
         loadRenderers();
@@ -129,7 +120,7 @@ public class Ambience extends Module
         // refactor world-altering stuff from Management to here, as i feel they belong here more than Management :^)
     @SubscribeEvent
     public void fogModulatorColor(EntityViewRenderEvent.FogColors e){
-        if(fogModulation.getValue()){
+        if(customFogColor.getValue()){
             e.setRed(fogColor.getValue().getRed());
             e.setGreen(fogColor.getValue().getGreen());
             e.setBlue(fogColor.getValue().getBlue());
@@ -138,14 +129,14 @@ public class Ambience extends Module
 
     @SubscribeEvent
     public void fogDensity(EntityViewRenderEvent.FogDensity e){
-        if(fogModulation.getValue()){
+        if(customFogColor.getValue()){
             e.setDensity(fogDensity.getValue());
         }
     }
 
     public boolean isUsingCustomFogColor()
     {
-        return fogModulation.getValue();
+        return customFogColor.getValue();
     }
 
     public Color getCustomFogColor()

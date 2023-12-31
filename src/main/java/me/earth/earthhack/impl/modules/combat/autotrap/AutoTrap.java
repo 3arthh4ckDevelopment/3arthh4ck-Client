@@ -1,5 +1,6 @@
 package me.earth.earthhack.impl.modules.combat.autotrap;
 
+import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.event.events.Stage;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
@@ -9,9 +10,13 @@ import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.events.network.PacketEvent;
 import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.combat.autotrap.modes.TrapTarget;
 import me.earth.earthhack.impl.modules.combat.autotrap.util.Trap;
+import me.earth.earthhack.impl.modules.render.logoutspots.LogoutSpots;
+import me.earth.earthhack.impl.modules.render.logoutspots.util.LogoutSpot;
 import me.earth.earthhack.impl.util.helpers.blocks.ObbyListenerModule;
+import me.earth.earthhack.impl.util.helpers.blocks.modes.RayTraceMode;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.Rotate;
 import me.earth.earthhack.impl.util.helpers.blocks.util.TargetResult;
 import me.earth.earthhack.impl.util.math.MathUtil;
@@ -92,7 +97,8 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
     public final Map<BlockPos, Long> blackList = new ConcurrentHashMap<>();
     /** The current target */
     public EntityPlayer target;
-
+    private final ModuleCache<LogoutSpots> LOG_OUT_SPOTS
+            = Caches.getModule(LogoutSpots.class);
     public AutoTrap()
     {
         super("AutoTrap", Category.Combat);
@@ -205,6 +211,14 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
             }
         }
 
+        if(logOutSpot.getValue() && LOG_OUT_SPOTS.isEnabled()){
+            for(LogoutSpot spot : LOG_OUT_SPOTS.get().getSpots().values()){
+                if(spot.getDistance() <= range.getValue() && isValid(spot))
+                    if(closest == null)
+                        return spot.getModel().getPlayer();
+            }
+        }
+
         return closest;
     }
 
@@ -243,6 +257,41 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
             }
         }
 
+        return false;
+    }
+
+    /**
+     * Checks if a given LogoutSpot is valid,
+     * that means not null, not dead, not the local player,
+     * not friended, in range, moving slower than the Speed setting
+     * and (if Targeting is set to Untrapped) not trapped already.
+     * @param spot spot to check.
+     * @return if the spot is valid and trappable.
+     */
+    public boolean isValid(LogoutSpot spot)
+    {
+        EntityPlayer player = spot.getModel().getPlayer();
+
+        if(player != null
+                && !player.equals(mc.player)
+                && !Managers.FRIENDS.contains(player))
+        {
+            if (player.getDistanceSq(mc.player) <= 36
+                    && getSpeed(player) <= speed.getValue())
+            {
+                if (targetMode.getValue() == TrapTarget.Untrapped)
+                {
+                    List<BlockPos> positions = getPositions(player);
+                    cached.put(player, positions);
+                    return positions.stream()
+                            .anyMatch(pos ->
+                                    mc.world.getBlockState(pos)
+                                            .getMaterial()
+                                            .isReplaceable());
+                }
+                return true;
+            }
+        }
         return false;
     }
 
@@ -550,7 +599,7 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
                     return bestPos;
                 }
 
-                EnumFacing helpingFace = BlockUtil.getFacing(helping, HELPER);
+                EnumFacing helpingFace = BlockUtil.getFacing(helping, HELPER, smartRay.getValue() == RayTraceMode.Direction);
                 byte blockingFactor = helpingEntityCheck(helping);
                 if (helpingFace == null)
                 {

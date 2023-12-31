@@ -29,7 +29,10 @@ public class NumberComponent extends SettingComponent<Number, NumberSetting<Numb
         final boolean hovered = RenderUtil.mouseWithinBounds(mouseX, mouseY, getFinishedX(), getFinishedY(), getWidth(), getHeight());
         Managers.TEXT.drawStringWithShadow(getLabel() + ": " + ChatFormatting.GRAY + getNumberSetting().getValue(), getFinishedX() + 5, getFinishedY() + getHeight() / 2 - (Managers.TEXT.getStringHeightI() >> 1), 0xFFFFFFFF);
         float length = MathHelper.floor(((getNumberSetting().getValue()).floatValue() - getNumberSetting().getMin().floatValue()) / (getNumberSetting().getMax().floatValue() - getNumberSetting().getMin().floatValue()) * (getWidth() - 10));
-        Render2DUtil.drawBorderedRect(getFinishedX() + 5, getFinishedY() + getHeight() - 2.5f, getFinishedX() + 5 + length, getFinishedY() + getHeight() - 0.5f, 0.5f, hovered ? getColor().get().getSettingColor().brighter().getRGB() : getColor().get().getSettingColor().getRGB(), 0xff000000);
+        if (getClickGui().get().getBoxes())
+            Render2DUtil.drawBorderedRect(getFinishedX() + 5, getFinishedY() + getHeight() - 2.5f, getFinishedX() + 5 + length, getFinishedY() + getHeight() - 0.5f, 0.5f, hovered ? getClickGui().get().getSettingColor().brighter().getRGB() : getClickGui().get().getSettingColor().getRGB(), 0xff000000);
+        else
+            Render2DUtil.drawRect(getFinishedX() + 5, getFinishedY() + getHeight() - 2.3f, getFinishedX() + 5 + length, getFinishedY() + getHeight() - 0.3f, 0xffffffff);
         if (sliding) {
             double val = ((mouseX - (getFinishedX() + 5)) * (getNumberSetting().getMax().doubleValue() - getNumberSetting().getMin().doubleValue()) / (getWidth() - 10) + getNumberSetting().getMin().doubleValue());
             getNumberSetting().setValue(getNumberSetting().numberToValue(MathUtil.round(val, 2)));

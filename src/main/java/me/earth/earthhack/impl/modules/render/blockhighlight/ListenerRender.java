@@ -6,7 +6,6 @@ import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.player.speedmine.Speedmine;
 import me.earth.earthhack.impl.util.render.Interpolation;
-import me.earth.earthhack.impl.util.render.mutables.BBRender;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.AxisAlignedBB;

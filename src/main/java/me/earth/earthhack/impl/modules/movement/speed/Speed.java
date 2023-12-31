@@ -69,6 +69,8 @@ public class Speed extends Module
             register(new BooleanSetting("Slowness", false));
     protected final Setting<Boolean> noWaterInstant =
             register(new BooleanSetting("NoLiquidInstant", false));
+    protected final Setting<Boolean> noCollisionInstant =
+            register(new BooleanSetting("NoCollisionInstant", false));
     protected final Setting<Boolean> modify =
         register(new BooleanSetting("Modify", false));
     protected final Setting<Double> xzFactor    =

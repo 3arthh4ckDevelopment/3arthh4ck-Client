@@ -55,7 +55,7 @@ public abstract class Module extends SettingContainer
             register(new BooleanSetting("Visible", true))
                     .setVisibility(false);
 
-    private final Category category;
+    private Category category;
     private ModuleData<?> data;
     public boolean searchVisibility = visibility.getValue();
 
@@ -116,12 +116,18 @@ public abstract class Module extends SettingContainer
         return name.getValue();
     }
 
+    /**
+     * Set the display name for the module
+     */
     @Override
     public void setDisplayName(String name)
     {
         this.name.setValue(name);
     }
 
+    /**
+     * Change the module state (enabled/disabled)
+     */
     public final void toggle() {
         if (isEnabled())
             disable();
@@ -169,6 +175,11 @@ public abstract class Module extends SettingContainer
     public Category getCategory()
     {
         return category;
+    }
+
+    public void setCategory(Category category)
+    {
+        this.category = category;
     }
 
     /**

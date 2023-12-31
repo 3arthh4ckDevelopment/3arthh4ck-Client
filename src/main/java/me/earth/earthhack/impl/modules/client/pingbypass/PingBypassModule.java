@@ -136,6 +136,11 @@ public class PingBypassModule extends Module
             return;
         }
 
+        if (mc.isSingleplayer()) {
+            ChatUtil.sendMessage(TextColor.RED + "Cannot enable PingBypass on a SinglePlayer server!");
+            return;
+        }
+
         if (shouldDisconnect) {
             ServerUtil.disconnectFromMC("PingBypass enabled.");
         }
@@ -148,6 +153,9 @@ public class PingBypassModule extends Module
     @Override
     protected void onDisable()
     {
+        if (mc.isSingleplayer()) {
+            return;
+        }
         Managers.FRIENDS.removeObserver(friendSerializer.getObserver());
         ServerUtil.disconnectFromMC("PingBypass disabled.");
         serializer.clear();

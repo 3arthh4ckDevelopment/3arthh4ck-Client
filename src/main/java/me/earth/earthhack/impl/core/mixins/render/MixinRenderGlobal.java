@@ -2,7 +2,6 @@ package me.earth.earthhack.impl.core.mixins.render;
 
 import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.event.bus.instance.Bus;
-import me.earth.earthhack.impl.core.ducks.render.IRenderGlobal;
 import me.earth.earthhack.impl.event.events.render.RenderEntityInWorldEvent;
 import me.earth.earthhack.impl.event.events.render.RenderSkyEvent;
 import me.earth.earthhack.impl.modules.Caches;

@@ -30,12 +30,14 @@ public class HoleUtil implements Globals
         new Vec3i(1, 0, 1)
     };
 
-    /** Blocks that are blast resistant. Not all of them ofc. */
+    /** Blocks that are blast resistant. Not all of them!! */
     public static final Set<Block> NO_BLAST = Sets.newHashSet(
         Blocks.BEDROCK,
         Blocks.OBSIDIAN,
         Blocks.ANVIL,
-        Blocks.ENDER_CHEST
+        Blocks.ENDER_CHEST,
+        Blocks.COMMAND_BLOCK,
+        Blocks.END_PORTAL_FRAME
     );
 
     public static final Set<Block> UNSAFE = Sets.newHashSet(

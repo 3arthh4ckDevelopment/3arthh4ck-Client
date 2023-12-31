@@ -13,11 +13,11 @@ import me.earth.earthhack.impl.gui.click.frame.Frame;
 import me.earth.earthhack.impl.gui.click.frame.impl.CategoryFrame;
 import me.earth.earthhack.impl.gui.click.frame.impl.DescriptionFrame;
 import me.earth.earthhack.impl.gui.click.frame.impl.ModulesFrame;
+import me.earth.earthhack.impl.gui.click.frame.impl.SearchFrame;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.managers.client.ModuleManager;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.client.clickgui.ClickGui;
-import me.earth.earthhack.impl.modules.client.colors.Colors;
 import me.earth.earthhack.impl.modules.client.commands.Commands;
 import me.earth.earthhack.impl.util.render.Render2DUtil;
 import me.earth.earthhack.pingbypass.modules.SyncModule;
@@ -38,7 +38,6 @@ import java.util.ArrayList;
 
 public class Click extends GuiScreen {
     public static final ModuleCache<ClickGui> CLICK_GUI = Caches.getModule(ClickGui.class);
-    public static final ModuleCache<Colors> COLOR_MODULE = Caches.getModule(Colors.class);
 
     private static final SettingCache<Boolean, BooleanSetting, Commands> BACK =
             Caches.getSetting(Commands.class, BooleanSetting.class, "BackgroundGui", false);
@@ -77,17 +76,16 @@ public class Click extends GuiScreen {
         int x = CLICK_GUI.get().catEars.getValue() ? 14 : 2;
         int y = CLICK_GUI.get().catEars.getValue() ? 14 : 2;
         for (Category moduleCategory : categories) {
-            if (moduleManager.getModulesFromCategory(moduleCategory).size() > 0) {
-                getFrames().add(new CategoryFrame(moduleCategory, moduleManager, x, y, 110, 16));
-                if (x + 220 >= new ScaledResolution(Minecraft.getMinecraft()).getScaledWidth()) {
-                    x = CLICK_GUI.get().catEars.getValue() ? 14 * Math.round(CLICK_GUI.get().guiScale.getValue()) : 2;
-                    y += CLICK_GUI.get().catEars.getValue() ? 32 * CLICK_GUI.get().guiScale.getValue() : 20;
-                } else x += (CLICK_GUI.get().catEars.getValue() ? 132 * CLICK_GUI.get().guiScale.getValue() : 112);
-            }
+            getFrames().add(new CategoryFrame(moduleCategory, moduleManager, x, y, 110, 16));
+            if (x + 220 >= new ScaledResolution(Minecraft.getMinecraft()).getScaledWidth()) {
+                x = CLICK_GUI.get().catEars.getValue() ? 14 * Math.round(CLICK_GUI.get().guiScale.getValue()) : 2;
+                y += CLICK_GUI.get().catEars.getValue() ? 32 * CLICK_GUI.get().guiScale.getValue() : 20;
+            } else
+                x += (CLICK_GUI.get().catEars.getValue() ? 132 * CLICK_GUI.get().guiScale.getValue() : 112);
         }
 
         if (addDescriptionFrame) {
-            descriptionFrame = new DescriptionFrame(x, y, CLICK_GUI.get().descriptionWidth.getValue(), 16);
+            descriptionFrame = new DescriptionFrame(CLICK_GUI.get().descPosX.getValue(), CLICK_GUI.get().descPosY.getValue(), CLICK_GUI.get().descriptionWidth.getValue(), 16);
             getFrames().add(descriptionFrame);
         }
 
@@ -101,10 +99,14 @@ public class Click extends GuiScreen {
             getFrames().add(pbFrame);
         }
 
+        if (CLICK_GUI.get().search.getValue() != ClickGui.SearchStyle.None) {
+            SearchFrame searchFrame = new SearchFrame();
+            getFrames().add(searchFrame);
+            searchFrame.clearInput();
+        }
+
         getFrames().forEach(Frame::init);
         oldVal = CLICK_GUI.get().catEars.getValue();
-        GL11.glScalef(x * CLICK_GUI.get().guiScale.getValue(), y * CLICK_GUI.get().guiScale.getValue(), 0 * CLICK_GUI.get().guiScale.getValue());
-        GL11.glPushMatrix();
     }
 
     @Override
@@ -137,7 +139,6 @@ public class Click extends GuiScreen {
                 bufferbuilder.pos(this.width, this.height, 0.0D).tex((float)this.width / 32.0F, (float)this.height / 32.0F + (float)0).color(64, 64, 64, 255).endVertex();
                 bufferbuilder.pos(this.width, 0.0D, 0.0D).tex((float)this.width / 32.0F, 0).color(64, 64, 64, 255).endVertex();
                 bufferbuilder.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0).color(64, 64, 64, 255).endVertex();
-                GL11.glScalef(this.width * CLICK_GUI.get().guiScale.getValue(), this.height * CLICK_GUI.get().guiScale.getValue(), 0.0f * CLICK_GUI.get().guiScale.getValue());
                 GL11.glPushMatrix();
                 tessellator.draw();
             }
@@ -148,12 +149,12 @@ public class Click extends GuiScreen {
             oldVal = CLICK_GUI.get().catEars.getValue();
         }
 
-        if (CLICK_GUI.get().blur.getValue()) {
+        if (CLICK_GUI.get().blur.getValue() == ClickGui.BlurStyle.Directional) {
             final ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
-            Render2DUtil.drawBlurryRect(0, 0, scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight(), CLICK_GUI.get().blurAmount.getValue(),CLICK_GUI.get().blurSize.getValue());
+            Render2DUtil.drawBlurryRect(0, 0, scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight(), CLICK_GUI.get().blurAmount.getValue(), CLICK_GUI.get().blurSize.getValue());
         }
 
-        getFrames().forEach(frame -> frame.drawScreen(mouseX,mouseY,partialTicks));
+        getFrames().forEach(frame -> frame.drawScreen(mouseX, mouseY, partialTicks));
     }
 
     @Override

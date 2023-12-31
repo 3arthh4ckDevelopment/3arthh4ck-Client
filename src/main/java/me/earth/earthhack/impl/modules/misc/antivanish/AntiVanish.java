@@ -3,6 +3,7 @@ package me.earth.earthhack.impl.modules.misc.antivanish;
 import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.impl.modules.misc.antivanish.util.VanishedEntry;
+import me.earth.earthhack.impl.util.client.SimpleData;
 import me.earth.earthhack.impl.util.math.StopWatch;
 
 import java.util.Map;
@@ -22,7 +23,7 @@ public class AntiVanish extends Module
     {
         super("AntiVanish", Category.Misc);
         this.listeners.add(new ListenerLatency(this));
-        this.setData(new AntiVanishData(this));
+        this.setData(new SimpleData(this, "Detects players that go into vanish."));
     }
 
     @Override

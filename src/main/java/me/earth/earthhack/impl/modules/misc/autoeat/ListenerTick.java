@@ -1,6 +1,6 @@
 package me.earth.earthhack.impl.modules.misc.autoeat;
 
-import me.earth.earthhack.impl.core.mixins.item.IITemFood;
+import me.earth.earthhack.impl.core.mixins.item.IItemFood;
 import me.earth.earthhack.impl.event.events.misc.TickEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.managers.Managers;
@@ -67,7 +67,7 @@ final class ListenerTick extends ModuleListener<AutoEat, TickEvent>
         }
 
         int slot = findInHotbar(s -> s.getItem() instanceof ItemFood
-                && !hasBadEffect((IITemFood) s.getItem())
+                && !hasBadEffect((IItemFood) s.getItem())
                 && (!(s.getItem() instanceof ItemFishFood
                         && ItemFishFood.FishType.byItemStack(s)
                                 == ItemFishFood.FishType.PUFFERFISH)));
@@ -108,7 +108,7 @@ final class ListenerTick extends ModuleListener<AutoEat, TickEvent>
         return false;
     }
 
-    private boolean hasBadEffect(IITemFood itemFood)
+    private boolean hasBadEffect(IItemFood itemFood)
     {
         PotionEffect effect = itemFood.getPotionId();
         if (effect != null)

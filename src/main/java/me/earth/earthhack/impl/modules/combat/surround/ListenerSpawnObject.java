@@ -112,7 +112,7 @@ final class ListenerSpawnObject extends
                                .isReplaceable())
             {
                 // TODO: smart raytrace here
-                EnumFacing facing = BlockUtil.getFacing(pos, mc.world);
+                EnumFacing facing = BlockUtil.getFacing(pos, mc.world, module.smartRay.getValue().equals(RayTraceMode.Direction));
                 if (facing != null)
                 {
                     toPlace.put(pos.offset(facing), facing.getOpposite());

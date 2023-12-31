@@ -50,23 +50,21 @@ public class RPC extends Module
     {
         super("RPC", Category.Client);
         this.setData(new RPCData(this));
-        String os = System.getProperty("os.version").toLowerCase();
-        if (os.contains("android") || os.contains("ios"))
-            return;
 
-        DiscordPresence presence = new DiscordPresence(this);
-        this.listeners.add(new LambdaListener<>(ShutDownEvent.class, e -> presence.stop()));
+        if (!osCheck()) {
+            DiscordPresence presence = new DiscordPresence(this);
+            this.listeners.add(new LambdaListener<>(ShutDownEvent.class, e -> presence.stop()));
+        }
     }
 
     @Override
     protected void onEnable()
     {
-        String os = System.getProperty("os.version").toLowerCase();
-        if (os.contains("android") || os.contains("ios"))
-            this.disable();
-        else {
+        if (!osCheck()) {
             DiscordPresence presence = new DiscordPresence(this);
             presence.start();
+        } else {
+            this.disable();
         }
     }
 
@@ -75,5 +73,10 @@ public class RPC extends Module
     {
         DiscordPresence presence = new DiscordPresence(this);
         presence.stop();
+    }
+
+    private boolean osCheck() {
+        String os = System.getProperty("os.version").toLowerCase();
+        return os.contains("android") || os.contains("ios");
     }
 }

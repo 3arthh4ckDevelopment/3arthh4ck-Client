@@ -2,7 +2,7 @@ package me.earth.earthhack.impl.core;
 
 import me.earth.earthhack.api.event.bus.instance.Bus;
 import me.earth.earthhack.api.plugin.PluginConfig;
-import me.earth.earthhack.impl.core.transfomer.EarthhackTransformer;
+import me.earth.earthhack.impl.core.transformer.EarthhackTransformer;
 import me.earth.earthhack.impl.managers.client.PluginManager;
 import me.earth.earthhack.impl.managers.thread.scheduler.Scheduler;
 import me.earth.earthhack.impl.util.misc.FileUtil;
@@ -41,7 +41,6 @@ public class Core implements TweakerCore
     @Override
     public void init(ClassLoader pluginClassLoader)
     {
-        LOGGER.info("Initializing 3arthh4cks Core.");
         LOGGER.info("Found Environment: " + Environment.getEnvironment());
         Bus.EVENT_BUS.subscribe(Scheduler.getInstance());
 
@@ -61,19 +60,8 @@ public class Core implements TweakerCore
                         .setSide(MixinEnvironment.Side.CLIENT);
         MixinEnvironment.getEnvironment(MixinEnvironment.Phase.DEFAULT)
                         .setSide(MixinEnvironment.Side.CLIENT);
-        String extraMixin;
-        if (Environment.hasForge())
-        {
-            LOGGER.info("Forge detected!");
-            extraMixin = "mixins.forge.json";
-        }
-        else
-        {
-            LOGGER.info("No Forge!");
-            extraMixin = "mixins.vanilla.json";
-        }
 
-        Mixins.addConfiguration(extraMixin);
+        Mixins.addConfiguration("mixins.forge.json");
 
         for (PluginConfig config : PluginManager.getInstance()
                                                 .getConfigs()
@@ -113,10 +101,6 @@ public class Core implements TweakerCore
 
         Mixins.addConfiguration("mixins.earth.json");
         String obfuscationContext = "searge";
-        if (Environment.getEnvironment() == Environment.VANILLA)
-        {
-            obfuscationContext = "notch";
-        }
 
         MixinEnvironment.getDefaultEnvironment()
                         .setObfuscationContext(obfuscationContext);

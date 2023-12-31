@@ -5,7 +5,6 @@ import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.util.math.MathUtil;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.init.Blocks;
-import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.network.play.server.SPacketMultiBlockChange;
 
 import java.util.Arrays;

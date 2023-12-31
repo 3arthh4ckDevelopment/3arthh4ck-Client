@@ -13,29 +13,29 @@ import java.util.Set;
 //TODO: NoRender Spectators
 public class NoRender extends Module
 {
-    protected final Setting<Boolean> fire         =
+    protected final Setting<Boolean> fire =
             register(new BooleanSetting("Fire", true));
-    protected final Setting<Boolean> entityFire         =
+    protected final Setting<Boolean> entityFire =
             register(new BooleanSetting("EntityFire", true));
-    protected final Setting<Boolean> portal       =
+    protected final Setting<Boolean> portal =
             register(new BooleanSetting("Portal", true));
-    protected final Setting<Boolean> pumpkin      =
+    protected final Setting<Boolean> pumpkin =
             register(new BooleanSetting("Pumpkin", true));
-    protected final Setting<Boolean> totemPops    =
+    protected final Setting<Boolean> totemPops =
             register(new BooleanSetting("TotemPop", true));
-    protected final Setting<Boolean> nausea       =
+    protected final Setting<Boolean> nausea =
             register(new BooleanSetting("Nausea", true));
-    protected final Setting<Boolean> hurtCam      =
+    protected final Setting<Boolean> hurtCam =
             register(new BooleanSetting("HurtCam", true));
     protected final Setting<Boolean> noWeather =
             register(new BooleanSetting("Weather", true));
-    protected final Setting<Boolean> barriers     =
+    protected final Setting<Boolean> barriers =
             register(new BooleanSetting("Barriers", false));
-    protected final Setting<Boolean> skyLight     =
+    protected final Setting<Boolean> skyLight =
             register(new BooleanSetting("SkyLight", true));
-    protected final Setting<Boolean> noFog        =
+    protected final Setting<Boolean> noFog =
             register(new BooleanSetting("NoFog", true));
-    protected final Setting<Boolean> blocks       =
+    protected final Setting<Boolean> blocks =
             register(new BooleanSetting("Blocks", true));
     protected final Setting<Boolean> advancements =
             register(new BooleanSetting("Advancements", false));
@@ -43,14 +43,16 @@ public class NoRender extends Module
             register(new BooleanSetting("CritParticles", false));
     protected final Setting<Boolean> eatingParticles =
             register(new BooleanSetting("EatingParticles", false));
-    protected final Setting<Boolean> dynamicFov    =
+    protected final Setting<Boolean> dynamicFov =
             register(new BooleanSetting("DynamicFov", true));
-    public final Setting<Boolean> boss         =
+    public final Setting<Boolean> boss =
             register(new BooleanSetting("BossHealth", true));
-    public final Setting<Boolean> explosions         =
+    public final Setting<Boolean> explosions =
             register(new BooleanSetting("Explosions", true));
-    public final Setting<Boolean> potion         =
-            register(new BooleanSetting("Potions", true));
+    public final Setting<Boolean> potion =
+            register(new BooleanSetting("PotionsParticles", true));
+    public final Setting<Boolean> potionSymbols =
+            register(new BooleanSetting("PotionSymbols", false));
     public final Setting<Boolean> defaultBackGround  =
             register(new BooleanSetting("DefaultGuiBackGround", false));
     protected final Setting<Boolean> items =

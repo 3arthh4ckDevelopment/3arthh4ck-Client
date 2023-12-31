@@ -10,6 +10,9 @@ public class NoInteract extends BlockAddingModule
 {
     protected final Setting<Boolean> sneak =
             register(new BooleanSetting("Sneak", true));
+    protected final Setting<Boolean> tileOnly =
+            register(new BooleanSetting("OnlyTileEntities", true));
+
 
     public NoInteract()
     {
