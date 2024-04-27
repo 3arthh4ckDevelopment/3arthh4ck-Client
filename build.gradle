@@ -115,7 +115,7 @@ shadowJar {
     dependencies {
         include(dependency('org.spongepowered:mixin'))
         include(dependency('club.minnced:java-discord-rpc:2.0.2'))
-        include(dependency('club.minnced:discord-rpc-release:v3.4.0'))
+        include(dependency('club.minnced:discord-rpc-release:v3.3.0'))
     }
     exclude 'dummyThing'
     exclude '**/*module-info.class'
