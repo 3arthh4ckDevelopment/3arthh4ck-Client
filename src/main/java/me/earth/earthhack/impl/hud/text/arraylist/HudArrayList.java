@@ -9,11 +9,8 @@ import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.gui.hud.DynamicHudElement;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.util.client.SimpleHudData;
 import me.earth.earthhack.impl.util.render.hud.HudRenderUtil;
-import me.earth.earthhack.impl.util.text.TextColor;
 import me.earth.earthhack.pingbypass.modules.PbModule;
-import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,18 +23,22 @@ public class HudArrayList extends DynamicHudElement {
             register(new NumberSetting<>("Offset", 2, 0, 10));
     private final Setting<Boolean> animations =
             register(new BooleanSetting("Animations", false));
-    private final Setting<Boolean> customBrackets =
-            register(new BooleanSetting("CustomBrackets", true));
 
-    protected final Map<Module, HudArrayEntry> arrayEntries = new HashMap<>();
-    protected static final Map<Module, HudArrayEntry> removeEntries = new HashMap<>();
-    protected final List<Map.Entry<String, Module>> modules = new java.util.ArrayList<>();
-    protected Map<Module, HudArrayEntry> arrayEntriesSorted;
+    protected final List<Map.Entry<String, Module>> modules = new ArrayList<>();
+    private final Map<Module, HudArrayEntry> arrayEntries = new HashMap<>();
+    private static final Map<Module, HudArrayEntry> removeEntries = new HashMap<>();
 
-    private void render() {
-        GL11.glPushMatrix();
-        float xPos = getX() + simpleCalcH(getWidth());
-        float yPos = (directionV() == TextDirectionV.BottomToTop ? getY() - Managers.TEXT.getStringHeight() * 4 : getY());
+    private Map<Module, HudArrayEntry> getArrayEntries() {
+        return arrayEntries;
+    }
+
+    protected static Map<Module, HudArrayEntry> getRemoveEntries() {
+        return removeEntries;
+    }
+
+    protected void onRender() {
+        float xPos = getX() + simpleCalcX(getWidth());
+        float yPos = (directionY() == TextDirectionY.BottomToTop ? getY() - Managers.TEXT.getStringHeight() * 4 : getY());
         float moduleOffset = Managers.TEXT.getStringHeightI() + textOffset.getValue();
         if (animations.getValue()) {
             for (Map.Entry<String, Module> module : modules) {
@@ -54,6 +55,7 @@ public class HudArrayList extends DynamicHudElement {
                 }
             }
 
+            Map<Module, HudArrayEntry> arrayEntriesSorted;
             if (moduleRender.getValue() == Modules.Length) {
                 arrayEntriesSorted = getArrayEntries().entrySet().stream().sorted(Comparator.comparingDouble(entry -> Managers.TEXT.getStringWidth(getHudName(entry.getKey())) * -1)).collect(Collectors.toMap(
                         Map.Entry::getKey,
@@ -74,50 +76,21 @@ public class HudArrayList extends DynamicHudElement {
             getRemoveEntries().forEach((key, value) -> getArrayEntries().remove(key));
             getRemoveEntries().clear();
         } else {
-            if (directionV() == TextDirectionV.BottomToTop)
+            if (directionY() == TextDirectionY.BottomToTop)
                 yPos += moduleOffset * (modules.size() + 1);
             for (Map.Entry<String, Module> module : modules) {
-                HudRenderUtil.renderText(module.getKey(), xPos - simpleCalcH(RENDERER.getStringWidth(module.getKey())), yPos);
-                if (directionV() == TextDirectionV.BottomToTop)
-                    yPos -= moduleOffset;
-                else
-                    yPos += moduleOffset;
+                HudRenderUtil.renderText(module.getKey(), xPos - simpleCalcX(Managers.TEXT.getStringWidth(module.getKey())), yPos);
+                yPos += moduleOffset * ((directionY() == TextDirectionY.BottomToTop) ? -1 : 1);
             }
         }
-        GL11.glPopMatrix();
     }
 
-    public String getHudName(Module module)
-    {
+    protected String getHudName(Module module) {
         return module.getDisplayName()
                 + (module.getDisplayInfo() == null
                 || module.isHidden() == Hidden.Info
                 ? ""
-                : TextColor.GRAY
-                + actualBracket()[0] + TextColor.WHITE
-                + module.getDisplayInfo()
-                + TextColor.GRAY + actualBracket()[1]);
-    }
-
-    private String[] actualBracket() {
-        if (customBrackets.getValue())
-            return new String[]{ " " + HudRenderUtil.BracketsColor() + HudRenderUtil.Brackets()[0] + HudRenderUtil.BracketsTextColor(), HudRenderUtil.BracketsColor() + HudRenderUtil.Brackets()[1] + TextColor.WHITE };
-        else
-            return new String[]{ " " + TextColor.GRAY + "[", TextColor.GRAY + "]"};
-    }
-
-    public Map<Module, HudArrayEntry> getArrayEntries() {
-        return arrayEntries;
-    }
-
-    public static Map<Module, HudArrayEntry> getRemoveEntries() {
-        return removeEntries;
-    }
-
-    public HudArrayList() {
-        super("ModuleList", HudCategory.Text, 200, 200);
-        this.listeners.add(new ListenerPostKey(this));
-        this.setData(new SimpleHudData(this, "Displays enabled modules."));
+                : surroundWithBrackets(module.getDisplayInfo()));
     }
 
     protected boolean isArrayMember(Module module) {
@@ -127,29 +100,9 @@ public class HudArrayList extends DynamicHudElement {
                 .getModule());
     }
 
-    @Override
-    public void guiDraw(int mouseX, int mouseY, float partialTicks) {
-        super.guiDraw(mouseX, mouseY, partialTicks);
-        render();
-    }
-
-    @Override
-    public void hudDraw(float partialTicks) {
-        render();
-    }
-
-    @Override
-    public void guiUpdate(int mouseX, int mouseY, float partialTicks) {
-        super.guiUpdate(mouseX, mouseY, partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
-    public void hudUpdate(float partialTicks) {
-        super.hudUpdate(partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
+    public HudArrayList() {
+        super("ModuleList", "Displays enabled modules.", HudCategory.Text, 200, 200);
+        this.listeners.add(new ListenerPostKey(this));
     }
 
     @Override
@@ -164,5 +117,4 @@ public class HudArrayList extends DynamicHudElement {
         else
             return Managers.TEXT.getStringHeight();
     }
-
 }

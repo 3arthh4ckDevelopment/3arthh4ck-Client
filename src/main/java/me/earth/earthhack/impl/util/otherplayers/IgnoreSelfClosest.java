@@ -1,7 +1,6 @@
 package me.earth.earthhack.impl.util.otherplayers;
 
 import me.earth.earthhack.api.util.interfaces.Globals;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 
 public class IgnoreSelfClosest implements Globals {
@@ -9,11 +8,11 @@ public class IgnoreSelfClosest implements Globals {
         double closestDistance = Double.MAX_VALUE;
         double calcDistance = Double.MAX_VALUE;
         EntityPlayer closestPlayer = null;
-        for (EntityPlayer player : Minecraft.getMinecraft().world.playerEntities) {
+        for (EntityPlayer player : mc.world.playerEntities) {
             if (player.getDistanceSq(mc.player) < closestDistance) {
                 if (player != mc.player) {
                     closestPlayer = player;
-                    closestDistance = player.getDistanceSq(Minecraft.getMinecraft().player);
+                    closestDistance = player.getDistanceSq(mc.player);
                     calcDistance = player.getDistance(mc.player);
                 }
             }

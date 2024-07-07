@@ -7,9 +7,7 @@ import me.earth.earthhack.impl.util.render.Render2DUtil;
 import java.awt.*;
 import java.util.Collection;
 
-public class SnapPoint
-{
-
+public class SnapPoint {
     private float size;
     private float off;
     private float location;

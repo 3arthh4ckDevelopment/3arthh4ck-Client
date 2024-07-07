@@ -18,6 +18,7 @@ import static org.objectweb.asm.Opcodes.*;
  * Implements leijurvs BetterBlockPos directly.
  */
 public class BlockPosPatch extends ArgumentPatch
+
 {
     public BlockPosPatch()
     {

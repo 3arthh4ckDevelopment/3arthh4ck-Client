@@ -5,6 +5,7 @@ import me.earth.earthhack.api.util.interfaces.Globals;
 import me.earth.earthhack.impl.gui.font.CustomFontRenderer;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.client.customfont.FontMod;
+import me.earth.earthhack.impl.util.text.TextColor;
 import net.minecraft.client.renderer.GlStateManager;
 
 import java.awt.*;
@@ -55,7 +56,7 @@ public class TextRenderer implements Globals
             return renderer.drawString(text, x, y, color);
         }
 
-        return mc.fontRenderer.drawString(text, x, y, color, dropShadow);
+        return mc.fontRenderer.drawString(text + TextColor.WHITE, x, y, color, dropShadow);
     }
 
     public void drawStringScaled(String text, float x, float y, int color, boolean dropShadow, float scale) {

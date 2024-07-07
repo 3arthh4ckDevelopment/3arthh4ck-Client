@@ -9,10 +9,8 @@ import me.earth.earthhack.impl.core.ducks.network.ICPacketUseEntity;
 import me.earth.earthhack.impl.event.listeners.PostSendListener;
 import me.earth.earthhack.impl.event.listeners.ReceiveListener;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.util.client.SimpleHudData;
 import me.earth.earthhack.impl.util.render.hud.HudRenderUtil;
 import me.earth.earthhack.impl.util.text.TextColor;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
@@ -28,9 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+//TODO: simplify maybe
 public class Cps extends HudElement {
-
-    //TODO: make everything simpler???
 
     private final Setting<String> name =
             register(new StringSetting("CustomName", "Cps "));
@@ -42,20 +39,15 @@ public class Cps extends HudElement {
     private final Map<Integer, BlockPos> ids = new ConcurrentHashMap<>();
     private final List<Integer> time = new ArrayList<>();
 
-    private void render() {
-        if (mc.player != null && mc.world != null) {
-            int currentTime = (int) System.currentTimeMillis();
-            time.removeIf(i -> currentTime - i > 1000);
-        }
+    protected void onRender() {
+        time.removeIf(i -> (int) System.currentTimeMillis() - i > 1000);
 
-        GlStateManager.pushMatrix();
         HudRenderUtil.renderText(name.getValue() + TextColor.GRAY + time.size(), getX(), getY());
-        GlStateManager.popMatrix();
     }
 
     public Cps() {
-        super("Cps", HudCategory.Text, 130, 30);
-        this.setData(new SimpleHudData(this, "Displays how many crystals are placed/destroyed every second."));
+        super("Cps", "Displays how many crystals are placed/destroyed every second.", HudCategory.Text, 130, 30);
+
         this.mode.addObserver(e -> {
             attack.clear();
             place.clear();
@@ -63,8 +55,7 @@ public class Cps extends HudElement {
             time.clear();
         });
 
-        this.listeners.add(new ReceiveListener<>(SPacketSoundEffect.class, e ->
-        {
+        this.listeners.add(new ReceiveListener<>(SPacketSoundEffect.class, e -> {
             if (mode.getValue() == CountMode.Break) {
                 SPacketSoundEffect p = e.getPacket();
                 if (p.getCategory() == SoundCategory.BLOCKS
@@ -78,8 +69,7 @@ public class Cps extends HudElement {
             }
         }));
 
-        this.listeners.add(new PostSendListener<>(CPacketUseEntity.class, e ->
-        {
+        this.listeners.add(new PostSendListener<>(CPacketUseEntity.class, e -> {
             if (mode.getValue() == CountMode.Break) {
                 int entityId = ((ICPacketUseEntity) e.getPacket()).getEntityID();
                 Entity entity = mc.world.getEntityByID(entityId);
@@ -96,8 +86,7 @@ public class Cps extends HudElement {
             }
         }));
 
-        this.listeners.add(new ReceiveListener<>(SPacketSpawnObject.class, e ->
-        {
+        this.listeners.add(new ReceiveListener<>(SPacketSpawnObject.class, e -> {
             if (e.getPacket().getType() == 51) {
                 BlockPos pos = new BlockPos(e.getPacket().getX(),
                         e.getPacket().getY() - 1,
@@ -108,14 +97,14 @@ public class Cps extends HudElement {
                     if (l != null) {
                         time.add((int) System.currentTimeMillis());
                     }
-                } else
+                } else {
                     ids.put(e.getPacket().getEntityID(), pos);
+                }
             }
         }));
 
         this.listeners.add(new PostSendListener<>(
-                CPacketPlayerTryUseItemOnBlock.class, e ->
-        {
+                CPacketPlayerTryUseItemOnBlock.class, e -> {
             if (mode.getValue() == CountMode.Place) {
                 if (mc.player.getHeldItem(e.getPacket().getHand()).getItem()
                         == Items.END_CRYSTAL
@@ -127,33 +116,8 @@ public class Cps extends HudElement {
     }
 
     @Override
-    public void guiDraw(int mouseX, int mouseY, float partialTicks) {
-        super.guiDraw(mouseX, mouseY, partialTicks);
-        render();
-    }
-
-    @Override
-    public void hudDraw(float partialTicks) {
-        render();
-    }
-
-    @Override
-    public void guiUpdate(int mouseX, int mouseY, float partialTicks) {
-        super.guiUpdate(mouseX, mouseY, partialTicks);
-        setWidth(getWidth());
-        setHeight(Managers.TEXT.getStringHeight());
-    }
-
-    @Override
-    public void hudUpdate(float partialTicks) {
-        super.hudUpdate(partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
     public float getWidth() {
-        return Managers.TEXT.getStringWidth(name.getValue() + "00");
+        return Managers.TEXT.getStringWidth(name.getValue().trim() + "00");
     }
 
     @Override
@@ -165,5 +129,4 @@ public class Cps extends HudElement {
         Place,
         Break
     }
-
 }

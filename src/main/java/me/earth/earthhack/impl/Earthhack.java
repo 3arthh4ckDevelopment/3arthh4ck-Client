@@ -8,14 +8,17 @@ import me.earth.earthhack.impl.modules.client.commands.Commands;
 import me.earth.earthhack.impl.util.math.geocache.Sphere;
 import me.earth.earthhack.impl.util.render.Icon;
 import me.earth.earthhack.impl.util.render.loadingscreen.SplashScreenHelper;
+import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
 
+@Mod(modid = Earthhack.MODID, name = Earthhack.NAME, version = Earthhack.VERSION)
 public class Earthhack implements Globals
 {
     private static final Logger LOGGER = LogManager.getLogger("3arthh4ck");
     public static final String NAME = "3arthh4ck";
+    public static final String MODID = "earthhack";
     public static final String VERSION = "2.0.0";
     public static long startMS;
 

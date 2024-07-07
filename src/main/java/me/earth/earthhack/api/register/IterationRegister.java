@@ -50,12 +50,12 @@ public abstract class IterationRegister<T extends Nameable>
     @Override
     public T getObject(String nameIn)
     {
-        String name = nameIn.toLowerCase();
-        for (T t : registered)
-        {
-            if (t.getName().equalsIgnoreCase(name))
-            {
-                return t;
+        if (nameIn != null) {
+            String name = nameIn.toLowerCase();
+            for (T t : registered) {
+                if (t.getName().equalsIgnoreCase(name)) {
+                    return t;
+                }
             }
         }
 

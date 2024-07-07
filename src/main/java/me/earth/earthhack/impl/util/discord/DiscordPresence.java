@@ -7,12 +7,12 @@ import me.earth.earthhack.api.util.interfaces.Globals;
 import me.earth.earthhack.impl.Earthhack;
 import me.earth.earthhack.impl.modules.client.rpc.LargeImage;
 import me.earth.earthhack.impl.modules.client.rpc.RPC;
-import me.earth.earthhack.impl.modules.client.rpc.SmallImage;
 import me.earth.earthhack.impl.util.math.StopWatch;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.GuiScreenAddServer;
+import net.minecraft.client.gui.GuiScreenServerList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Objects;
 
 public class DiscordPresence implements Globals
 {
@@ -21,58 +21,29 @@ public class DiscordPresence implements Globals
     private static final DiscordRPC rpc = DiscordRPC.INSTANCE;
     private final RPC module;
     private Thread thread;
-    private int catCounterBig = 1, catCounterSmall = 1;
-    private boolean customId = false;
+    private int catCounterBig = 1;
 
     public void details() {
-        if (module.logoBig.getValue() == LargeImage.Skin) {
-            presence.largeImageKey = "skin";
-            presence.largeImageText = Earthhack.NAME + " " + Earthhack.VERSION;
-        } else if (module.logoBig.getValue() == LargeImage.Phobos) {
-            presence.largeImageKey = "phobos";
-            presence.largeImageText = Earthhack.NAME + " " + Earthhack.VERSION;
-        } else if (module.logoBig.getValue() == LargeImage.Cats) {
-            presence.largeImageKey = "cat" + catCounterBig;
-            presence.largeImageText = "EarthCat " + Earthhack.VERSION;
-            if (catCounterBig >= 16) {
-                catCounterBig = 0;
-            }
-            catCounterBig++;
-        }
-
-        if (module.logoSmall.getValue() != SmallImage.None) {
-            if (module.logoSmall.getValue() == SmallImage.Logo) {
-                presence.smallImageKey = "logo";
-                presence.smallImageText = Earthhack.NAME + " " + Earthhack.VERSION;
-            } else if (module.logoSmall.getValue() == SmallImage.Skin) {
-                presence.smallImageKey = "skin";
-                presence.smallImageText = Earthhack.NAME + " " + Earthhack.VERSION;
-            } else if (module.logoSmall.getValue() == SmallImage.Phobos) {
-                presence.smallImageKey = "phobos";
-                presence.smallImageText = Earthhack.NAME + " " + Earthhack.VERSION;
-            } else if (module.logoSmall.getValue() == SmallImage.Cats) {
-                presence.largeImageKey = "cat" + catCounterSmall;
-                presence.smallImageText = "EarthCat " + Earthhack.VERSION;
-                if (catCounterSmall >= 16) {
-                    catCounterSmall = 0;
-                }
-                catCounterSmall++;
-            }
-        }
-        if (customId) {
-            presence.largeImageKey = module.assetLarge.getValue();
-            if (module.assetLargeText.getValue() != module.assetLargeText.getInitial()) {
-                presence.largeImageText = module.assetLargeText.getValue();
+        if (!module.isCustom()) {
+            if (module.logoBig.getValue() != LargeImage.Cats) {
+                // normal
+                presence.largeImageKey = module.logoBig.getValue().getName();
+                presence.largeImageText = Earthhack.NAME + " " + Earthhack.VERSION;
             } else {
-                presence.largeImageText = module.assetLarge.getValue();
+                // cats
+                if (catCounterBig > 16)
+                    catCounterBig = 1;
+                catCounterBig++;
+                presence.largeImageKey = "cat" + catCounterBig;
+                presence.largeImageText = "EarthCat " + Earthhack.VERSION;
             }
+        } else {
+            // custom
+            presence.largeImageKey = module.assetLarge.getValue();
+            presence.largeImageText = module.assetLargeText.getValue();
             if (module.smallImage.getValue()) {
                 presence.smallImageKey = module.assetSmall.getValue();
-                if (module.assetSmallText.getValue() != module.assetSmallText.getInitial()) {
-                    presence.smallImageText = module.assetSmallText.getValue();
-                } else {
-                    presence.smallImageText = module.assetSmall.getValue();
-                }
+                presence.smallImageText = module.assetSmallText.getValue();
             }
         }
     }
@@ -91,69 +62,49 @@ public class DiscordPresence implements Globals
 
         LOGGER.info("Initializing Discord RPC");
         DiscordEventHandlers handlers = new DiscordEventHandlers();
-        if (module.logoBig.getValue() == LargeImage.Custom && module.logoSmall.getValue() == SmallImage.Custom) {
-            rpc.Discord_Initialize(module.custom.getValue(), handlers, true, "");
-            rpc.Discord_Register(module.custom.getValue(), null);
-            customId = true;
-        } else {
-            rpc.Discord_Initialize("1076164046249791628", handlers, true, "");
-            rpc.Discord_Register("1076164046249791628", null);
-        }
+        rpc.Discord_Initialize((module.isCustom() ? module.customId.getValue() : "1076164046249791628"), handlers, true, "");
+        rpc.Discord_Register((module.isCustom() ? module.customId.getValue() : "1076164046249791628"), null);
 
         presence.startTimestamp = System.currentTimeMillis() / 1000L;
-        presence.details = module.Line1.getValue();
-        presence.state = line2();
-        details();
 
         rpc.Discord_UpdatePresence(DiscordPresence.presence);
-        StopWatch timer = new StopWatch();
-        String oldlogoLarge = module.logoBig.getValue().toString();
-        String oldlogoSmall = module.logoSmall.getValue().toString();
-        timer.reset();
-        thread = new Thread(() ->
-        {
-            while (!Thread.currentThread().isInterrupted())
-            {
-                try
-                {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.reset();
+        thread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
                     //noinspection BusyWait
                     Thread.sleep(2000);
                 }
-                catch (InterruptedException ignored)
-                {
+                catch (InterruptedException ignored) {
                     Thread.currentThread().interrupt();
                     return;
                 }
 
                 rpc.Discord_RunCallbacks();
-                presence.details = module.Line1.getValue();
-                presence.state = line2();
-                if (timer.passed(1000))
-                {
-                    if (oldlogoLarge != module.logoBig.getValue().toString() || oldlogoSmall != module.logoSmall.getValue().toString()) {
-                        stop();
-                        start();
-                    } else {
-                        details();
 
-                        if (module.join.getValue()) {
-                            presence.partyId = "id";
-                            presence.joinSecret = "secret";
-                            presence.partyMax = module.partyMax.getValue();
-                            presence.partySize = 1;
-                        }
-                        rpc.Discord_UpdatePresence(presence);
+                if (stopWatch.passed(1000)) {
+                    details();
+                    presence.details = module.Line1.getValue();
+                    presence.state = getLine2();
+
+                    if (module.join.getValue()) {
+                        presence.partyId = "id";
+                        presence.joinSecret = "secret";
+                        presence.partyMax = module.partyMax.getValue();
+                        presence.partySize = 1;
                     }
+
+                    rpc.Discord_UpdatePresence(presence);
                 }
             }
         }, "RPC-Callback-Handler");
-        timer.reset();
+        stopWatch.reset();
         thread.setDaemon(true);
         thread.start();
     }
 
-    public synchronized void stop()
-    {
+    public synchronized void stop() {
         LOGGER.info("Shutting down Discord RPC");
         if (thread != null && !thread.isInterrupted())
         {
@@ -164,17 +115,22 @@ public class DiscordPresence implements Globals
         rpc.Discord_Shutdown();
     }
 
-    private String line2()
-    {
-        return mc.player != null
-                ? module.showIP.getValue() // second check cuz it crashed anyway??
-                    ? "Playing on " + Objects.requireNonNull(mc.getCurrentServerData()).serverIP + "!"
-                    : module.Line2.getValue()
-                : mc.world == null
-                    ? "Not in-game."
-                    : mc.isIntegratedServerRunning()
-                        ? "Playing Singleplayer."
-                        : "Playing Multiplayer.";
+    private String getLine2() {
+        if (module.isCustom() || !module.showIP.getValue())
+            return module.Line2.getValue();
 
+        if (mc.world != null) {
+            if (mc.isIntegratedServerRunning())
+                return "Playing Singleplayer";
+            else if (mc.getCurrentServerData() != null)
+                return "Playing on " + mc.getCurrentServerData().serverIP + "!";
+        } else {
+            if (mc.currentScreen instanceof GuiMainMenu)
+                return "In the main menu";
+            else if (mc.currentScreen instanceof GuiScreenServerList || mc.currentScreen instanceof GuiScreenAddServer)
+                return "In the server selector";
+        }
+
+        return "Not in-game";
     }
 }

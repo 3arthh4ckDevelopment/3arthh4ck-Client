@@ -3,16 +3,19 @@ package me.earth.earthhack.impl.modules.client.editor;
 import me.earth.earthhack.api.event.bus.instance.Bus;
 import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Category;
-import me.earth.earthhack.api.setting.Complexity;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.ColorSetting;
 import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.StringSetting;
 import me.earth.earthhack.impl.gui.hud.HudEditorGui;
+import me.earth.earthhack.impl.modules.Caches;
+import me.earth.earthhack.impl.modules.client.clickgui.ClickGui;
 import me.earth.earthhack.impl.util.render.hud.HudRainbow;
 import me.earth.earthhack.impl.util.text.TextColor;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.util.ChatAllowedCharacters;
+import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
 
@@ -24,11 +27,10 @@ public class HudEditor extends Module {
             register(new EnumSetting<>("Rainbow", HudRainbow.None));
     public final Setting<Color> color =
             register(new ColorSetting("Color", Color.WHITE));
+    public final Setting<Boolean> matchColor =
+            register(new BooleanSetting("MatchColors", false));
     public final Setting<Boolean> shadow =
-            register(new BooleanSetting("Text-Shadow", true));
-    public final Setting<Boolean> testShadow =
-            register(new BooleanSetting("OffsetShadow", true))
-                    .setComplexity(Complexity.Expert);
+            register(new BooleanSetting("Shadow", false));
     public final Setting<TextColor> bracketsColor =
             register(new EnumSetting<>("BracketsColor", TextColor.None));
     public final Setting<TextColor> insideText =
@@ -44,7 +46,7 @@ public class HudEditor extends Module {
         brackets.addObserver(e -> {
             String b = ChatAllowedCharacters.filterAllowedCharacters(brackets.getValue());
             String start, end;
-            if (b != null && b.contains(":")) {
+            if (b.contains(":")) {
                 start = brackets.getValue().substring(0, brackets.getValue().indexOf(":"));
                 if (start.isEmpty())
                     brackets.setValue(brackets.getInitial());
@@ -76,6 +78,10 @@ public class HudEditor extends Module {
         hud.init();
         hud.onGuiOpened();
         mc.displayGuiScreen(hud);
+
+        if (Caches.getModule(ClickGui.class).get().blur.getValue() == ClickGui.BlurStyle.Gaussian && OpenGlHelper.shadersSupported) {
+            mc.entityRenderer.loadShader(new ResourceLocation("minecraft", "shaders/post/blur.json"));
+        }
     }
 
 }

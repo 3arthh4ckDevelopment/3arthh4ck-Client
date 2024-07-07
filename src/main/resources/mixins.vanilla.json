@@ -11,11 +11,11 @@
     "MixinGuiScreen",
     "MixinItemBlock",
     "MixinItemStack",
+    "MixinMinecraft",
     "MixinPlayerControllerMP",
     "MixinRenderChunk",
     "MixinRenderGlobal",
-    "MixinWorld",
-    "MixinMinecraft"
+    "MixinWorld"
   ],
   "injectors": {
     "maxShiftBy": 10

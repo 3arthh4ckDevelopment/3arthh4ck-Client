@@ -6,11 +6,9 @@ import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.gui.hud.DynamicHudElement;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.util.client.SimpleHudData;
 import me.earth.earthhack.impl.util.minecraft.entity.EntityUtil;
 import me.earth.earthhack.impl.util.render.hud.HudRenderUtil;
 import me.earth.earthhack.impl.util.text.TextColor;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 
 import java.math.RoundingMode;
@@ -33,34 +31,29 @@ public class TextRadar extends DynamicHudElement {
     private final Setting<Integer> limit =
             register(new NumberSetting<>("Player-Limit", 7, 1, 25));
 
-
     private int counter = 0;
 
-    private void render(boolean inHud) {
-        if (mc.player != null && mc.world != null) {
-            Map<String, Integer> players = getTextRadarPlayers();
-            GlStateManager.pushMatrix();
-            if (!players.isEmpty()) {
-                float textHeight = Managers.TEXT.getStringHeight();
-                float y = getY() - (directionV() == TextDirectionV.BottomToTop ? (players.size() + 1 * textHeight) : 0);
-                counter = 0;
-                if (directionV() == TextDirectionV.BottomToTop)
-                    y += textHeight * (players.size() + 1);
-                for (Map.Entry<String, Integer> player : players.entrySet()) {
-                    String text = player.getKey() + " ";
-                    HudRenderUtil.renderText(text, getX() - simpleCalcH(RENDERER.getStringWidth(text)) + simpleCalcH(138.0f), y);
-                    if (directionV() == TextDirectionV.BottomToTop)
-                        y -= textHeight;
-                    else
-                        y += textHeight;
-                    counter++;
-                    if (counter >= limit.getValue())
-                        break;
-                }
-            } else if (inHud) {
-                HudRenderUtil.renderText("Text Radar", getX(), getY());
+    protected void onRender() {
+        Map<String, Integer> players = getTextRadarPlayers();
+        if (!players.isEmpty()) {
+            float textHeight = Managers.TEXT.getStringHeight();
+            float y = getY() - (directionY() == TextDirectionY.BottomToTop ? (players.size() + 1 * textHeight) : 0);
+            counter = 0;
+            if (directionY() == TextDirectionY.BottomToTop)
+                y += textHeight * (players.size() + 1);
+            for (Map.Entry<String, Integer> player : players.entrySet()) {
+                String text = player.getKey() + " ";
+                HudRenderUtil.renderText(text, getX() - simpleCalcX(Managers.TEXT.getStringWidth(text)) + simpleCalcX(138.0f), y);
+                if (directionY() == TextDirectionY.BottomToTop)
+                    y -= textHeight;
+                else
+                    y += textHeight;
+                counter++;
+                if (counter >= limit.getValue())
+                    break;
             }
-            GlStateManager.popMatrix();
+        } else if (isGui()) {
+            HudRenderUtil.renderText("Text Radar", getX(), getY());
         }
     }
 
@@ -131,7 +124,7 @@ public class TextRadar extends DynamicHudElement {
 
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map, boolean descending) {
         List<Map.Entry<K, V>> list = new LinkedList<>(map.entrySet());
-        if(descending) {
+        if (descending) {
             list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
         } else {
             list.sort(Map.Entry.comparingByValue());
@@ -145,33 +138,7 @@ public class TextRadar extends DynamicHudElement {
     }
 
     public TextRadar() {
-        super("TextRadar",  HudCategory.Visual, 2, 54);
-        this.setData(new SimpleHudData(this, "Displays enemies near you/in render distance."));
-    }
-
-    @Override
-    public void guiDraw(int mouseX, int mouseY, float partialTicks) {
-        super.guiDraw(mouseX, mouseY, partialTicks);
-        render(true);
-    }
-
-    @Override
-    public void hudDraw(float partialTicks) {
-        render(false);
-    }
-
-    @Override
-    public void guiUpdate(int mouseX, int mouseY, float partialTicks) {
-        super.guiUpdate(mouseX, mouseY, partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
-    public void hudUpdate(float partialTicks) {
-        super.hudUpdate(partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
+        super("TextRadar", "Displays enemies near you/in render distance.",  HudCategory.Visual, 2, 54);
     }
 
     @Override
@@ -186,5 +153,4 @@ public class TextRadar extends DynamicHudElement {
         else
             return Managers.TEXT.getStringHeight() * counter + 1;
     }
-
 }

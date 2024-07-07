@@ -140,7 +140,7 @@ final class ListenerUseEntity extends
                                 pos.y,
                                 pos.z,
                                 false));
-                        break;                                
+                        break;
                     case Jump:
                         mc.player.jump();
                         break;

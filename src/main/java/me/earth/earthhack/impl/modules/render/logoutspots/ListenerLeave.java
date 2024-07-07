@@ -28,8 +28,8 @@ final class ListenerLeave extends ModuleListener<LogoutSpots, ConnectionEvent.Le
         if (event.getName() == mc.player.getName())
             return;
 
-        if(AUTO_TRAP.get().logOutSpot.getValue())
-            if(AUTO_TRAP.get().isValid(event.getPlayer()))
+        if (AUTO_TRAP.get().logOutSpot.getValue())
+            if (AUTO_TRAP.get().isValid(event.getPlayer()))
                 AUTO_TRAP.get().target = event.getPlayer();
 
 

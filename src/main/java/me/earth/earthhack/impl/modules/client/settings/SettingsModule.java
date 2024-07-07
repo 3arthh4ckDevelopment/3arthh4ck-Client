@@ -9,7 +9,7 @@ import me.earth.earthhack.impl.util.client.SimpleData;
 
 public class SettingsModule extends Module {
     public static final Setting<Complexity> COMPLEXITY =
-            new EnumSetting<>("Complexity", Complexity.Beginner);
+            new EnumSetting<>("Complexity", Complexity.Medium);
 
     public SettingsModule() {
         super("Settings", Category.Client);

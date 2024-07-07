@@ -2,7 +2,6 @@ package me.earth.earthhack.impl.gui.hud;
 
 import me.earth.earthhack.api.cache.SettingCache;
 import me.earth.earthhack.api.hud.HudElement;
-import me.earth.earthhack.api.module.data.ModuleData;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.*;
 import me.earth.earthhack.impl.gui.click.component.Component;
@@ -17,7 +16,6 @@ import me.earth.earthhack.impl.util.render.RenderUtil;
 import net.minecraft.client.Minecraft;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
 // TODO: Again, maybe generify these classes in the future. Making HudElement a subclass of Module is messy.
 public class HudElementComponent extends Component {
@@ -38,10 +36,6 @@ public class HudElementComponent extends Component {
     public void init() {
         getComponents().clear();
         float offY = getHeight();
-        ModuleData<?> data = getElement().getData();
-        if (data != null) {
-            this.setDescription(data::getDescription);
-        }
 
         if (!getElement().getSettings().isEmpty()) {
             for (Setting<?> setting : getElement().getSettings()) {
@@ -74,19 +68,6 @@ public class HudElementComponent extends Component {
                     getComponents().add(new ListComponent<>((ListSetting<?>) setting, getFinishedX(), getFinishedY(), 0, offY, getWidth(), 14));
                     offY += 14;
                 }
-
-                // -_- lazy
-                if (data != null && before != offY)  {
-                    Supplier<String> supplier = () -> {
-                        String desc = data.settingDescriptions().get(setting);
-                        if (desc == null) {
-                            desc = "A Setting (" + setting.getInitial().getClass().getSimpleName() + ").";
-                        }
-                        return desc;
-                    };
-
-                    getComponents().get(getComponents().size() - 1).setDescription(supplier);
-                }
             }
         }
 
@@ -102,8 +83,8 @@ public class HudElementComponent extends Component {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
-        final boolean hovered = RenderUtil.mouseWithinBounds(mouseX, mouseY, getFinishedX(), getFinishedY(), getWidth(), getHeight());
 
+        final boolean hovered = RenderUtil.mouseWithinBounds(mouseX, mouseY, getFinishedX(), getFinishedY(), getWidth(), getHeight());
         if (hovered)
             Render2DUtil.drawRect(getFinishedX() + 1, getFinishedY() + 0.5f, getFinishedX() + getWidth() - 1, getFinishedY() + getHeight() - 0.5f, 0x66333333);
         if (getElement().isEnabled()) {
@@ -120,14 +101,19 @@ public class HudElementComponent extends Component {
                 }
             }
             if (getElement().isEnabled()) {
-                Render2DUtil.drawRect(getFinishedX() + 1.0f, getFinishedY() + getHeight() - 0.5f, getFinishedX() + 3, getFinishedY() + getHeight() + getComponentsSize(), hovered ? getClickGui().get().color.getValue().brighter().getRGB() : getClickGui().get().color.getValue().getRGB());
-                Render2DUtil.drawRect(getFinishedX() + 1.0f, getFinishedY() + getHeight() + getComponentsSize(), getFinishedX() + getWidth() - 1.f, getFinishedY() + getHeight() + getComponentsSize() + 2, hovered ? getClickGui().get().color.getValue().brighter().getRGB() : getClickGui().get().color.getValue().getRGB());
-                Render2DUtil.drawRect(getFinishedX() + getWidth() - 3.f, getFinishedY() + getHeight() - 0.5f, getFinishedX() + getWidth() - 1.f, getFinishedY() + getHeight() + getComponentsSize(), hovered ? getClickGui().get().color.getValue().brighter().getRGB() : getClickGui().get().color.getValue().getRGB());
+                Render2DUtil.drawRect(getFinishedX() + 1.0f, getFinishedY() + getHeight() - 0.5f, getFinishedX() + 3, getFinishedY() + getHeight() + getComponentsSize(), hovered ? getClickGui().get().getModulesColor().brighter().getRGB() : getClickGui().get().getModulesColor().getRGB());
+                Render2DUtil.drawRect(getFinishedX() + 1.0f, getFinishedY() + getHeight() + getComponentsSize(), getFinishedX() + getWidth() - 1.f, getFinishedY() + getHeight() + getComponentsSize() + 2, hovered ? getClickGui().get().getModulesColor().brighter().getRGB() : getClickGui().get().getModulesColor().getRGB());
+                Render2DUtil.drawRect(getFinishedX() + getWidth() - 3.f, getFinishedY() + getHeight() - 0.5f, getFinishedX() + getWidth() - 1.f, getFinishedY() + getHeight() + getComponentsSize(), hovered ? getClickGui().get().getModulesColor().brighter().getRGB() : getClickGui().get().getModulesColor().getRGB());
             }
-            Render2DUtil.drawBorderedRect(getFinishedX() + 3.0f, getFinishedY() + getHeight() - 0.5f, getFinishedX() + getWidth() - 3.f, getFinishedY() + getHeight() + getComponentsSize() + 0.5f, 0.5f, 0, WHITE.getValue() ? 0xffffffff :  0xff000000);
+            if (getClickGui().get().moduleBox.getValue() == ClickGui.ModuleBox.Old)
+                Render2DUtil.drawBorderedRect(getFinishedX() + 3.0f, getFinishedY() + getHeight() - 0.5f, getFinishedX() + getWidth() - 3.f, getFinishedY() + getHeight() + getComponentsSize() + 0.5f, 0.5f, 0, 0xff000000);
+            else if (getClickGui().get().moduleBox.getValue() == ClickGui.ModuleBox.New)
+                Render2DUtil.drawBorderedRect(getFinishedX() + 3.0f, getFinishedY() + getHeight() - 0.5f, getFinishedX() + getWidth() - 2.5f, getFinishedY() + getHeight() + getComponentsSize(), 0.5f, 0, 0xff000000);
 
         }
-        Render2DUtil.drawBorderedRect(getFinishedX() + 1, getFinishedY() + 0.5f, getFinishedX() + 1 + getWidth() - 2, getFinishedY() - 0.5f + getHeight() + (isExtended() ? (getComponentsSize() + 3.0f) : 0), 0.5f, 0, 0xff000000);
+        if (getClickGui().get().getBoxes())
+            Render2DUtil.drawBorderedRect(getFinishedX() + 1, getFinishedY() + 0.5f, getFinishedX() + 1 + getWidth() - 2, getFinishedY() - 0.5f + getHeight() + (isExtended() ? (getComponentsSize() + 3.0f) : 0), 0.5f, 0, 0xff000000);
+
         updatePositions();
     }
 

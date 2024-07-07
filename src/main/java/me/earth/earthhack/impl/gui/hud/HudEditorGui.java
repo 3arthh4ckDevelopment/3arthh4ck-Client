@@ -1,10 +1,8 @@
 package me.earth.earthhack.impl.gui.hud;
 
 import me.earth.earthhack.api.cache.ModuleCache;
-import me.earth.earthhack.api.cache.SettingCache;
 import me.earth.earthhack.api.hud.HudCategory;
 import me.earth.earthhack.api.hud.HudElement;
-import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.impl.gui.click.component.Component;
 import me.earth.earthhack.impl.gui.click.component.impl.ColorComponent;
 import me.earth.earthhack.impl.gui.click.component.impl.KeybindComponent;
@@ -14,18 +12,13 @@ import me.earth.earthhack.impl.gui.click.frame.Frame;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.client.clickgui.ClickGui;
-import me.earth.earthhack.impl.modules.client.commands.Commands;
 import me.earth.earthhack.impl.modules.client.editor.HudEditor;
 import me.earth.earthhack.impl.util.misc.GuiUtil;
 import me.earth.earthhack.impl.util.render.Render2DUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.OpenGlHelper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.awt.*;
@@ -33,25 +26,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.*;
 
-public class HudEditorGui extends GuiScreen
-{
-
-    private static final SettingCache<Boolean, BooleanSetting, Commands> BACK =
-            Caches.getSetting(Commands.class, BooleanSetting.class, "BackgroundGui", false);
-    private static final ResourceLocation BLACK_PNG =
-            new ResourceLocation("earthhack:textures/gui/black.png");
-
+public class HudEditorGui extends GuiScreen {
     private static final ModuleCache<ClickGui> CLICK_GUI = Caches.getModule(ClickGui.class);
-    private static final ModuleCache<HudEditor> HUD_EDITOR = Caches.getModule(HudEditor.class);
 
     public static Map<String, List<SnapPoint>> snapPoints;
-    private final Set<HudElement> elements = new HashSet<>();
     private final ArrayList<HudCategoryFrame> frames = new ArrayList<>();
+    private double mouseClickedX, mouseClickedY, mouseReleasedX, mouseReleasedY;
     private boolean oldVal = false;
-    private double mouseClickedX;
-    private double mouseClickedY;
-    private double mouseReleasedX;
-    private double mouseReleasedY;
     private boolean selecting;
 
     public void init() {
@@ -87,27 +68,10 @@ public class HudEditorGui extends GuiScreen
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        if (mc.world == null)
-        {
-            if (BACK.getValue())
-            {
-                this.drawDefaultBackground();
-            }
-            else
-            {
-                GlStateManager.disableLighting();
-                GlStateManager.disableFog();
-                Tessellator tessellator = Tessellator.getInstance();
-                BufferBuilder bufferbuilder = tessellator.getBuffer();
-                this.mc.getTextureManager().bindTexture(BLACK_PNG);
-                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-                bufferbuilder.pos(0.0D, this.height, 0.0D).tex(0.0D, (float)this.height / 32.0F + (float)0).color(64, 64, 64, 255).endVertex();
-                bufferbuilder.pos(this.width, this.height, 0.0D).tex((float)this.width / 32.0F, (float)this.height / 32.0F + (float)0).color(64, 64, 64, 255).endVertex();
-                bufferbuilder.pos(this.width, 0.0D, 0.0D).tex((float)this.width / 32.0F, 0).color(64, 64, 64, 255).endVertex();
-                bufferbuilder.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0).color(64, 64, 64, 255).endVertex();
-                tessellator.draw();
-            }
+        if (mc.world == null) {
+            ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
+            String text = "You need to be in a world to use the HUD editor!";
+            Managers.TEXT.drawString(text, (float) scaledResolution.getScaledWidth() / 2 - Managers.TEXT.getStringWidth(text), (float) (scaledResolution.getScaledHeight() - Managers.TEXT.getStringHeightI()) / 2, 0xFFFFFF);
         }
 
         if (oldVal != CLICK_GUI.get().catEars.getValue()) {
@@ -116,7 +80,7 @@ public class HudEditorGui extends GuiScreen
         }
 
         if (CLICK_GUI.get().blur.getValue() == ClickGui.BlurStyle.Directional) {
-            final ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
+            ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
             Render2DUtil.drawBlurryRect(0, 0, scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight(), CLICK_GUI.get().blurAmount.getValue(),CLICK_GUI.get().blurSize.getValue());
         }
 
@@ -131,94 +95,95 @@ public class HudEditorGui extends GuiScreen
 
         for (HudElement element : Managers.ELEMENTS.getRegistered()) {
             if (element.isEnabled()) {
-                double minX = Math.min(mouseClickedX, mouseX);
-                double minY = Math.min(mouseClickedY, mouseY);
-                double maxWidth = Math.max(mouseClickedX, mouseY) - minX;
-                double maxHeight = Math.max(mouseClickedY, mouseY) - minY;
-                if (GuiUtil.isOverlapping(
-                        new double[]{minX, minY, minX + maxWidth, minY + maxHeight},
-                        new double[]{element.getX(), element.getY(), element.getX() + element.getWidth(), element.getY() + element.getHeight()}))
-                {
-                    elements.add(element);
-                }
                 element.guiUpdate(mouseX, mouseY, partialTicks);
-                element.guiDraw(mouseX, mouseY, partialTicks);
+                element.guiDraw();
             }
         }
 
         if (selecting) {
-            double minX = Math.min(mouseClickedX, mouseX);
-            double minY = Math.min(mouseClickedY, mouseY);
-            double maxWidth = Math.max(mouseClickedX, mouseY);
-            double maxHeight = Math.max(mouseClickedY, mouseY);
-            Render2DUtil.drawRect((float) minX, (float) minY, (float) maxWidth, (float) maxHeight, new Color(255, 255, 255, 128).getRGB());
+            double minX = Math.min(mouseX, mouseClickedX);
+            double minY = Math.min(mouseY, mouseClickedY);
+            double maxX = Math.max(mouseX, mouseClickedX);
+            double maxY = Math.max(mouseY, mouseClickedY);
+            Render2DUtil.drawBorderedRect((float) minX, (float) minY, (float) maxX, (float) maxY, 0.2f, new Color(255, 255, 255, 90).getRGB(), new Color(255, 255, 255, 160).getRGB());
         }
-        getFrames().forEach(frame -> frame.drawScreen(mouseX,mouseY,partialTicks));
+        getFrames().forEach(frame -> frame.drawScreen(mouseX, mouseY, partialTicks));
     }
 
     @Override
     protected void keyTyped(char character, int keyCode) throws IOException {
         super.keyTyped(character, keyCode);
-        for (HudElement element : Managers.ELEMENTS.getRegistered())
-        {
-            if (element.isEnabled()) {
-                element.guiKeyPressed(character, keyCode);
-            }
-        }
-        getFrames().forEach(frame -> frame.keyTyped(character,keyCode));
+        getFrames().forEach(frame -> frame.keyTyped(character, keyCode));
     }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
+
         List<HudElement> clicked = new ArrayList<>();
-        boolean hasDragging = false;
-        for (HudElement element : Managers.ELEMENTS.getRegistered())
-        {
+        boolean isDragging = false;
+        for (HudElement element : Managers.ELEMENTS.getRegistered()) {
             if (element.isEnabled() && GuiUtil.isHovered(element, mouseX, mouseY)) {
                 clicked.add(element);
-                if (element.isDragging()) hasDragging = true;
-                // element.guiMouseClicked(mouseX, mouseY, mouseButton);
+                if (element.isDragging())
+                    isDragging = true;
             }
         }
         clicked.sort(Comparator.comparing(HudElement::getZ));
 
-        if (!clicked.isEmpty()) {
-            clicked.get(0).guiMouseClicked(mouseX, mouseY, mouseButton);
+        boolean clickedFrame = false;
+        for (HudCategoryFrame frame : getFrames()) {
+            if (GuiUtil.isHovered(frame, mouseX, mouseY)) {
+                clickedFrame = true;
+                break;
+            }
+            for (Component component : frame.getComponents()) {
+                if (GuiUtil.isHovered(component.getFinishedX(), component.getFinishedY(), component.getWidth(), component.getHeight(), mouseX, mouseY)) {
+                    clickedFrame = true;
+                    break;
+                }
+            }
         }
-        //TODO: fix this when we want to
-        /* else {
-            if (!GuiUtil.isHovered(frame, mouseX, mouseY) && !hasDragging) {
+
+        if (!clickedFrame) {
+            if (!clicked.isEmpty()) {
+                clicked.get(0).guiMouseClicked(mouseX, mouseY, mouseButton);
+            } else if (!isDragging) {
                 selecting = true;
                 mouseClickedX = mouseX;
                 mouseClickedY = mouseY;
-                return;
             }
         }
-         */
-        getFrames().forEach(frame -> frame.mouseClicked(mouseX,mouseY,mouseButton));
+        getFrames().forEach(frame -> frame.mouseClicked(mouseX, mouseY, mouseButton));
     }
 
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int mouseButton) {
         super.mouseReleased(mouseX, mouseY, mouseButton);
+
         if (selecting) {
             mouseReleasedX = mouseX;
             mouseReleasedY = mouseY;
         }
-        for (HudElement element : Managers.ELEMENTS.getRegistered())
-        {
+
+        for (HudElement element : Managers.ELEMENTS.getRegistered()) {
             if (element.isEnabled()) {
                 element.guiMouseReleased(mouseX, mouseY, mouseButton);
-                if (elements.remove(element) && selecting) {
+                double minX = Math.min(mouseClickedX, mouseReleasedX);
+                double minY = Math.min(mouseClickedY, mouseReleasedY);
+                double maxWidth = Math.max(mouseClickedX, mouseReleasedX) - minX;
+                double maxHeight = Math.max(mouseClickedY, mouseReleasedY) - minY;
+                if (selecting && GuiUtil.isOverlapping(
+                        new double[]{minX, minY, minX + maxWidth, minY + maxHeight},
+                        new double[]{element.getX(), element.getY(), element.getX() + element.getWidth(), element.getY() + element.getHeight()})) {
                     element.setDraggingX(mouseX - element.getX());
                     element.setDraggingY(mouseY - element.getY());
-                    element.setDragging(true); // TODO: better solution
+                    element.setDragging(true);
                 }
             }
         }
         selecting = false;
-        getFrames().forEach(frame -> frame.mouseReleased(mouseX,mouseY,mouseButton));
+        getFrames().forEach(frame -> frame.mouseReleased(mouseX, mouseY, mouseButton));
     }
 
     @Override
@@ -250,8 +215,10 @@ public class HudEditorGui extends GuiScreen
             element.setDragging(false);
         }
         selecting = false;
-        elements.clear();
-        HUD_EDITOR.disable();
+        Caches.getModule(HudEditor.class).disable();
+
+        if (OpenGlHelper.shadersSupported)
+            mc.entityRenderer.stopUseShader();
     }
 
     public void onGuiOpened() {

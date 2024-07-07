@@ -16,7 +16,6 @@ import me.earth.earthhack.impl.util.render.RenderUtil;
 import me.earth.earthhack.impl.util.render.entity.JelloRender;
 import me.earth.earthhack.impl.util.render.mutables.BBRender;
 import me.earth.earthhack.impl.util.render.mutables.MutableBB;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -257,7 +256,7 @@ final class ListenerRender extends ModuleListener<AutoCrystal, Render3DEvent> {
             Render2DUtil.drawUnfilledCircle(m.getStringWidth(text) / 2.0f, 0, 22.f, new Color(5, 5, 5, clr.getAlpha()).getRGB(), 5.f);
             Render2DUtil.drawCircle(m.getStringWidth(text) / 2.0f, 0, 22.f, clr.getRGB());
             m.drawString(text, 0, 6.0f, new Color(255, 255, 255).getRGB());
-            Minecraft.getMinecraft().getTextureManager().bindTexture(CRYSTAL_LOCATION);
+            mc.getTextureManager().bindTexture(CRYSTAL_LOCATION);
             Gui.drawScaledCustomSizeModalRect((int) (m.getStringWidth(text) / 2.0f) - 10, -17, 0, 0, 12, 12, 22, 22, 12, 12);
         } else {
             m.drawStringWithShadow(text, 0, 0, new Color(255, 255, 255).getRGB());

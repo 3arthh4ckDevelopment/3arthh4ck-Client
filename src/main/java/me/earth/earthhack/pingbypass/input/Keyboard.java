@@ -1,11 +1,11 @@
 package me.earth.earthhack.pingbypass.input;
 
+import me.earth.earthhack.impl.util.text.ChatUtil;
 import me.earth.earthhack.pingbypass.PingBypass;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-// TODO
 public class Keyboard {
     private static final Map<Integer, Boolean> STATES = new ConcurrentHashMap<>();
 
@@ -14,6 +14,8 @@ public class Keyboard {
     }
 
     public static String getKeyName(int key) {
+        if (key > getKeyboardSize() && key < getKeyboardSize() + 10)
+            return "MOUSE " + (key - getKeyboardSize());
         return org.lwjgl.input.Keyboard.getKeyName(key);
     }
 
@@ -49,6 +51,10 @@ public class Keyboard {
         return org.lwjgl.input.Keyboard.KEY_V;
     }
 
+    public static int getKeyM() {
+        return org.lwjgl.input.Keyboard.KEY_M;
+    }
+
     public static void enableRepeatEvents(boolean enable) {
         org.lwjgl.input.Keyboard.enableRepeatEvents(enable);
     }
@@ -66,11 +72,19 @@ public class Keyboard {
     }
 
     public static int getKeyIndex(String string) {
-        return org.lwjgl.input.Keyboard.getKeyIndex(string);
-    }
+        if (string.contains("MOUSE ")) {
+            Integer parsedKey = Integer.getInteger(string.replace("MOUSE ", "")) + getKeyboardSize();
+            if (parsedKey > getKeyboardSize() && parsedKey < getKeyboardSize() + 10) {
+                return parsedKey + getKeyboardSize();
+            }
+        }
 
-    public static int getKeyM() {
-        return org.lwjgl.input.Keyboard.KEY_M;
+        try {
+            return org.lwjgl.input.Keyboard.getKeyIndex(string);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            ChatUtil.sendMessage("Failed to set the bind");
+        }
+        return 0;
     }
 
     public static boolean isKeyDown(int code) {

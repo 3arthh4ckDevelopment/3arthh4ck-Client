@@ -5,12 +5,10 @@ import me.earth.earthhack.api.hud.HudElement;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.StringSetting;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.util.client.SimpleHudData;
 import me.earth.earthhack.impl.util.render.hud.HudRenderUtil;
 import me.earth.earthhack.impl.util.text.ChatIDs;
 import me.earth.earthhack.impl.util.text.ChatUtil;
 import me.earth.earthhack.impl.util.text.TextColor;
-import net.minecraft.client.renderer.GlStateManager;
 
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
@@ -22,12 +20,12 @@ public class Time extends HudElement {
             register(new StringSetting("Text", "Time"));
     private final Setting<String> timeFormat =
             register(new StringSetting("TimeFormat", "hh:mm:ss"));
+
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm:ss");
     private String text = TextColor.GRAY + TextColor.RED + "Invalid";
 
-    private void render() {
+    protected void onRender() {
         LocalDateTime actualTime = LocalDateTime.now();
-        // LocalDateTime time = Earthhack.getStartingTime().minus();
         try {
             text = name.getValue() + " " + TextColor.GRAY + formatter.format(actualTime);
         } catch (DateTimeException e) {
@@ -35,14 +33,11 @@ public class Time extends HudElement {
             text = name.getValue() + TextColor.GRAY + TextColor.RED + "Invalid";
         }
 
-        GlStateManager.pushMatrix();
         HudRenderUtil.renderText(text, getX(), getY());
-        GlStateManager.popMatrix();
     }
 
     public Time() {
-        super("Time", HudCategory.Text, 320, 70);
-        this.setData(new SimpleHudData(this, "Displays the time."));
+        super("Time", "Displays the time.", HudCategory.Text, 320, 70);
 
         timeFormat.addObserver(e -> {
             if (!e.isCancelled()) {
@@ -57,38 +52,12 @@ public class Time extends HudElement {
     }
 
     @Override
-    public void guiDraw(int mouseX, int mouseY, float partialTicks) {
-        super.guiDraw(mouseX, mouseY, partialTicks);
-        render();
-    }
-
-    @Override
-    public void hudDraw(float partialTicks) {
-        render();
-    }
-
-    @Override
-    public void guiUpdate(int mouseX, int mouseY, float partialTicks) {
-        super.guiUpdate(mouseX, mouseY, partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
-    public void hudUpdate(float partialTicks) {
-        super.hudUpdate(partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
     public float getWidth() {
-        return Managers.TEXT.getStringWidth(text);
+        return Managers.TEXT.getStringWidth(text.trim());
     }
 
     @Override
     public float getHeight() {
         return Managers.TEXT.getStringHeight();
     }
-
 }

@@ -47,6 +47,7 @@ import net.minecraft.util.math.BlockPos;
 
 import java.awt.*;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -472,6 +473,9 @@ public class AutoCrystal extends Module
     protected final Setting<Boolean> box =
             register(new BooleanSetting("Draw-Box", true))
                 .setComplexity(Complexity.Medium);
+    protected final Setting<HUDMode> hudMode =
+            register(new EnumSetting<>("HUD-Mode", HUDMode.Target))
+                .setComplexity(Complexity.Dev);
     protected final Setting<Color> boxColor =
             register(new ColorSetting("Box", new Color(255, 255, 255, 120)));
     protected final Setting<Color> outLine =
@@ -754,8 +758,7 @@ public class AutoCrystal extends Module
             register(new NumberSetting<>("Block-Extrapolation", 0, 0, 50))
                 .setComplexity(Complexity.Medium);
     public final Setting<BlockExtrapolationMode> blockExtraMode =
-            register(new EnumSetting<>("BlockExtraMode",
-                                       BlockExtrapolationMode.Pessimistic))
+            register(new EnumSetting<>("BlockExtraMode", BlockExtrapolationMode.Pessimistic))
                 .setComplexity(Complexity.Expert);
     public final Setting<Boolean> doubleExtraCheck =
             register(new BooleanSetting("DoubleExtraCheck", true))
@@ -765,32 +768,32 @@ public class AutoCrystal extends Module
             register(new BooleanSetting("AvgPlaceExtra", false))
                 .setComplexity(Complexity.Expert);
     public final Setting<Double> placeExtraWeight =
-        register(new NumberSetting<>("P-Extra-Weight", 1.0, 0.0, 5.0))
-            .setComplexity(Complexity.Medium);
+            register(new NumberSetting<>("P-Extra-Weight", 1.0, 0.0, 5.0))
+                .setComplexity(Complexity.Medium);
     public final Setting<Double> placeNormalWeight =
-        register(new NumberSetting<>("P-Norm-Weight", 1.0, 0.0, 5.0))
-            .setComplexity(Complexity.Medium);
+            register(new NumberSetting<>("P-Norm-Weight", 1.0, 0.0, 5.0))
+                .setComplexity(Complexity.Medium);
     public final Setting<Boolean> avgBreakExtra =
             register(new BooleanSetting("AvgBreakExtra", false))
                 .setComplexity(Complexity.Expert);
     public final Setting<Double> breakExtraWeight =
-        register(new NumberSetting<>("B-Extra-Weight", 1.0, 0.0, 5.0))
-            .setComplexity(Complexity.Medium);
+            register(new NumberSetting<>("B-Extra-Weight", 1.0, 0.0, 5.0))
+                .setComplexity(Complexity.Medium);
     public final Setting<Double> breakNormalWeight =
-        register(new NumberSetting<>("B-Norm-Weight", 1.0, 0.0, 5.0))
-            .setComplexity(Complexity.Medium);
+            register(new NumberSetting<>("B-Norm-Weight", 1.0, 0.0, 5.0))
+                .setComplexity(Complexity.Medium);
     public final Setting<Boolean> gravityExtrapolation =
-        register(new BooleanSetting("Extra-Gravity", true))
-            .setComplexity(Complexity.Expert);
+            register(new BooleanSetting("Extra-Gravity", true))
+                .setComplexity(Complexity.Expert);
     public final Setting<Double> gravityFactor =
-        register(new NumberSetting<>("Gravity-Factor", 1.0, 0.0, 5.0))
-            .setComplexity(Complexity.Expert);
+            register(new NumberSetting<>("Gravity-Factor", 1.0, 0.0, 5.0))
+                .setComplexity(Complexity.Expert);
     public final Setting<Double> yPlusFactor =
-        register(new NumberSetting<>("Y-Plus-Factor", 1.0, 0.0, 5.0))
-            .setComplexity(Complexity.Expert);
+            register(new NumberSetting<>("Y-Plus-Factor", 1.0, 0.0, 5.0))
+                .setComplexity(Complexity.Expert);
     public final Setting<Double> yMinusFactor =
-        register(new NumberSetting<>("Y-Minus-Factor", 1.0, 0.0, 5.0))
-            .setComplexity(Complexity.Expert);
+            register(new NumberSetting<>("Y-Minus-Factor", 1.0, 0.0, 5.0))
+                .setComplexity(Complexity.Expert);
     public final Setting<Boolean> selfExtrapolation =
             register(new BooleanSetting("SelfExtrapolation", false))
                 .setComplexity(Complexity.Medium);
@@ -894,8 +897,8 @@ public class AutoCrystal extends Module
             register(new BooleanSetting("ServerThread", false))
                 .setComplexity(Complexity.Medium);
     protected final Setting<Boolean> gameloop =
-        register(new BooleanSetting("Gameloop", false))
-            .setComplexity(Complexity.Medium);
+            register(new BooleanSetting("Gameloop", false))
+                .setComplexity(Complexity.Medium);
     protected final Setting<Boolean> asyncServerThread =
             register(new BooleanSetting("AsyncServerThread", false))
                 .setComplexity(Complexity.Medium);
@@ -914,9 +917,8 @@ public class AutoCrystal extends Module
 
     /* ---------------- Dev and Debugging -------------- */
     protected final Setting<Integer> priority =
-            register(new NumberSetting<>("Priority", 1500, Integer.MIN_VALUE,
-                    Integer.MAX_VALUE))
-                .setComplexity(Complexity.Expert);
+            register(new NumberSetting<>("Priority", 1500, Integer.MIN_VALUE, Integer.MAX_VALUE))
+                    .setComplexity(Complexity.Expert);
     protected final Setting<Boolean> spectator =
             register(new BooleanSetting("Spectator", false))
                 .setComplexity(Complexity.Expert);
@@ -1059,12 +1061,12 @@ public class AutoCrystal extends Module
 
     protected final DamageHelper damageHelper =
             new DamageHelper(this,
-                             extrapolationHelper,
-                             terrainCalc,
-                             extrapol,
-                             bExtrapol,
-                             selfExtrapolation,
-                             obbyTerrain);
+                     extrapolationHelper,
+                     terrainCalc,
+                     extrapol,
+                     bExtrapol,
+                     selfExtrapolation,
+                     obbyTerrain);
 
     protected final DamageSyncHelper damageSyncHelper =
             new DamageSyncHelper(Bus.EVENT_BUS,
@@ -1185,17 +1187,31 @@ public class AutoCrystal extends Module
         Managers.SET_DEAD.removeObserver(this.soundObserver);
         reset();
     }
+
+    String damageInfo;
     @Override
     public String getDisplayInfo() {
 
         EntityPlayer t = getTarget();
-
-        if (switching) {
-            return TextColor.GREEN + "Switching";
-        }
-        else
+        damageInfo = damage == null
+                        ? "0.0"
+                        : damage;
+        switch(hudMode.getValue())
         {
-            return t == null ? null : t.getName();
+            case Target:
+                if (switching) {
+                    return TextColor.GREEN + "Switching";
+                }
+                return t == null ? null : t.getName();
+            case Info:
+                return t == null
+                        ? "None"
+                        : t.getName()
+                            + ", "
+                            + Objects.requireNonNull(damageInfo);
+            case None:
+            default:
+                return "None";
         }
     }
 
@@ -1206,7 +1222,7 @@ public class AutoCrystal extends Module
     public void setRenderPos(BlockPos pos, String text) {
         renderTimer.reset();
         if (pos != null && !pos.equals(slidePos)
-            && (!smoothSlide.getValue()
+                && (!smoothSlide.getValue()
                 || slideTimer.passed(slideTime.getValue()))) {
             slidePos = renderPos;
             slideTimer.reset();

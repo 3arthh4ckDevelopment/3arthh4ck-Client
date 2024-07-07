@@ -11,8 +11,7 @@ import me.earth.earthhack.pingbypass.modules.PbModule;
 
 import java.util.*;
 
-final class ListenerPostKey extends EventListener<KeyboardEvent.Post> implements Globals
-{
+final class ListenerPostKey extends EventListener<KeyboardEvent.Post> implements Globals {
     private final Set<Module> addedModules = new HashSet<>();
     private final HudArrayList module;
 

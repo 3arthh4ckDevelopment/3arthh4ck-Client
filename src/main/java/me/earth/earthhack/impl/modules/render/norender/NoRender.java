@@ -11,6 +11,7 @@ import java.util.Set;
 
 //TODO: Limit TileEntities
 //TODO: NoRender Spectators
+// TODO: Limit TileEntities (TileEntityRenderEvent or something)
 public class NoRender extends Module
 {
     protected final Setting<Boolean> fire =
@@ -67,6 +68,8 @@ public class NoRender extends Module
             register(new BooleanSetting("Boots", false));
     protected final Setting<Boolean> entities =
             register(new BooleanSetting("Entities", false));
+    protected final Setting<Boolean> spectators =
+            register(new BooleanSetting("Spectators", false));
     public final Setting<Boolean> worldBorder =
         register(new BooleanSetting("WorldBorder", false));
 

@@ -49,8 +49,18 @@ public class KeybindComponent extends SettingComponent<Bind, BindSetting> {
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         final boolean hovered = RenderUtil.mouseWithinBounds(mouseX, mouseY, getFinishedX() + 5, getFinishedY() + 1, getWidth() - 10, getHeight() - 2);
-        if (hovered && mouseButton == 0)
-            setBinding(!isBinding());
+        if (hovered) {
+            switch (mouseButton) {
+                case 1:
+                    getBindSetting().setValue(Bind.none());
+                case 0:
+                    setBinding(!isBinding());
+                    break;
+                default:
+                    getBindSetting().setValue(Bind.fromKey(mouseButton, true));
+                    setBinding(false);
+            }
+        }
     }
 
     @Override

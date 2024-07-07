@@ -13,18 +13,18 @@ public class HudRenderUtil implements Globals {
     private static final TextRenderer RENDERER = Managers.TEXT;
     private static final ModuleCache<HudEditor> HUD_EDITOR = Caches.getModule(HudEditor.class);
 
-    public static String[] Brackets() {
+    public static String[] getBrackets() {
         return HUD_EDITOR.get().getBrackets();
     }
 
-    public static String BracketsColor() {
+    public static String getBracketsColor() {
         if (!(HUD_EDITOR.get().bracketsColor.getValue() == TextColor.None))
             return HUD_EDITOR.get().bracketsColor.getValue().getColor();
         else
             return TextColor.GRAY;
     }
 
-    public static String BracketsTextColor() {
+    public static String getBracketsTextColor() {
         if (!(HUD_EDITOR.get().insideText.getValue() == TextColor.None))
             return HUD_EDITOR.get().insideText.getValue().getColor();
         else

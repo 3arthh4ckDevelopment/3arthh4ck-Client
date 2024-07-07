@@ -19,6 +19,7 @@ import me.earth.earthhack.impl.hud.text.greeter.Greeter;
 import me.earth.earthhack.impl.hud.text.ping.Ping;
 import me.earth.earthhack.impl.hud.text.pops.Pops;
 import me.earth.earthhack.impl.hud.text.potions.Potions;
+import me.earth.earthhack.impl.hud.text.safetyhud.SafetyHud;
 import me.earth.earthhack.impl.hud.text.serverbrand.ServerBrand;
 import me.earth.earthhack.impl.hud.text.session.Session;
 import me.earth.earthhack.impl.hud.text.speed.HudSpeed;
@@ -31,7 +32,6 @@ import me.earth.earthhack.impl.hud.visual.imagerender.ImageRender;
 import me.earth.earthhack.impl.hud.visual.inventory.Inventory;
 import me.earth.earthhack.impl.hud.visual.model.Model;
 import me.earth.earthhack.impl.hud.visual.pvpresources.PvpResources;
-import me.earth.earthhack.impl.hud.visual.safetyhud.SafetyHud;
 import me.earth.earthhack.impl.hud.visual.skeetline.SkeetLine;
 import me.earth.earthhack.impl.hud.visual.targethud.TargetHud;
 import me.earth.earthhack.impl.hud.visual.textradar.TextRadar;
@@ -84,7 +84,6 @@ public class HudElementManager extends IterationRegister<HudElement> {
     {
         for (HudElement element : getRegistered())
         {
-            Earthhack.getLogger().info(element.getName());
             element.load();
         }
         registered.sort(Comparator.comparing(HudElement::getZ));
@@ -111,7 +110,6 @@ public class HudElementManager extends IterationRegister<HudElement> {
     public ArrayList<HudElement> getModulesFromCategory(HudCategory hudCategory) {
         final ArrayList<HudElement> iHudElements = new ArrayList<>();
         for (HudElement iHudElement : getRegistered()) {
-            System.out.println(iHudElement.getName());
             if (iHudElement.getCategory() == hudCategory) iHudElements.add(iHudElement);
         }
         return iHudElements;

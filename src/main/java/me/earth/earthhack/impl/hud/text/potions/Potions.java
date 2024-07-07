@@ -10,11 +10,9 @@ import me.earth.earthhack.impl.gui.hud.DynamicHudElement;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.client.editor.HudEditor;
-import me.earth.earthhack.impl.util.client.SimpleHudData;
 import me.earth.earthhack.impl.util.render.ColorUtil;
 import me.earth.earthhack.impl.util.render.hud.HudRainbow;
 import me.earth.earthhack.impl.util.render.hud.HudRenderUtil;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.MobEffects;
 import net.minecraft.potion.Potion;
@@ -27,8 +25,7 @@ import java.util.*;
 //TODO: hud potion symbols
 public class Potions extends DynamicHudElement {
 
-    private static Potions INSTANCE = new Potions();
-
+    private static final Potions INSTANCE = new Potions();
     private static final ModuleCache<HudEditor> HUD_EDITOR = Caches.getModule(HudEditor.class);
 
     private final Setting<PotionColor> potionColor =
@@ -36,50 +33,45 @@ public class Potions extends DynamicHudElement {
     private final Setting<Integer> textOffset =
             register(new NumberSetting<>("Offset", 2, 0, 10));
 
-    private final String label = "Potions [you don't have any effect!!]"; // render this?
-    int potCounter = 0;
+    private final String label = "[Potions] No effects applied."; // render this?
+    private int effCounter = 0;
 
-    private void render(boolean isHud) {
+    protected void onRender() {
         if (mc.player != null) {
-            final ArrayList<Potion> sorted = new ArrayList<>();
-            potCounter = 0;
-            for (final Potion potion : Potion.REGISTRY) {
+            ArrayList<Potion> sorted = new ArrayList<>();
+            effCounter = 0;
+            for (Potion potion : Potion.REGISTRY) {
                 if (potion != null) {
                     if (mc.player.isPotionActive(potion)) {
-                        potCounter++;
+                        effCounter++;
                         sorted.add(potion);
                     }
                 }
             }
-            sorted.sort(Comparator.comparingDouble(potion -> -RENDERER.getStringWidth(I18n.format(potion.getName()) + (mc.player.getActivePotionEffect(potion).getAmplifier() > 0 ? " " + (mc.player.getActivePotionEffect(potion).getAmplifier() + 1) : "") + ChatFormatting.GRAY + " " + Potion.getPotionDurationString(Objects.requireNonNull(mc.player.getActivePotionEffect(potion)), 1.0F))));
+            sorted.sort(Comparator.comparingDouble(potion -> -Managers.TEXT.getStringWidth(I18n.format(potion.getName()) + (mc.player.getActivePotionEffect(potion).getAmplifier() > 0 ? " " + (mc.player.getActivePotionEffect(potion).getAmplifier() + 1) : "") + ChatFormatting.GRAY + " " + Potion.getPotionDurationString(Objects.requireNonNull(mc.player.getActivePotionEffect(potion)), 1.0F))));
             int offset = 0;
-            float yPos = (directionV() == TextDirectionV.BottomToTop ? getY() + (sorted.size() * (Managers.TEXT.getStringHeight() + textOffset.getValue())) - Managers.TEXT.getStringHeightI() : getY());
-            float borderDistance = simpleCalcH(getWidth());
+            float yPos = (directionY() == TextDirectionY.BottomToTop ? getY() + (sorted.size() * (Managers.TEXT.getStringHeight() + textOffset.getValue())) - Managers.TEXT.getStringHeightI() : getY());
+            float borderDistance = simpleCalcX(getWidth());
             if (!sorted.isEmpty()) {
-                for (final Potion potion : sorted) {
-                    final PotionEffect effect = mc.player.getActivePotionEffect(potion);
+                for (Potion potion : sorted) {
+                    PotionEffect effect = mc.player.getActivePotionEffect(potion);
                     if (effect != null) {
                         final String label = I18n.format(potion.getName()) + (effect.getAmplifier() > 0 ? " " + (effect.getAmplifier() + 1) : "") + ChatFormatting.GRAY + " " + Potion.getPotionDurationString(effect, 1.0F);
                         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-                        float xPos = getX() - simpleCalcH(RENDERER.getStringWidth(label));
-                        if (directionV() == TextDirectionV.BottomToTop)
-                            renderPotionText(label, borderDistance + xPos, yPos - offset - animationY, effect.getPotion());
-                        else
-                            renderPotionText(label, borderDistance + xPos, yPos + offset + animationY, effect.getPotion());
-                        offset += RENDERER.getStringHeightI() + textOffset.getValue();
+                        float xPos = getX() - simpleCalcX(Managers.TEXT.getStringWidth(label));
+                        renderPotionText(label, borderDistance + xPos, yPos + offset * (directionY() == TextDirectionY.BottomToTop ? -1 : 1), effect.getPotion());
+                        offset += Managers.TEXT.getStringHeightI() + textOffset.getValue();
                     }
                 }
-            } else if (isHud) {
-                GlStateManager.pushMatrix();
+            } else if (isGui()) {
                 HudRenderUtil.renderText(label, getX(), getY());
-                GlStateManager.popMatrix();
             }
         }
     }
 
     public void renderPotionText(String text, float x, float y, Potion potion) {
         String colorCode = (potionColor.getValue() == PotionColor.Normal || potionColor.getValue() == PotionColor.Phobos) ? "" : HUD_EDITOR.get().colorMode.getValue().getColor();
-        RENDERER.drawStringWithShadow(colorCode + text,
+        Managers.TEXT.drawStringWithShadow(colorCode + text,
                 x,
                 y,
                 (potionColor.getValue() == PotionColor.Normal || potionColor.getValue() == PotionColor.Phobos) ? potionColorMap.get(potion).getRGB() : (
@@ -120,9 +112,9 @@ public class Potions extends DynamicHudElement {
     }
 
     private final Map<Potion, Color> potionColorMap = new HashMap<>();
+
     public Potions() {
-        super("PotionEffects", HudCategory.Text, 120, 120);
-        this.setData(new SimpleHudData(this, "Displays active potion effects."));
+        super("PotionEffects", "Displays active potion effects.", HudCategory.Text, 120, 120);
 
         normalColors();
 
@@ -170,38 +162,12 @@ public class Potions extends DynamicHudElement {
     }
 
     @Override
-    public void guiDraw(int mouseX, int mouseY, float partialTicks) {
-        super.guiDraw(mouseX, mouseY, partialTicks);
-        render(true);
-    }
-
-    @Override
-    public void hudDraw(float partialTicks) {
-        render(false);
-    }
-
-    @Override
-    public void guiUpdate(int mouseX, int mouseY, float partialTicks) {
-        super.guiUpdate(mouseX, mouseY, partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
-    public void hudUpdate(float partialTicks) {
-        super.hudUpdate(partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
     public float getWidth() {
-        return Managers.TEXT.getStringWidth(label);
+        return Managers.TEXT.getStringWidth(label.trim());
     }
 
     @Override
     public float getHeight() {
-        return (Managers.TEXT.getStringHeight() + textOffset.getValue()) * (potCounter == 0 ? 1 : potCounter);
+        return (Managers.TEXT.getStringHeight() + textOffset.getValue()) * (effCounter == 0 ? 1 : effCounter);
     }
-
 }

@@ -55,6 +55,11 @@ public class Bind
         return new Bind(key);
     }
 
+    public static Bind fromKey(int key, boolean mouseBind)
+    {
+        return new Bind((mouseBind ? key + Keyboard.getKeyboardSize() : key));
+    }
+
     /** Uses {@link Keyboard#getKeyIndex(java.lang.String)} to parse. */
     public static Bind fromString(String stringIn)
     {
@@ -65,6 +70,10 @@ public class Bind
         }
 
         return new Bind(Keyboard.getKeyIndex(string));
+    }
+
+    public static int getMouseKey(int mouseKey) {
+        return mouseKey + Keyboard.getKeyboardSize();
     }
 
 }

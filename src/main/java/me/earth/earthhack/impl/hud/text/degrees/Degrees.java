@@ -5,10 +5,7 @@ import me.earth.earthhack.api.hud.HudElement;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.util.client.SimpleHudData;
 import me.earth.earthhack.impl.util.render.hud.HudRenderUtil;
-import me.earth.earthhack.impl.util.text.TextColor;
-import net.minecraft.client.renderer.GlStateManager;
 
 public class Degrees extends HudElement {
 
@@ -16,79 +13,33 @@ public class Degrees extends HudElement {
             register(new BooleanSetting("Pitch", true));
     private final Setting<Boolean> yaw =
             register(new BooleanSetting("Yaw", true));
-    private final Setting<Boolean> customBrackets =
-            register(new BooleanSetting("CustomBrackets", true));
 
-    private static String deg = "";
+    private static String text = "";
 
-    private void render() {
-        if (mc.player != null) {
-            deg = actualBracket()[0] + " ";
+    protected void onRender() {
+        text = "";
+        if (pitch.getValue())
+            text += String.valueOf(((int) (mc.player.rotationPitch * 100) / 100.0f));
+        if (yaw.getValue()) {
             if (pitch.getValue())
-                deg += String.valueOf(((int) (mc.player.rotationPitch * 100) / 100.0f));
-            if (yaw.getValue()) {
-                if (pitch.getValue())
-                    deg += " : ";
-                deg += String.valueOf(((int) (mc.player.rotationYaw * 100) / 100.0f));
-            }
-            deg +=  " " + actualBracket()[1];
+                text += " : ";
+            text += String.valueOf(((int) (mc.player.rotationYaw * 100) / 100.0f));
         }
 
-        GlStateManager.pushMatrix();
-        HudRenderUtil.renderText(deg, getX(), getY());
-        GlStateManager.popMatrix();
-    }
-
-    private String[] actualBracket() {
-        if (customBrackets.getValue())
-            return new String[]{ HudRenderUtil.BracketsColor() + HudRenderUtil.Brackets()[0] + HudRenderUtil.BracketsTextColor(), HudRenderUtil.BracketsColor() + HudRenderUtil.Brackets()[1] + TextColor.WHITE };
-        else
-            return new String[]{ TextColor.GRAY + "[", TextColor.GRAY + "]"};
+        HudRenderUtil.renderText(surroundWithBrackets(text), getX(), getY());
     }
 
     public Degrees() {
-        super("Degrees", HudCategory.Text, 180, 90);
-        this.setData(new SimpleHudData(this, "Displays the direction you're currently facing."));
-    }
-
-    @Override
-    public void hudDraw(float partialTicks) {
-        render();
-    }
-
-    @Override
-    public void guiDraw(int mouseX, int mouseY, float partialTicks) {
-        super.guiDraw(mouseX, mouseY, partialTicks);
-        render();
-    }
-
-    @Override
-    public void guiUpdate(int mouseX, int mouseY, float partialTicks) {
-        super.guiUpdate(mouseX, mouseY, partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
-    public void hudUpdate(float partialTicks) {
-        super.hudUpdate(partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
+        super("Degrees", "Displays the direction you're currently facing.", HudCategory.Text, 180, 90);
     }
 
     @Override
     public float getWidth() {
-        return Managers.TEXT.getStringWidth(deg);
+        return Managers.TEXT.getStringWidth(text.trim());
     }
 
     @Override
     public float getHeight() {
         return Managers.TEXT.getStringHeight();
     }
-
-    private enum Mode {
-        Rotation,
-        Camera
-    }
-
 }

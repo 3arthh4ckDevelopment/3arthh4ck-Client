@@ -41,7 +41,7 @@ public class Core implements TweakerCore
     @Override
     public void init(ClassLoader pluginClassLoader)
     {
-        LOGGER.info("Found Environment: " + Environment.getEnvironment());
+        LOGGER.info("Found Environment: " + (Environment.getEnvironment() == null ? "FORGE" : Environment.getEnvironment()));
         Bus.EVENT_BUS.subscribe(Scheduler.getInstance());
 
         Path path = Paths.get("earthhack");

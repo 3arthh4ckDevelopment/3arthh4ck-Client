@@ -7,7 +7,6 @@ import me.earth.earthhack.api.setting.settings.BooleanSetting;
 import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.util.client.SimpleHudData;
 import me.earth.earthhack.impl.util.render.Render2DUtil;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.math.MathHelper;
@@ -22,10 +21,10 @@ public class Compass extends HudElement {
     private final Setting<Boolean> spawnLine =
             register(new BooleanSetting("SpawnLine", false));
 
-    private void render() {
+    protected void onRender() {
         float x = getX();
         float y = getY();
-        final ScaledResolution sr = new ScaledResolution(mc);
+        ScaledResolution sr = new ScaledResolution(mc);
         if (compass.getValue() == CompassMode.Line) {
             float playerYaw = mc.player.rotationYaw;
             float rotationYaw = wrap(playerYaw);
@@ -86,33 +85,7 @@ public class Compass extends HudElement {
     }
 
     public Compass() {
-        super("Compass",  HudCategory.Visual, 60, 70);
-        this.setData(new SimpleHudData(this, "Displays a compass"));
-    }
-
-    @Override
-    public void guiDraw(int mouseX, int mouseY, float partialTicks) {
-        super.guiDraw(mouseX, mouseY, partialTicks);
-        render();
-    }
-
-    @Override
-    public void hudDraw(float partialTicks) {
-        render();
-    }
-
-    @Override
-    public void guiUpdate(int mouseX, int mouseY, float partialTicks) {
-        super.guiUpdate(mouseX, mouseY, partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
-    public void hudUpdate(float partialTicks) {
-        super.hudUpdate(partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
+        super("Compass", "Displays a compass",  HudCategory.Visual, 60, 70);
     }
 
     @Override

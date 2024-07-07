@@ -48,7 +48,7 @@ public abstract class MixinItemRenderer
             Caches.getModule(NoRender.class);
     private static final ModuleCache<HandChams> HAND_CHAMS =
             Caches.getModule(HandChams.class);
-    private static final ModuleCache<ViewModel> VIEW_MODEL_REWRITE =
+    private static final ModuleCache<ViewModel> VIEW_MODEL =
             Caches.getModule(ViewModel.class);
 
     @Inject(
@@ -83,12 +83,12 @@ public abstract class MixinItemRenderer
                                              float y)
     {
 
-        if (VIEW_MODEL_REWRITE.isEnabled()) {
+        if (VIEW_MODEL.isEnabled()) {
 
             final Minecraft mc = Minecraft.getMinecraft();
 
-            if (VIEW_MODEL_REWRITE.get().isHand()) {
-                VIEW_MODEL_REWRITE.get().doTransform(hand == EnumHand.MAIN_HAND ? mc.player.getPrimaryHand() : mc.player.getPrimaryHand().opposite());
+            if (VIEW_MODEL.get().isHand()) {
+                VIEW_MODEL.get().doTransform(hand == EnumHand.MAIN_HAND ? mc.player.getPrimaryHand() : mc.player.getPrimaryHand().opposite());
             }
 
             itemRenderer.renderItemInFirstPerson(
@@ -96,7 +96,7 @@ public abstract class MixinItemRenderer
                     drinkOffset,
                     mapAngle,
                     hand,
-                    x + VIEW_MODEL_REWRITE.get().getSwing(hand),
+                    x + VIEW_MODEL.get().getSwing(hand),
                     stack,
                     y
             );
@@ -247,7 +247,7 @@ public abstract class MixinItemRenderer
             at = @At("HEAD"),
             cancellable = true)
     public void rotateArmHook(float p_187458_1_, CallbackInfo ci) {
-        if (VIEW_MODEL_REWRITE.isEnabled() && VIEW_MODEL_REWRITE.get().noSway.getValue()) {
+        if (VIEW_MODEL.isEnabled() && VIEW_MODEL.get().noSway.getValue()) {
             ci.cancel();
         }
     }
@@ -336,8 +336,8 @@ public abstract class MixinItemRenderer
     @Inject(method = "renderItemInFirstPerson(Lnet/minecraft/client/entity/AbstractClientPlayer;FFLnet/minecraft/util/EnumHand;FLnet/minecraft/item/ItemStack;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GlStateManager;pushMatrix()V", shift = At.Shift.AFTER))
     public void onTransformSideFirstPerson(AbstractClientPlayer player, float p_187457_2_, float p_187457_3_, EnumHand hand, float p_187457_5_, ItemStack stack, float p_187457_7_, CallbackInfo ci) {
         final Minecraft mc = Minecraft.getMinecraft();
-        if (VIEW_MODEL_REWRITE.isEnabled() && VIEW_MODEL_REWRITE.get().isItems()) {
-            VIEW_MODEL_REWRITE.get().doTransform(hand == EnumHand.MAIN_HAND ? mc.player.getPrimaryHand() : mc.player.getPrimaryHand().opposite());
+        if (VIEW_MODEL.isEnabled() && VIEW_MODEL.get().isItems()) {
+            VIEW_MODEL.get().doTransform(hand == EnumHand.MAIN_HAND ? mc.player.getPrimaryHand() : mc.player.getPrimaryHand().opposite());
         }
     }
 }

@@ -24,6 +24,9 @@ public abstract class MixinGuiMainMenu extends GuiScreen
     @Shadow
     private static final ResourceLocation MINECRAFT_TITLE_TEXTURES = new ResourceLocation("minecraft:textures/minecraft.png"); // https://www.textstudio.com/logo/minecraft-3d-text-41
 
+    @Shadow
+    private static final ResourceLocation[] TITLE_PANORAMA_PATHS = new ResourceLocation[]{new ResourceLocation("minecraft:textures/background/panorama_0.png"), new ResourceLocation("minecraft:textures/background/panorama_1.png"), new ResourceLocation("minecraft:textures/background/panorama_2.png"), new ResourceLocation("minecraft:textures/background/panorama_3.png"), new ResourceLocation("minecraft:textures/background/panorama_4.png"), new ResourceLocation("minecraft:textures/background/panorama_5.png")};
+
     @Inject(
         method = "initGui",
         at = @At(

@@ -115,8 +115,7 @@ final class ListenerStep extends ModuleListener<Step, StepEvent> {
     // Thanks to xyzbtw for giving the New offsets :)
     private double[] getOffsets(double height) {
         double[] offsets = new double[0];
-
-        if(module.offsetMode.getValue() == StepOffsetMode.Old) {
+        if (module.offsetMode.getValue() == StepOffsetMode.Old) {
             if (height >= 2.0)
             {
                 offsets = new double[8];
@@ -165,7 +164,7 @@ final class ListenerStep extends ModuleListener<Step, StepEvent> {
                 offsets[5] = 1.372;
                 offsets[6] = 1.652;
                 offsets[7] = 1.869;
-            } else if (height<1.875) {
+            } else if (height < 1.875) {
                 offsets = new double[height > 1.0 ? 6 : 2];
                 offsets[0] = height < 1.0 && height > 0.8 ? 0.39 : 0.42;
                 offsets[1] = height < 1.0 && height > 0.8 ? 0.7 : 0.753;

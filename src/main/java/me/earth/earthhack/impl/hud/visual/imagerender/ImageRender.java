@@ -8,63 +8,51 @@ import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.ListSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.util.client.SimpleHudData;
 import me.earth.earthhack.impl.util.render.Render2DUtil;
 import me.earth.earthhack.impl.util.render.image.EfficientTexture;
 import me.earth.earthhack.impl.util.render.image.GifImage;
 import me.earth.earthhack.impl.util.render.image.NameableImage;
 import me.earth.earthhack.impl.util.text.ChatIDs;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.client.renderer.GlStateManager;
 
 public class ImageRender extends HudElement {
 
     private final Setting<Mode> mode =
             register(new EnumSetting<>("Mode", Mode.Image));
-
-
-    public final Setting<GifImage> gif =
+    private final Setting<GifImage> gif =
             register(new ListSetting<>("Gif", Managers.FILES.getInitialGif(), Managers.FILES.getGifs()));
-
-
     private final Setting<NameableImage> image =
             register(new ListSetting<>("Name", Managers.FILES.getInitialImage(), Managers.FILES.getImages()));
     private final Setting<Float> width =
-            register(new NumberSetting<>("Width", 1.0f, 0.0f, 500.0f));
+            register(new NumberSetting<>("Width", 10.0f, 0.0f, 1000.0f));
     private final Setting<Float> height =
-            register(new NumberSetting<>("Height", 1.0f, 0.0f, 500.0f));
+            register(new NumberSetting<>("Height", 10.0f, 0.0f, 1000.0f));
     private final Setting<Float> scale =
-            register(new NumberSetting<>("Scale", 1.0f, 0.0f, 30.0f));
+            register(new NumberSetting<>("Scale", 1.0f, 0.001f, 2.0f));
     private final Setting<Boolean> reload =
             register(new BooleanSetting("Reload", false));
 
-    private void render() {
-        if (mc.player != null && mc.world != null) {
-            if (mode.getValue() == Mode.Image && image.getValue().getTexture() != null) {
-                // GL11.glPushMatrix();
-                // GL11.glScalef(scale.getValue(), scale.getValue(), 1.0f);
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, image.getValue().getTexture().getGlTextureId());
-                Render2DUtil.drawCompleteImage(getX(), getY(), width.getValue(), height.getValue());
-                // GL11.glScalef(1.0f, 1.0f, 1.0f);
-                // GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-                // GL11.glPopMatrix();
-            } else if (mode.getValue() == Mode.Gif) {
-                EfficientTexture texture = gif.getValue().getDynamicTexture();
-                if (texture != null) {
-                    // GL11.glPushMatrix();
-                    // GL11.glScalef(scale.getValue(), scale.getValue(), 1.0f);
-                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getGlTextureId());
-                    Render2DUtil.drawCompleteImage(getX(), getY(), width.getValue(), height.getValue());
-                    // GL11.glScalef(1.0f, 1.0f, 1.0f);
-                    // GL11.glPopMatrix();
-                    // GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-                }
+    protected void onRender() {
+        float scaleFactor = scale.getValue();
+        GlStateManager.scale(scaleFactor, scaleFactor, getZ());
+        GlStateManager.disableBlend();
+        GlStateManager.disableDepth();
+        if (mode.getValue() == Mode.Image && image.getValue().getTexture() != null) {
+            GlStateManager.bindTexture(image.getValue().getTexture().getGlTextureId());
+        } else if (mode.getValue() == Mode.Gif && gif.getValue().getDynamicTexture() != null) {
+            EfficientTexture texture = gif.getValue().getDynamicTexture();
+            if (texture != null) {
+                GlStateManager.bindTexture(texture.getGlTextureId());
             }
         }
+        Render2DUtil.drawCompleteImage(getX() / scaleFactor, getY() / scaleFactor, width.getValue(), height.getValue());
+        GlStateManager.enableDepth();
+        GlStateManager.enableBlend();
+        GlStateManager.scale(1.0f, 1.0f, 1.0f);
     }
 
     public ImageRender() {
-        super("ImageRender",  HudCategory.Visual, 280, 280);
-        this.setData(new SimpleHudData(this, "Displays an image."));
+        super("ImageRender", "Displays an image.",  HudCategory.Visual, 280, 280);
 
         this.reload.addObserver(event -> {
             event.setCancelled(true);
@@ -74,43 +62,17 @@ public class ImageRender extends HudElement {
     }
 
     @Override
-    public void guiDraw(int mouseX, int mouseY, float partialTicks) {
-        super.guiDraw(mouseX, mouseY, partialTicks);
-        render();
-    }
-
-    @Override
-    public void hudDraw(float partialTicks) {
-        render();
-    }
-
-    @Override
-    public void guiUpdate(int mouseX, int mouseY, float partialTicks) {
-        super.guiUpdate(mouseX, mouseY, partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
-    public void hudUpdate(float partialTicks) {
-        super.hudUpdate(partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
     public float getWidth() {
-        return Managers.TEXT.getStringWidth("aaaaaa");
+        return width.getValue() * scale.getValue();
     }
 
     @Override
     public float getHeight() {
-        return Managers.TEXT.getStringWidth("aaaaaa");
+        return height.getValue() * scale.getValue();
     }
 
     private enum Mode {
         Image,
         Gif
     }
-
 }

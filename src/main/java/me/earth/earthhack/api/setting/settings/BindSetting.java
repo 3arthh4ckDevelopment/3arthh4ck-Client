@@ -72,7 +72,7 @@ public class BindSetting extends Setting<Bind>
                 String keyName = Keyboard.getKeyName(i);
                 if (keyName != null
                         && keyName.toLowerCase().startsWith(
-                                                        string.toLowerCase()))
+                                string.toLowerCase()))
                 {
                     return keyName;
                 }

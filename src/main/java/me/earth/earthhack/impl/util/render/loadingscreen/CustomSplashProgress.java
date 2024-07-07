@@ -134,12 +134,17 @@ public class CustomSplashProgress implements Globals {
                 while (!done) {
                     framecount++;
                     ProgressManager.ProgressBar first = null;
-                    final Iterator<ProgressManager.ProgressBar> i = ProgressManager.barIterator();
+                    ProgressManager.ProgressBar penult = null;
+                    ProgressManager.ProgressBar last = null;
+                    Iterator<ProgressManager.ProgressBar> i = ProgressManager.barIterator();
+
                     while(i.hasNext()) {
-                        if (first == null)
+                        if (first == null) {
                             first = i.next();
-                        else
-                            i.next();
+                        } else {
+                            penult = last;
+                            last = i.next();
+                        }
                     }
 
                     GL11.glPushMatrix();
@@ -186,7 +191,7 @@ public class CustomSplashProgress implements Globals {
                     int scale = 2;
                     int fontY = bottom - 35 - fontRenderer.FONT_HEIGHT;
                     int fontX = left + 15;
-                    String progress = "Error";
+                    String progress = "Initializing...";
                     if (first != null)
                         progress = first.getTitle() + " - " + first.getMessage();
                     setColor(16777215);
@@ -195,6 +200,17 @@ public class CustomSplashProgress implements Globals {
                     fontRenderer.drawString(Earthhack.NAME + " | " + progress, fontX / scale, fontY / scale, 16777215);
                     GL11.glDisable(3553);
                     GL11.glPopMatrix();
+
+                    if (first != null) {
+                        GL11.glPushMatrix();
+                        String progressPercentage = first.getStep() / first.getSteps() * 100 + "%";
+                        setColor(16777215);
+                        GL11.glScalef(scale, scale, 1.0f);
+                        GL11.glEnable(3553);
+                        fontRenderer.drawString(progressPercentage, (right - 50 - fontRenderer.getStringWidth(progressPercentage)) / scale, (bottom - 35 - fontRenderer.FONT_HEIGHT) / scale, 16777215);
+                        GL11.glDisable(3553);
+                        GL11.glPopMatrix();
+                    }
                     GL11.glPopMatrix();
 
                     mutex.acquireUninterruptibly();

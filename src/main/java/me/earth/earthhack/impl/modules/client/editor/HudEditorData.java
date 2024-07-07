@@ -10,7 +10,6 @@ final class HudEditorData extends DefaultData<HudEditor>
         register(module.colorMode, "The hud color mode");
         register(module.color, "The hud text color");
         register(module.shadow, "The text shadow");
-        register(module.testShadow, "Test shadow [DEV SETTING], it should work the same as normal shadow, maybe some issues...");
         register(module.bracketsColor, "The custom brackets color");
         register(module.insideText, "The text inside the brackets color");
         register(module.brackets, "The custom brackets:\n " +

@@ -10,15 +10,13 @@ import me.earth.earthhack.impl.Earthhack;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.client.editor.HudEditor;
-import me.earth.earthhack.impl.util.client.SimpleHudData;
 import me.earth.earthhack.impl.util.render.hud.HudRenderUtil;
-import net.minecraft.client.renderer.GlStateManager;
 
 import java.awt.*;
 
 public class Watermark extends HudElement {
 
-    protected final Setting<String> logoText =
+    private final Setting<String> logoText =
             register(new StringSetting("TextLogo", Earthhack.NAME));
     private final Setting<Boolean> showVersion =
             register(new BooleanSetting("Version", true));
@@ -29,56 +27,27 @@ public class Watermark extends HudElement {
 
     private String text = "";
 
-    private void render() {
+    protected void onRender() {
         text = logoText.getValue() + (showVersion.getValue() ? " - " + Earthhack.VERSION : "");
-        GlStateManager.pushMatrix();
         if (sync.getValue())
             HudRenderUtil.renderText(text, getX(), getY());
         else if (Caches.getModule(HudEditor.class).get().shadow.getValue())
             Managers.TEXT.drawStringWithShadow(text, getX(), getY(), color.getValue().getRGB());
         else
             Managers.TEXT.drawString(text, getX(), getY(), color.getValue().getRGB());
-        GlStateManager.popMatrix();
     }
 
     public Watermark() {
-        super("Watermark", HudCategory.Text, 2, 2);
-        this.setData(new SimpleHudData(this, "Displays a watermark."));
-    }
-
-    @Override
-    public void guiDraw(int mouseX, int mouseY, float partialTicks) {
-        super.guiDraw(mouseX, mouseY, partialTicks);
-        render();
-    }
-
-    @Override
-    public void hudDraw(float partialTicks) {
-        render();
-    }
-
-    @Override
-    public void guiUpdate(int mouseX, int mouseY, float partialTicks) {
-        super.guiUpdate(mouseX, mouseY, partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
-    public void hudUpdate(float partialTicks) {
-        super.hudUpdate(partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
+        super("Watermark", "Displays a watermark.", HudCategory.Text, 2, 2);
     }
 
     @Override
     public float getWidth() {
-        return Managers.TEXT.getStringWidth(text);
+        return Managers.TEXT.getStringWidth(text.trim());
     }
 
     @Override
     public float getHeight() {
         return Managers.TEXT.getStringHeight();
     }
-
 }

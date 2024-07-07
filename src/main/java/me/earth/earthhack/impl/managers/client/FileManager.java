@@ -27,7 +27,7 @@ public class FileManager
     private static final File IMAGES = new File("earthhack/images");
     private static final File MODELS = new File("earthhack/models");
     private static final File SHADERS = new File("earthhack/shaders");
-    private static final File MODULES = new File("earthhack/models");
+    private static final File MODULES = new File("earthhack/modules");
 
     private final Map<String, GifImage> gifs = new ConcurrentHashMap<>();
     private final Map<String, NameableImage> textures = new ConcurrentHashMap<>();

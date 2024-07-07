@@ -1,15 +1,23 @@
 package me.earth.earthhack.impl.util.render;
 
+import me.earth.earthhack.api.cache.ModuleCache;
+import me.earth.earthhack.api.util.TextUtil;
 import me.earth.earthhack.api.util.interfaces.Globals;
 import me.earth.earthhack.impl.core.ducks.render.IShaderGroup;
+import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.modules.Caches;
+import me.earth.earthhack.impl.modules.client.editor.HudEditor;
 import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.render.framebuffer.TextureFramebuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.client.shader.ShaderGroup;
@@ -17,6 +25,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
@@ -38,6 +47,9 @@ public class Render2DUtil implements Globals {
     protected static int lastScaleHeight;
     protected static final ResourceLocation shader = new ResourceLocation("earthhack:shaders/blur.json");
     protected static final StopWatch timer = new StopWatch();
+
+    private static final ModuleCache<HudEditor> HUD_EDITOR =
+            Caches.getModule(HudEditor.class);
 
     public static int getScreenScale() {
         return mc.gameSettings.guiScale;
@@ -89,22 +101,25 @@ public class Render2DUtil implements Globals {
         ((IShaderGroup) blurShader).getListShaders().get(1).getShaderManager().getShaderUniform("BlurDir").set(blurHeight, blurWidth);
     }
 
-    public static void drawBlurryRect(float x, float y, float x1, float y1, int intensity, float size) {
+    public static void drawBlurryRect(float startX, float startY, float endX, float endY, int intensity, float size) {
         drawRect(
-                (int) x,
-                (int) y,
-                (int) x1,
-                (int) y1, new Color(50, 50, 50, 50).getRGB());
+                (int) startX,
+                (int) startY,
+                (int) endX,
+                (int) endY, new Color(50, 50, 50, 50).getRGB());
         blurArea(
-                (int) x,
-                (int) y,
-                (int) x1 - (int) x,
-                (int) y1 - (int) y,
+                (int) startX,
+                (int) startY,
+                (int) endX - (int) startX,
+                (int) endY - (int) startY,
                 intensity, size, size);
     }
 
-
     public static void drawRect(float startX, float startY, float endX, float endY, int color) {
+        drawRect(startX, startY, endX, endY, color, 0);
+    }
+
+    public static void drawRect(float startX, float startY, float endX, float endY, int color, int zLevel) {
         float alpha = (float) (color >> 24 & 255) / 255.0F;
         float red = (float) (color >> 16 & 255) / 255.0F;
         float green = (float) (color >> 8 & 255) / 255.0F;
@@ -115,10 +130,10 @@ public class Render2DUtil implements Globals {
         GlStateManager.disableTexture2D();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
         bufferBuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        bufferBuilder.pos(startX, endY, 0.0D).color(red, green, blue, alpha).endVertex();
-        bufferBuilder.pos(endX, endY, 0.0D).color(red, green, blue, alpha).endVertex();
-        bufferBuilder.pos(endX, startY, 0.0D).color(red, green, blue, alpha).endVertex();
-        bufferBuilder.pos(startX, startY, 0.0D).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(startX, endY, zLevel).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(endX, endY, zLevel).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(endX, startY, zLevel).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(startX, startY, zLevel).color(red, green, blue, alpha).endVertex();
         tessellator.draw();
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
@@ -241,12 +256,12 @@ public class Render2DUtil implements Globals {
         GlStateManager.popMatrix();
     }
 
-    public static void drawBorderedRect(float x, float y, float x2, float y2, float lineSize, int color, int borderColor) {
-        drawRect(x, y, x2, y2, color);
-        drawRect(x, y, x + lineSize, y2, borderColor);
-        drawRect(x2 - lineSize, y, x2, y2, borderColor);
-        drawRect(x, y2 - lineSize, x2, y2, borderColor);
-        drawRect(x, y, x2, y + lineSize, borderColor);
+    public static void drawBorderedRect(float startX, float startY, float endX, float endY, float lineSize, int color, int borderColor) {
+        drawRect(startX, startY, endX, endY, color);
+        drawRect(startX, startY, startX + lineSize, endY, borderColor);
+        drawRect(endX - lineSize, startY, endX, endY, borderColor);
+        drawRect(startX, endY - lineSize, endX, endY, borderColor);
+        drawRect(startX, startY, endX, startY + lineSize, borderColor);
     }
 
     public static void progressBar(float startX, float endX, float y, float radius, int color) {
@@ -274,28 +289,28 @@ public class Render2DUtil implements Globals {
         //TODO: make blur
     }
 
-    public static void drawTexturedRect(int x, int y, int textureX, int textureY, int width, int height, int zLevel) {
+    public static void drawTexturedRect(int startX, int startY, int textureX, int textureY, int width, int height, int zLevel) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder BufferBuilder = tessellator.getBuffer();
         BufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        BufferBuilder.pos(x, y + height, zLevel).tex((float) (textureX) * 0.00390625F, (float) (textureY + height) * 0.00390625F).endVertex();
-        BufferBuilder.pos(x + width, y + height, zLevel).tex((float) (textureX + width) * 0.00390625F, (float) (textureY + height) * 0.00390625F).endVertex();
-        BufferBuilder.pos(x + width, y, zLevel).tex((float) (textureX + width) * 0.00390625F, (float) (textureY) * 0.00390625F).endVertex();
-        BufferBuilder.pos(x, y, zLevel).tex((float) (textureX) * 0.00390625F, (float) (textureY) * 0.00390625F).endVertex();
+        BufferBuilder.pos(startX, startY + height, zLevel).tex((float) (textureX) * 0.00390625F, (float) (textureY + height) * 0.00390625F).endVertex();
+        BufferBuilder.pos(startX + width, startY + height, zLevel).tex((float) (textureX + width) * 0.00390625F, (float) (textureY + height) * 0.00390625F).endVertex();
+        BufferBuilder.pos(startX + width, startY, zLevel).tex((float) (textureX + width) * 0.00390625F, (float) (textureY) * 0.00390625F).endVertex();
+        BufferBuilder.pos(startX, startY, zLevel).tex((float) (textureX) * 0.00390625F, (float) (textureY) * 0.00390625F).endVertex();
         tessellator.draw();
     }
 
-    public static void drawCompleteImage(float posX, float posY, float width, float height) {
+    public static void drawCompleteImage(float startX, float startY, float width, float height) {
         GL11.glPushMatrix();
-        GL11.glTranslatef(posX, posY, 0.0F);
+        GL11.glTranslatef(startX, startY, 0.0F);
         GL11.glBegin(7);
-        GL11.glTexCoord2f(0.0F, 0.0F);
-        GL11.glVertex3f(0.0F, 0.0F, 0.0F);
         GL11.glTexCoord2f(0.0F, 1.0F);
+        GL11.glVertex3f(0.0F, 0.0F, 0.0F);
+        GL11.glTexCoord2f(0.0F, 0.0F);
         GL11.glVertex3f(0.0F, height, 0.0F);
-        GL11.glTexCoord2f(1.0F, 1.0F);
-        GL11.glVertex3f(width, height, 0.0F);
         GL11.glTexCoord2f(1.0F, 0.0F);
+        GL11.glVertex3f(width, height, 0.0F);
+        GL11.glTexCoord2f(1.0F, 1.0F);
         GL11.glVertex3f(width, 0.0F, 0.0F);
         GL11.glEnd();
         GL11.glPopMatrix();
@@ -332,7 +347,7 @@ public class Render2DUtil implements Globals {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    public static void drawLine(float x, float y, float x1, float y1, float lineWidth, int color) {
+    public static void drawLine(float startX, float startY, float endX, float endY, float lineWidth, int color) {
         float alpha = (float) (color >> 24 & 255) / 255.0F;
         float red = (float) (color >> 16 & 255) / 255.0F;
         float green = (float) (color >> 8 & 255) / 255.0F;
@@ -344,8 +359,8 @@ public class Render2DUtil implements Globals {
         GlStateManager.glLineWidth(lineWidth);
         GL11.glColor4f(red, green, blue, alpha);
         GL11.glBegin(GL11.GL_LINES);
-        GL11.glVertex2f(x, y);
-        GL11.glVertex2f(x1, y1);
+        GL11.glVertex2f(startX, startY);
+        GL11.glVertex2f(endX, endY);
         GL11.glEnd();
         GlStateManager.resetColor();
         GlStateManager.enableTexture2D();
@@ -353,19 +368,19 @@ public class Render2DUtil implements Globals {
         GlStateManager.popMatrix();
     }
 
-    public static void drawCheckeredBackground(float x, float y, float x2, float y2) {
-        drawRect(x, y, x2, y2, 0xFFFFFFFF);
+    public static void drawCheckeredBackground(float startX, float startY, float endX, float endY) {
+        drawRect(startX, startY, endX, endY, 0xFFFFFFFF);
 
-        for (boolean offset = false; y < y2; y++) {
-            for (float x1 = x + ((offset = !offset) ? 1 : 0); x1 < x2; x1 += 2) {
-                if (x1 > x2 - 1)
+        for (boolean offset = false; startY < endY; startY++) {
+            for (float x1 = startX + ((offset = !offset) ? 1 : 0); x1 < endX; x1 += 2) {
+                if (x1 > endX - 1)
                     continue;
-                drawRect(x1, y, x1 + 1, y + 1, 0xFF808080);
+                drawRect(x1, startY, x1 + 1, startY + 1, 0xFF808080);
             }
         }
     }
 
-    public static void drawGradientRect(float left, float top, float right, float bottom, boolean sideways, int startColor, int endColor) {
+    public static void drawGradientRect(float startX, float startY, float endX, float endY, boolean sideways, int startColor, int endColor) {
         float f = (float) (startColor >> 24 & 255) / 255.0F;
         float f1 = (float) (startColor >> 16 & 255) / 255.0F;
         float f2 = (float) (startColor >> 8 & 255) / 255.0F;
@@ -383,15 +398,15 @@ public class Render2DUtil implements Globals {
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
         if (sideways) {
-            bufferbuilder.pos(left, top, zLevel).color(f1, f2, f3, f).endVertex();
-            bufferbuilder.pos(left, bottom, zLevel).color(f1, f2, f3, f).endVertex();
-            bufferbuilder.pos(right, bottom, zLevel).color(f5, f6, f7, f4).endVertex();
-            bufferbuilder.pos(right, top, zLevel).color(f5, f6, f7, f4).endVertex();
+            bufferbuilder.pos(startX, startY, zLevel).color(f1, f2, f3, f).endVertex();
+            bufferbuilder.pos(startX, endY, zLevel).color(f1, f2, f3, f).endVertex();
+            bufferbuilder.pos(endX, endY, zLevel).color(f5, f6, f7, f4).endVertex();
+            bufferbuilder.pos(endX, startY, zLevel).color(f5, f6, f7, f4).endVertex();
         } else {
-            bufferbuilder.pos(right, top, zLevel).color(f1, f2, f3, f).endVertex();
-            bufferbuilder.pos(left, top, zLevel).color(f1, f2, f3, f).endVertex();
-            bufferbuilder.pos(left, bottom, zLevel).color(f5, f6, f7, f4).endVertex();
-            bufferbuilder.pos(right, bottom, zLevel).color(f5, f6, f7, f4).endVertex();
+            bufferbuilder.pos(endX, startY, zLevel).color(f1, f2, f3, f).endVertex();
+            bufferbuilder.pos(startX, startY, zLevel).color(f1, f2, f3, f).endVertex();
+            bufferbuilder.pos(startX, endY, zLevel).color(f5, f6, f7, f4).endVertex();
+            bufferbuilder.pos(endX, endY, zLevel).color(f5, f6, f7, f4).endVertex();
         }
         tessellator.draw();
         GlStateManager.shadeModel(7424);
@@ -400,7 +415,7 @@ public class Render2DUtil implements Globals {
         GlStateManager.enableTexture2D();
     }
 
-    public static void blurArea(int x, int y, int width, int height, float intensity, float blurWidth, float blurHeight) {
+    public static void blurArea(int startX, int startY, int width, int height, float intensity, float blurWidth, float blurHeight) {
         ScaledResolution scale = new ScaledResolution(Minecraft.getMinecraft());
         int factor = scale.getScaleFactor();
         int factor2 = scale.getScaledWidth();
@@ -420,7 +435,7 @@ public class Render2DUtil implements Globals {
                 timer.reset();
             }
 
-            GL11.glScissor(x * factor, (mc.displayHeight - (y * factor) - height * factor), width * factor,
+            GL11.glScissor(startX * factor, (mc.displayHeight - (startY * factor) - height * factor), width * factor,
                     (height) * factor);
             GL11.glEnable(GL11.GL_SCISSOR_TEST);
             setShaderConfigs(intensity, blurWidth, blurHeight);
@@ -500,20 +515,19 @@ public class Render2DUtil implements Globals {
         return null;
     }
 
-    public static void drawOutlineRect(float x, float y, float w, float h, float lineWidth, int c) {
-        drawRect(x, y, x - lineWidth, h, c);
-        drawRect(w + lineWidth, y, w, h, c);
-        drawRect(x, y, w, y - lineWidth, c);
-        drawRect(x, h + lineWidth, w, h, c);
+    public static void drawOutlineRect(float startX, float startY, float width, float height, float lineWidth, int c) {
+        drawRect(startX, startY, startX - lineWidth, height, c);
+        drawRect(width + lineWidth, startY, width, height, c);
+        drawRect(startX, startY, width, startY - lineWidth, c);
+        drawRect(startX, height + lineWidth, width, height, c);
     }
 
-    public static void drawPlayerFace(EntityPlayer entityplayer ,int x, int y, int width, int height) {
+    public static void drawPlayerFace(EntityPlayer entityplayer, int startX, int startY, int width, int height) {
         if (entityplayer != null && mc.world != null) {
             if (mc.player.connection == null) return;
             NetworkPlayerInfo networkPlayerInfo = mc.player.connection.getPlayerInfo(entityplayer.getName());
             if (networkPlayerInfo == null) return;
             ResourceLocation resourceLocation = networkPlayerInfo.getLocationSkin();
-            if (resourceLocation == null) return;
 
             GlStateManager.pushAttrib();
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -523,7 +537,7 @@ public class Render2DUtil implements Globals {
 
             mc.getTextureManager().bindTexture(resourceLocation);
 
-            Gui.drawScaledCustomSizeModalRect(x, y, 8.0F, 8, 8, 8, width, height, 64.0F, 64.0F);
+            Gui.drawScaledCustomSizeModalRect(startX, startY, 8.0F, 8, 8, 8, width, height, 64.0F, 64.0F);
 
             GlStateManager.disableBlend();
             GlStateManager.disableAlpha();
@@ -573,44 +587,37 @@ public class Render2DUtil implements Globals {
             GlStateManager.colorMask(true, true, true, true);
         }
     }
-    public static void drawPlayer(EntityPlayer player, float playerScale, float x, float y) {
-        final EntityPlayer ent = player;
+
+    public static void drawPlayer(EntityPlayer player, int playerScale, int startX, int startY) {
+        GuiInventory.drawEntityOnScreen(startX, startY, playerScale, player.cameraYaw, player.cameraYaw, player);
+    }
+
+    public static void drawItem(ItemStack itemStack, int x, int y, boolean amount) {
+        drawItem(itemStack, x, y, amount, false);
+    }
+
+    public static void drawItem(ItemStack itemStack, int x, int y, boolean amount, boolean countUnstackable) {
+        if (itemStack == null) return;
+        int itemCount = itemStack.getCount();
+        if (itemCount <= 0) {
+            itemStack.setCount(1);
+        }
         GlStateManager.pushMatrix();
-        GlStateManager.color(1.0f, 1.0f, 1.0f);
-        RenderHelper.enableStandardItemLighting();
-        GlStateManager.enableAlpha();
-        GlStateManager.shadeModel(7424);
-        GlStateManager.enableAlpha();
-        GlStateManager.enableDepth();
-        GlStateManager.rotate(0.0f, 0.0f, 5.0f, 0.0f);
-        GlStateManager.enableColorMaterial();
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(x, y, 50.0f);
-        GlStateManager.scale(-50.0f * playerScale, 50.0f * playerScale, 50.0f * playerScale);
-        GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
-        GlStateManager.rotate(135.0f, 0.0f, 1.0f, 0.0f);
-        RenderHelper.enableStandardItemLighting();
-        GlStateManager.rotate(-135.0f, 0.0f, 1.0f, 0.0f);
-        GlStateManager.rotate(-(float)Math.atan(y / 40.0f) * 20.0f, 1.0f, 0.0f, 0.0f);
-        GlStateManager.translate(0.0f, 0.0f, 0.0f);
-        final RenderManager rendermanager = mc.getRenderManager();
-        rendermanager.setPlayerViewY(180.0f);
-        rendermanager.setRenderShadow(false);
-        try {
-            rendermanager.renderEntity(ent, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
-        } catch(Exception ignored) {}
-        rendermanager.setRenderShadow(true);
+        mc.getRenderItem().zLevel = 200;
+        mc.getRenderItem().renderItemAndEffectIntoGUI(itemStack, x, y);
+        mc.getRenderItem().zLevel = 0;
+
+        if (amount) {
+            if (itemStack.isStackable() || countUnstackable || itemStack.getCount() > 1) {
+                GlStateManager.disableDepth();
+                String count = TextUtil.numberFormatter(itemCount);
+                Managers.TEXT.drawStringWithShadow(count,
+                        x + 18 - Managers.TEXT.getStringWidth(count),
+                        y + 9, HUD_EDITOR.get().matchColor.getValue() ? HUD_EDITOR.get().color.getValue().getRGB() : 0xffffffff);
+                GlStateManager.enableDepth();
+            }
+        }
         GlStateManager.popMatrix();
-        RenderHelper.disableStandardItemLighting();
-        GlStateManager.disableRescaleNormal();
-        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-        GlStateManager.disableTexture2D();
-        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-        GlStateManager.depthFunc(515);
-        GlStateManager.resetColor();
-        GlStateManager.disableDepth();
-        GlStateManager.popMatrix();
-        // fix the inventory player
     }
 
 }

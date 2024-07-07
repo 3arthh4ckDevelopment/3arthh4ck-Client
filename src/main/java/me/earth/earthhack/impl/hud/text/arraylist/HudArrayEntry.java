@@ -3,6 +3,7 @@ package me.earth.earthhack.impl.hud.text.arraylist;
 import me.earth.earthhack.api.module.Module;
 import me.earth.earthhack.api.module.util.Hidden;
 import me.earth.earthhack.api.util.interfaces.Globals;
+import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.render.RenderUtil;
 import me.earth.earthhack.impl.util.render.hud.HudRenderUtil;
@@ -29,11 +30,11 @@ public class HudArrayEntry extends HudArrayList implements Globals {
     }
 
     public void drawArrayEntry(float desiredX, float desiredY) {
-        final float textWidth = RENDERER.getStringWidth(getHudName(getModule()));
+        final float textWidth = Managers.TEXT.getStringWidth(getHudName(getModule()));
         final float xSpeed = textWidth / (Minecraft.getDebugFPS() >> 2);
         GlStateManager.pushMatrix();
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        RenderUtil.scissor(desiredX - textWidth, desiredY, desiredX, desiredY + RENDERER.getStringHeightI() + 3);
+        RenderUtil.scissor(desiredX - textWidth, desiredY, desiredX, desiredY + Managers.TEXT.getStringHeightI() + 3);
         HudRenderUtil.renderText(getHudName(getModule()), getX(), desiredY);
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
         GlStateManager.popMatrix();
@@ -66,7 +67,7 @@ public class HudArrayEntry extends HudArrayList implements Globals {
     }
 
     private boolean isDone(float desiredX) {
-        final float textWidth = RENDERER.getStringWidth(getHudName(getModule()));
+        final float textWidth = Managers.TEXT.getStringWidth(getHudName(getModule()));
         return getX() <= desiredX - textWidth;
     }
 

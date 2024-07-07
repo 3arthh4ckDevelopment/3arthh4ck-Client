@@ -10,6 +10,7 @@ import me.earth.earthhack.impl.event.listeners.LambdaListener;
 import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.modules.render.chams.mode.ChamsMode;
 import me.earth.earthhack.impl.modules.render.chams.mode.WireFrameMode;
+import me.earth.earthhack.impl.util.math.MathUtil;
 import me.earth.earthhack.impl.util.minecraft.EntityType;
 import me.earth.earthhack.impl.util.render.GlShader;
 import me.earth.earthhack.impl.util.render.RenderUtil;
@@ -279,13 +280,11 @@ public class Chams extends Module
     }
 
     public Color noClusterCalc(Setting<Color> setting, Entity entity) {
-        if (entity.getDistance(mc.player) < noClusterRange.getValue() && noCluster.getValue() && entity != mc.player) {
+        if (noCluster.getValue() && entity != mc.player && entity.getDistance(mc.player) < noClusterRange.getValue()) {
+            float distance = entity.getDistance(mc.player);
             float maxDistance = noClusterRange.getValue();
-            float playerDistance = entity.getDistance(mc.player);
-            float range = setting.getValue().getAlpha();
 
-            float normalizedDistance = Math.max(0, Math.min(1, playerDistance / maxDistance)); // normalizing the distance between 0 and 1
-            int value = (int) (noClusterMinA.getValue() + range * normalizedDistance);
+            float value = MathUtil.clamp(distance / maxDistance * 255.0f, noClusterMinA.getValue(), 255);
 
             return new Color(setting.getValue().getRed(), setting.getValue().getGreen(), setting.getValue().getBlue(), value);
         } else {

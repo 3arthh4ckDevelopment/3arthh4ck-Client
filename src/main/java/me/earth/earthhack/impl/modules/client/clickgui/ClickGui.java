@@ -181,7 +181,7 @@ public class ClickGui extends Module
         mc.displayGuiScreen(gui);
 
         if (blur.getValue() == BlurStyle.Gaussian && OpenGlHelper.shadersSupported)
-                mc.entityRenderer.loadShader(new ResourceLocation("minecraft", "shaders/post/blur.json"));
+            mc.entityRenderer.loadShader(new ResourceLocation("minecraft", "shaders/post/blur.json"));
     }
 
     protected void disableOtherGuis() {

@@ -24,11 +24,11 @@ public class PotionManager {
         }
         return potions;
     }
-    public class PotionList {
-        private List<PotionEffect> effects = new ArrayList<>();
+    public static class PotionList {
+        private final List<PotionEffect> effects = new ArrayList<>();
 
         public void addEffect(PotionEffect effect) {
-            if(effect != null) {
+            if (effect != null) {
                 this.effects.add(effect);
             }
         }
@@ -41,7 +41,7 @@ public class PotionManager {
 
     public PotionEffect[] getImportantPotions(EntityPlayer player) {
         PotionEffect[] array = new PotionEffect[3];
-        for(PotionEffect effect : getPlayerPotions(player)) {
+        for (PotionEffect effect : getPlayerPotions(player)) {
             Potion potion = effect.getPotion();
             switch((I18n.format(potion.getName())).toLowerCase()) {
                 case "strength" :
@@ -64,9 +64,9 @@ public class PotionManager {
         PotionEffect strength = array[0];
         PotionEffect weakness = array[1];
         PotionEffect speed = array[2];
-        return "" + (strength != null ? TextColor.RED + " S" + (int)(strength.getAmplifier() + 1) + " " : "")
+        return (strength != null ? TextColor.RED + " S" + (strength.getAmplifier() + 1) + " " : "")
                 + (weakness != null ? TextColor.DARK_GRAY + " W " : "")
-                + (speed != null ? TextColor.AQUA + " S" + (int)(speed.getAmplifier() + 1) + " " : "");
+                + (speed != null ? TextColor.AQUA + " S" + (speed.getAmplifier() + 1) + " " : "");
     }
 
 }

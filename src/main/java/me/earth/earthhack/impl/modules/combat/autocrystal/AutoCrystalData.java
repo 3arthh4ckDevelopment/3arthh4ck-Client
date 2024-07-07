@@ -539,4 +539,9 @@ public class AutoCrystalData extends DefaultData<AutoCrystal>
         return "Places and breaks EndCrystals.";
     }
 
+    @Override
+    public String[] getAliases() {
+        return new String[]{"CrystalAura", "Crystal", "CrystalPlacer"};
+    }
+
 }

@@ -8,9 +8,7 @@ final class RPCData extends DefaultData<RPC>
     {
         super(module);
         register(module.logoBig,
-                "The large image.");
-        register(module.logoSmall,
-                "The small image.");
+                "The image.");
         register(module.Line1,
                 "Text in the first line.");
         register(module.Line2,
@@ -21,8 +19,6 @@ final class RPCData extends DefaultData<RPC>
                 "Discord join button.");
         register(module.partyMax,
                 "The party size.");
-        register(module.custom,
-                "Your application ID.");
         register(module.assetLarge,
                 "The name of the large image.");
         register(module.assetLargeText,
@@ -71,15 +67,9 @@ final class RPCData extends DefaultData<RPC>
     }
 
     @Override
-    public int getColor()
-    {
-        return 0x428df5ff;
-    }
-
-    @Override
     public String getDescription()
     {
-        return "Discord RPC (expert mode for more settings)";
+        return "Discord RPC";
     }
 
 }

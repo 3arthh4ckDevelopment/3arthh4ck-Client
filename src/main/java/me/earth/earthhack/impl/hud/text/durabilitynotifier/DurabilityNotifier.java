@@ -9,10 +9,8 @@ import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.event.events.misc.TickEvent;
 import me.earth.earthhack.impl.event.listeners.LambdaListener;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.util.client.SimpleHudData;
 import me.earth.earthhack.impl.util.math.StopWatch;
 import me.earth.earthhack.impl.util.render.hud.HudRenderUtil;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 
 import java.util.Objects;
@@ -28,29 +26,25 @@ public class DurabilityNotifier extends HudElement {
     private final Setting<Boolean> narratorSetting =
             register(new BooleanSetting("Narrator", false));
 
-
     private final Narrator narrator = Narrator.getNarrator();
-    private StopWatch stopWatch = new StopWatch();
-    private String text = "[EXAMPLE] Your chestplate is low durability! (20%) [EXAMPLE]";
+    private final StopWatch stopWatch = new StopWatch();
+    private String text = "";
 
-    private void render() {
-        if (mc.player != null && mc.world != null) {
-            if (stopWatch.getTime() < messageDuration.getValue() * 1000) {
-                GlStateManager.pushMatrix();
-                HudRenderUtil.renderText(text, getX(), getY());
-                GlStateManager.popMatrix();
-            }
+    protected void onRender() {
+        if (isGui()) {
+            text = "[EXAMPLE] Your chestplate is low durability! (20%) [EXAMPLE]";
+        } else if (stopWatch.getTime() < messageDuration.getValue() * 1000) {
+            HudRenderUtil.renderText(text, getX(), getY());
         }
     }
 
     public DurabilityNotifier() {
-        super("DurabilityNotifier", HudCategory.Text, 230, 70);
-        this.setData(new SimpleHudData(this, "Displays your FPS"));
+        super("DurabilityNotifier", "Displays your FPS", HudCategory.Text, 230, 70);
 
         String[][] armorPieces = {{"boots", "0"},{"leggings", "0"},{"chestplate", "0"},{"helmet", "0"}};
 
         this.listeners.add(new LambdaListener<>(TickEvent.class, e -> {
-            if (mc.player == null || mc.world == null) {return;}
+            if (mc.player == null || mc.world == null) return;
             for (int i = 3; i >= 0; i--) {
                 ItemStack stack = mc.player.inventory.armorInventory.get(i);
                 if (!stack.isEmpty()
@@ -71,41 +65,12 @@ public class DurabilityNotifier extends HudElement {
     }
 
     @Override
-    public void guiDraw(int mouseX, int mouseY, float partialTicks) {
-        super.guiDraw(mouseX, mouseY, partialTicks);
-        text = "[EXAMPLE] Your chestplate is low durability! (20%) [EXAMPLE]";
-        GlStateManager.pushMatrix();
-        HudRenderUtil.renderText(text, getX(), getY());
-        GlStateManager.popMatrix();
-    }
-
-    @Override
-    public void hudDraw(float partialTicks) {
-        render();
-    }
-
-    @Override
-    public void guiUpdate(int mouseX, int mouseY, float partialTicks) {
-        super.guiUpdate(mouseX, mouseY, partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
-    public void hudUpdate(float partialTicks) {
-        super.hudUpdate(partialTicks);
-        setWidth(getWidth());
-        setHeight(getHeight());
-    }
-
-    @Override
     public float getWidth() {
-        return Managers.TEXT.getStringWidth(text);
+        return Managers.TEXT.getStringWidth(text.trim());
     }
 
     @Override
     public float getHeight() {
         return Managers.TEXT.getStringHeight();
     }
-
 }
