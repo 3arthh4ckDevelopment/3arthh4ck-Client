@@ -94,10 +94,13 @@ public class Managers
 
         SplashScreenHelper.setSubStep("Loading Plugins");
         PluginManager.getInstance().instantiatePlugins();
-        for (Plugin plugin : PluginManager.getInstance().getPlugins().values())
+        for (Plugin plugin : PluginManager.getInstance().getPlugins().values()) {
             plugin.load();
-        for (Module m : Managers.MODULES.getRegistered())
+            plugin.loadRuntime();
+        }
+        for (Module m : Managers.MODULES.getRegistered()) {
             PluginsCategory.getInstance().addPluginModule(m);
+        }
 
         SplashScreenHelper.setSubStep("Loading Commands");
         COMMANDS.init();
