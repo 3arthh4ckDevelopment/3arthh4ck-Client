@@ -5,7 +5,7 @@ package me.earth.earthhack.impl.event.events.client;
  * before a config has been applied. This allows us to
  * add Settings before the config is loaded.
  */
-public class PostInitEvent
+public class PostModulesLoadingEvent
 {
 
 }
